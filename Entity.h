@@ -2,9 +2,10 @@
 
 #include <cstdint>
 
-#include "Position.h"
+#include "Vec2.h"
 
-#include <vector>
+#include <string>
+#include <map>
 
 class Component;
 
@@ -14,12 +15,26 @@ public:
 	Entity();
 	Entity(Entity && entity) noexcept;
 
-	void addComponent(Component * component);
+	template <class T>
+	void addComponent(T * component)
+	{
+		component->entity = this;
+		components.insert(std::make_pair(typeid(T).name(), component));
+	}
+
+	template <class T>
+	T * getComponent()
+	{
+		auto component = components.find(typeid(T).name());
+		if (component != components.end())
+			return (T*)component->second;
+		return nullptr;
+	}
 
 	uint64_t guid;
 
-	Position p;
+	Vec2 p;
 
-	std::vector<Component*> components;
+	std::map<std::string, Component*> components;
 };
 

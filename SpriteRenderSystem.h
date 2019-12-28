@@ -14,7 +14,7 @@ public:
 
 	ComponentContainer<Sprite> sprites;
 
-	Position camera_position;
+	Vec2 camera_position;
 
 	SDL_Renderer * render;
 };

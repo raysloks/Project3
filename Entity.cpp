@@ -12,11 +12,5 @@ Entity::Entity(Entity && entity) noexcept
 	p = entity.p;
 	components = std::move(entity.components);
 	for (auto component : components)
-		component->entity = this;
-}
-
-void Entity::addComponent(Component * component)
-{
-	component->entity = this;
-	components.push_back(component);
+		component.second->entity = this;
 }

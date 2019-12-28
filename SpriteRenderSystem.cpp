@@ -14,8 +14,8 @@ void SpriteRenderSystem::tick(float dt)
 	for (auto sprite : sprites.components)
 	{
 		SDL_Rect rect;
-		rect.x = sprite.entity->p.x - camera_position.x;
-		rect.y = sprite.entity->p.y - camera_position.y;
+		rect.x = sprite.entity->p.x - sprite.rect.w / 2 - camera_position.x;
+		rect.y = sprite.entity->p.y - sprite.rect.h / 2 - camera_position.y;
 		rect.w = sprite.rect.w;
 		rect.h = sprite.rect.h;
 		SDL_RenderCopy(render, sprite.texture, &sprite.rect, &rect);

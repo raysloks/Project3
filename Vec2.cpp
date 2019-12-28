@@ -1,0 +1,135 @@
+#include "Vec2.h"
+
+#include <cmath>
+
+Vec2::Vec2(void) : x(0.0f), y(0.0f)
+{
+}
+
+Vec2::Vec2(float a) : x(a), y(a)
+{
+}
+
+Vec2::Vec2(float a, float b) : x(a), y(b)
+{
+}
+
+Vec2::~Vec2(void)
+{
+}
+
+float Vec2::Len(void) const {
+	return sqrtf(x*x + y*y);
+}
+
+float Vec2::LenPwr(void) const {
+	return x*x + y*y;
+}
+
+Vec2& Vec2::Normalize(void) {
+	float l = Len();
+	if (l != 0.0f)
+		*this /= l;
+	return *this;
+}
+
+Vec2 Vec2::Normalized(void) const {
+	float l = Len();
+	if (l != 0.0f)
+		return *this / l;
+	return *this;
+}
+
+float Vec2::Dot(const Vec2& rhs) const {
+	return x*rhs.x + y*rhs.y;
+}
+
+void Vec2::Truncate(float lim) {
+	float l = LenPwr();
+	if (l==0.0f) {
+		x = 0.0f;
+		y = 0.0f;
+		return;
+	}
+	if (l>lim*lim) {
+		*this = *this/sqrt(l)*lim;
+	}
+}
+
+const Vec2& Vec2::operator+=(const Vec2& rhs) {
+	x+=rhs.x;
+	y+=rhs.y;
+	return *this;
+}
+
+const Vec2& Vec2::operator-=(const Vec2& rhs) {
+	x-=rhs.x;
+	y-=rhs.y;
+	return *this;
+}
+
+const Vec2& Vec2::operator*=(const Vec2& rhs) {
+	x*=rhs.x;
+	y*=rhs.y;
+	return *this;
+}
+
+const Vec2& Vec2::operator*=(float rhs) {
+	x*=rhs;
+	y*=rhs;
+	return *this;
+}
+
+const Vec2& Vec2::operator/=(float rhs) {
+	x/=rhs;
+	y/=rhs;
+	return *this;
+}
+
+Vec2 Vec2::operator+(const Vec2& rhs)const {
+	return Vec2(x+rhs.x, y+rhs.y);
+}
+
+Vec2 Vec2::operator-(const Vec2& rhs)const {
+	return Vec2(x-rhs.x, y-rhs.y);
+}
+
+Vec2 Vec2::operator*(const Vec2& rhs)const {
+	return Vec2(x*rhs.x, y*rhs.y);
+}
+
+Vec2 Vec2::operator*(float rhs)const {
+	return Vec2(x*rhs, y*rhs);
+}
+
+Vec2 Vec2::operator/(float rhs)const {
+	return Vec2(x/rhs, y/rhs);
+}
+
+bool Vec2::operator!=(const Vec2& rhs)const {
+	return x!=rhs.x || y!=rhs.y;
+}
+
+bool Vec2::operator==(const Vec2& rhs)const {
+	return x==rhs.x && y==rhs.y;
+}
+
+bool Vec2::operator<(const Vec2& rhs)const {
+	return x<rhs.x && y<rhs.y;
+}
+
+bool Vec2::operator<=(const Vec2& rhs)const {
+	return x<=rhs.x && y<=rhs.y;
+}
+
+bool Vec2::operator>(const Vec2& rhs)const {
+	return x>rhs.x && y>rhs.y;
+}
+
+bool Vec2::operator>=(const Vec2& rhs)const {
+	return x>=rhs.x && y>=rhs.y;
+}
+
+Vec2 operator-(const Vec2& rhs) {
+	return Vec2(-rhs.x, -rhs.y);
+}

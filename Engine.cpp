@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "SpriteRenderSystem.h"
+#include "CollisionSystem.h"
 
 #include "Player.h"
 
@@ -36,6 +37,9 @@ Engine::Engine()
 	cbs = new CustomBehaviourSystem();
 	systems.push_back(cbs);
 
+	CollisionSystem * cs = new CollisionSystem();
+	systems.push_back(cs);
+
 	// create player
 	{
 		Entity entity;
@@ -52,6 +56,10 @@ Engine::Engine()
 		player->srs = srs;
 		entity.addComponent(&**cbs->behaviours.add(player));
 
+		Collider collider;
+		collider.r = 32.0f;
+		entity.addComponent(cs->colliders.add(std::move(collider)));
+
 		entities.emplace_back(std::move(entity));
 	}
 
@@ -61,8 +69,8 @@ Engine::Engine()
 	for (size_t i = 0; i < 100; ++i)
 	{
 		Entity entity;
-		entity.p.x = rand() * 1000 / RAND_MAX;
-		entity.p.y = rand() * 1000 / RAND_MAX;
+		entity.p.x = i * 100;
+		entity.p.y = 0;
 
 		Sprite sprite;
 		sprite.texture = texture;
@@ -71,6 +79,10 @@ Engine::Engine()
 		sprite.rect.w = 32;
 		sprite.rect.h = 32;
 		entity.addComponent(srs->sprites.add(std::move(sprite)));
+
+		Collider collider;
+		collider.r = 16.0f;
+		entity.addComponent(cs->colliders.add(std::move(collider)));
 
 		entities.emplace_back(std::move(entity));
 	}

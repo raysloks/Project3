@@ -6,8 +6,19 @@
 
 #include "SpriteRenderSystem.h"
 
+#include "Collider.h"
+
 void Player::tick(float dt)
 {
+	if (!on_collision)
+	{
+		on_collision = std::make_shared<std::function<void(const Collision&)>>([this](const Collision& collision)
+			{
+				entity->p -= collision.n * collision.pen;
+			});
+		entity->getComponent<Collider>()->callbacks.push_back(on_collision);
+	}
+
 	float speed = 300.0f;
 
 	float dx = 0.0f;
