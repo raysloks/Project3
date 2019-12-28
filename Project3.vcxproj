@@ -149,6 +149,7 @@
     <ClCompile Include="ComponentContainer.cpp" />
     <ClCompile Include="CustomBehaviour.cpp" />
     <ClCompile Include="CustomBehaviourSystem.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="InputSystem.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="ComponentContainer.h" />
     <ClInclude Include="CustomBehaviour.h" />
     <ClInclude Include="CustomBehaviourSystem.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="InputSystem.h" />

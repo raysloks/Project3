@@ -42,3 +42,20 @@ void CollisionSystem::tick(float dt)
 		}
 	}
 }
+
+std::map<float, Collider*> CollisionSystem::overlapCircle(Vec2 p, float r)
+{
+	std::map<float, Collider*> ret;
+
+	for (size_t i = 0; i < colliders.components.size(); ++i)
+	{
+		auto& a = colliders.components.at(i);
+		Vec2 diff = a.entity->p - p;
+		float distance = diff.Len();
+		float r_sum = a.r + r;
+		if (distance < r)
+			ret.insert(std::make_pair(distance, &a));
+	}
+
+	return ret;
+}

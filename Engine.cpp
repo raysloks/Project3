@@ -9,6 +9,7 @@
 #include "CollisionSystem.h"
 
 #include "Player.h"
+#include "Enemy.h"
 
 Engine::Engine()
 {
@@ -55,6 +56,30 @@ Engine::Engine()
 		auto player = std::make_shared<Player>();
 		player->srs = srs;
 		entity.addComponent(&**cbs->behaviours.add(player));
+
+		Collider collider;
+		collider.r = 32.0f;
+		entity.addComponent(cs->colliders.add(std::move(collider)));
+
+		entities.emplace_back(std::move(entity));
+	}
+
+	// create enemy
+	{
+		Entity entity;
+		entity.p.y = 500.0f;
+
+		Sprite sprite;
+		sprite.texture = SDL_CreateTextureFromSurface(render, IMG_Load("potato_evil.png"));
+		sprite.rect.x = 0;
+		sprite.rect.y = 0;
+		sprite.rect.w = 128;
+		sprite.rect.h = 128;
+		entity.addComponent(srs->sprites.add(std::move(sprite)));
+
+		auto enemy = std::make_shared<Enemy>();
+		enemy->cs = cs;
+		entity.addComponent(&**cbs->behaviours.add(enemy));
 
 		Collider collider;
 		collider.r = 32.0f;
