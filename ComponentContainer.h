@@ -9,7 +9,8 @@ class ComponentContainer
 public:
 	ComponentContainer();
 
-	size_t add(T && component);
+	T * add(T && component);
+	void remove(T * pComponent);
 	void remove(size_t index);
 
 	std::vector<T> components;
@@ -23,20 +24,27 @@ inline ComponentContainer<T>::ComponentContainer()
 }
 
 template<class T>
-inline size_t ComponentContainer<T>::add(T && component)
+inline T * ComponentContainer<T>::add(T && component)
 {
 	if (vacant.empty())
 	{
 		components.emplace_back(component);
-		return components.size();
+		return &components.back();
 	}
 	else
 	{
 		size_t index = vacant.top();
 		vacant.pop();
 		components[index] = component;
-		return index;
+		return &components.at(index);
 	}
+}
+
+template<class T>
+inline void ComponentContainer<T>::remove(T * pComponent)
+{
+	size_t index = std::distance(components.begin(), pComponent);
+	vacant.push(index);
 }
 
 template<class T>

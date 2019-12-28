@@ -37,6 +37,8 @@ private:
 
 	bool stopped;
 
+	double framerate_cap;
+
 	std::vector<Entity> entities;
 	std::vector<System*> systems;
 };

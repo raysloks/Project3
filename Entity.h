@@ -11,7 +11,12 @@ class Component;
 class Entity
 {
 public:
-	uint64_t id;
+	Entity();
+	Entity(Entity && entity) noexcept;
+
+	void addComponent(Component * component);
+
+	uint64_t guid;
 
 	Position p;
 
