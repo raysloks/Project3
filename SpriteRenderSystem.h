@@ -4,16 +4,16 @@
 
 #include "Sprite.h"
 
-class SpriteRender :
+class SpriteRenderSystem :
 	public System
 {
 public:
-	SpriteRender(ComponentContainer<Sprite> * sprites, SDL_Surface * surface);
+	SpriteRenderSystem(ComponentContainer<Sprite> * sprites, SDL_Renderer * render);
 
 	void tick(float dt);
 
 	ComponentContainer<Sprite> sprites;
 
-	SDL_Surface * surface;
+	SDL_Renderer * render;
 };
 

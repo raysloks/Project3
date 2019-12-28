@@ -5,6 +5,6 @@
 class Position
 {
 public:
-	uint64_t x, y;
+	float x, y;
 };
 

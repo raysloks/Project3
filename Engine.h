@@ -4,10 +4,14 @@
 
 #include "Entity.h"
 
+#include "InputSystem.h"
+#include "CustomBehaviourSystem.h"
+
 // forward declarations to avoid unnecessary includes
 
 struct SDL_Window;
 struct SDL_Surface;
+struct SDL_Renderer;
 
 class System;
 
@@ -23,10 +27,13 @@ public:
 
 	void stop();
 
+	InputSystem * input;
+	CustomBehaviourSystem * cbs;
+
 private:
 
 	SDL_Window * window;
-	SDL_Surface * screen;
+	SDL_Renderer * render;
 
 	bool stopped;
 
