@@ -70,20 +70,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
