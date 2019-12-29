@@ -5,8 +5,6 @@
 #include <memory>
 #include <functional>
 
-class SpriteRenderSystem;
-
 class Collision;
 
 class Player :
@@ -15,8 +13,8 @@ class Player :
 public:
 	void tick(float dt);
 
-	SpriteRenderSystem * srs;
-
 	std::shared_ptr<std::function<void(const Collision&)>> on_collision;
+
+	std::shared_ptr<std::function<void(void)>> on_attack;
 };
 

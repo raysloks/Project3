@@ -16,9 +16,6 @@ class InputSystem :
 	public System
 {
 public:
-	InputSystem();
-	~InputSystem();
-
 	void processKeyDown(SDL_KeyboardEvent& event);
 	void processKeyUp(SDL_KeyboardEvent& event);
 
@@ -26,8 +23,6 @@ public:
 	void addKeyUpCallback(int key, const std::shared_ptr<std::function<void(void)>> & callback);
 
 	bool isKeyDown(int key);
-
-	static InputSystem * input;
 
 private:
 

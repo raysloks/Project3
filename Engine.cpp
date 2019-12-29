@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-#include "Spritesheet.h"
+#include "CustomBehaviour.h"
 
 Engine::Engine()
 {
@@ -39,17 +39,23 @@ Engine::Engine()
 	systems.push_back(srs);
 
 
+	// allow custom behaviours easy access to systems
+	CustomBehaviour::engine = this;
+	CustomBehaviour::cs = cs;
+	CustomBehaviour::input = input;
+	CustomBehaviour::cbs = cbs;
+	CustomBehaviour::srs = srs;
+
+
 	// add fullscreen toggle
-	temp = std::make_shared<std::function<void(void)>>([this]()
+	fullscreen_toggle_func = std::make_shared<std::function<void(void)>>([this]()
 		{
 			if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP)
 				SDL_SetWindowFullscreen(window, 0);
 			else
 				SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		});
-	input->addKeyDownCallback(SDLK_F11, temp);
-
-	temp2 = Spritesheet::get("potato.png");
+	input->addKeyDownCallback(SDLK_F11, fullscreen_toggle_func);
 }
 
 Engine::~Engine()
@@ -136,4 +142,11 @@ void Engine::run()
 void Engine::stop()
 {
 	stopped = true;
+}
+
+void Engine::remove_entity(Entity * entity)
+{
+	entity->guid = 0;
+	for (auto i : entity->components)
+		i.second->entity = nullptr;
 }

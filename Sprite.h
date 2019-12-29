@@ -12,7 +12,11 @@ class Sprite :
 	public Component
 {
 public:
+	Sprite();
+	Sprite(const std::shared_ptr<Spritesheet>& sheet);
+	Sprite(const std::string& sheet);
+
 	std::shared_ptr<Spritesheet> sheet;
-	SDL_Rect rect;
+	size_t subsprite_x, subsprite_y;
 };
 

@@ -1,9 +1,5 @@
 #include "Engine.h"
 
-#include <SDL_image.h>
-
-#include "Spritesheet.h"
-
 #include "Player.h"
 #include "Enemy.h"
 
@@ -15,16 +11,10 @@ int main(int argc, char* args[])
 	{
 		Entity entity;
 
-		Sprite sprite;
-		sprite.sheet = Spritesheet::get("potato.png");
-		sprite.rect.x = 0;
-		sprite.rect.y = 0;
-		sprite.rect.w = 128;
-		sprite.rect.h = 128;
+		Sprite sprite("potato.png");
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 		auto player = std::make_shared<Player>();
-		player->srs = engine.srs;
 		entity.addComponent(&**engine.cbs->behaviours.add(player));
 
 		Collider collider;
@@ -39,16 +29,10 @@ int main(int argc, char* args[])
 		Entity entity;
 		entity.p.y = 500.0f;
 
-		Sprite sprite;
-		sprite.sheet = Spritesheet::get("potato_evil.png");
-		sprite.rect.x = 0;
-		sprite.rect.y = 0;
-		sprite.rect.w = 128;
-		sprite.rect.h = 128;
+		Sprite sprite("potato_evil.png");
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 		auto enemy = std::make_shared<Enemy>();
-		enemy->cs = engine.cs;
 		entity.addComponent(&**engine.cbs->behaviours.add(enemy));
 
 		Collider collider;
@@ -63,14 +47,9 @@ int main(int argc, char* args[])
 	{
 		Entity entity;
 		entity.p.x = i * 100;
-		entity.p.y = 0;
+		entity.p.y = 100;
 
-		Sprite sprite;
-		sprite.sheet = Spritesheet::get("test.png");
-		sprite.rect.x = 0;
-		sprite.rect.y = 0;
-		sprite.rect.w = 32;
-		sprite.rect.h = 32;
+		Sprite sprite("circle34.png");
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 		Collider collider;

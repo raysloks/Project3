@@ -16,5 +16,7 @@ public:
 
 	SDL_Surface * surface;
 	SDL_Texture * texture;
+
+	size_t rows, columns;
 };
 

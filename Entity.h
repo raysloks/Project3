@@ -14,6 +14,7 @@ class Entity
 public:
 	Entity();
 	Entity(Entity && entity) noexcept;
+	~Entity();
 
 	template <class T>
 	void addComponent(T * component)

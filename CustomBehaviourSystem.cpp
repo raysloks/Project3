@@ -5,5 +5,6 @@
 void CustomBehaviourSystem::tick(float dt)
 {
 	for (auto behaviour : behaviours.components)
-		behaviour->tick(dt);
+		if (behaviour->entity)
+			behaviour->tick(dt);
 }

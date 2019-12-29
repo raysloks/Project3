@@ -36,9 +36,7 @@ public:
 	CustomBehaviourSystem * cbs;
 	CollisionSystem * cs;
 
-	std::shared_ptr<std::function<void(void)>> temp;
-
-	std::shared_ptr<Spritesheet> temp2;
+	void remove_entity(Entity * entity);
 
 //private:
 
@@ -51,4 +49,6 @@ public:
 
 	std::vector<Entity> entities;
 	std::vector<System*> systems;
+
+	std::shared_ptr<std::function<void(void)>> fullscreen_toggle_func;
 };

@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{b7299f69-88e1-4815-8201-ccbd13562f63}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Custom Behaviours">
+      <UniqueIdentifier>{32286db1-f186-4d3c-b7f3-d1695e4e327d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Custom Behaviours">
+      <UniqueIdentifier>{75edcae1-7249-406d-b015-63a740f883d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -51,12 +57,6 @@
     <ClCompile Include="SpriteRenderSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
-    <ClCompile Include="InputSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CustomBehaviour.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
@@ -78,11 +78,17 @@
     <ClCompile Include="Vec2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Spritesheet.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files\Custom Behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,12 +113,6 @@
     <ClInclude Include="SpriteRenderSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="InputSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CustomBehaviour.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
@@ -134,11 +134,17 @@
     <ClInclude Include="Vec2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Spritesheet.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Header Files\Custom Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Header Files\Custom Behaviours</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

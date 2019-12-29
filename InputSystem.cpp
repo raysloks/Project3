@@ -2,19 +2,6 @@
 
 #include <SDL.h>
 
-InputSystem * InputSystem::input = nullptr;
-
-InputSystem::InputSystem()
-{
-	input = this;
-}
-
-InputSystem::~InputSystem()
-{
-	if (input == this)
-		input = nullptr;
-}
-
 void InputSystem::processKeyDown(SDL_KeyboardEvent & event)
 {
 	if (event.repeat)

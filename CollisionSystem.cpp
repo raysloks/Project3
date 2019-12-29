@@ -6,10 +6,16 @@ void CollisionSystem::tick(float dt)
 {
 	for (size_t i = 0; i < colliders.components.size() - 1; ++i)
 	{
+		auto& a = colliders.components[i];
+		if (a.entity == nullptr)
+			continue;
+
 		for (size_t j = i + 1; j < colliders.components.size(); ++j)
 		{
-			auto& a = colliders.components[i];
 			auto& b = colliders.components[j];
+			if (b.entity == nullptr)
+				continue;
+
 			Vec2 diff = a.entity->p - b.entity->p;
 			float distance = diff.Len();
 			Vec2 dir = diff / distance;

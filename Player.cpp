@@ -1,12 +1,10 @@
 #include "Player.h"
 
-#include "InputSystem.h"
-
 #include <SDL.h>
 
-#include "SpriteRenderSystem.h"
-
 #include "Collider.h"
+
+#include "Enemy.h"
 
 void Player::tick(float dt)
 {
@@ -19,17 +17,34 @@ void Player::tick(float dt)
 		entity->getComponent<Collider>()->callbacks.push_back(on_collision);
 	}
 
+	if (!on_attack)
+	{
+		on_attack = std::make_shared<std::function<void(void)>>([this]()
+			{
+				auto in_range = cs->overlapCircle(entity->p, 100.0f);
+				for (auto i : in_range)
+				{
+					auto enemy = dynamic_cast<Enemy*>(i.second->entity->getComponent<CustomBehaviour>());
+					if (enemy)
+					{
+						engine->remove_entity(enemy->entity);
+					}
+				}
+			});
+		input->addKeyDownCallback(SDLK_SPACE, on_attack);
+	}
+
 	float speed = 240.0f;
 
 	Vec2 move;
 
-	if (InputSystem::input->isKeyDown(SDLK_w))
+	if (input->isKeyDown(SDLK_w))
 		move.y -= 1.0f;
-	if (InputSystem::input->isKeyDown(SDLK_a))
+	if (input->isKeyDown(SDLK_a))
 		move.x -= 1.0f;
-	if (InputSystem::input->isKeyDown(SDLK_s))
+	if (input->isKeyDown(SDLK_s))
 		move.y += 1.0f;
-	if (InputSystem::input->isKeyDown(SDLK_d))
+	if (input->isKeyDown(SDLK_d))
 		move.x += 1.0f;
 
 	float l = move.Len();
