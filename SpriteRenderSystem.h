@@ -17,5 +17,7 @@ public:
 	Vec2 camera_position;
 
 	SDL_Renderer * render;
+
+	bool flicker;
 };
 

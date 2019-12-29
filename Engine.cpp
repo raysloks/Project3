@@ -5,11 +5,7 @@
 
 #include <iostream>
 
-#include "SpriteRenderSystem.h"
-#include "CollisionSystem.h"
-
-#include "Player.h"
-#include "Enemy.h"
+#include "Spritesheet.h"
 
 Engine::Engine()
 {
@@ -29,8 +25,9 @@ Engine::Engine()
 	entities.reserve(1024);
 
 	// initialize systems
-	SpriteRenderSystem * srs = new SpriteRenderSystem(render);
-	systems.push_back(srs);
+
+	cs = new CollisionSystem();
+	systems.push_back(cs);
 
 	input = new InputSystem();
 	systems.push_back(input);
@@ -38,79 +35,21 @@ Engine::Engine()
 	cbs = new CustomBehaviourSystem();
 	systems.push_back(cbs);
 
-	CollisionSystem * cs = new CollisionSystem();
-	systems.push_back(cs);
+	srs = new SpriteRenderSystem(render);
+	systems.push_back(srs);
 
-	// create player
-	{
-		Entity entity;
 
-		Sprite sprite;
-		sprite.texture = SDL_CreateTextureFromSurface(render, IMG_Load("potato.png"));
-		sprite.rect.x = 0;
-		sprite.rect.y = 0;
-		sprite.rect.w = 128;
-		sprite.rect.h = 128;
-		entity.addComponent(srs->sprites.add(std::move(sprite)));
+	// add fullscreen toggle
+	temp = std::make_shared<std::function<void(void)>>([this]()
+		{
+			if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP)
+				SDL_SetWindowFullscreen(window, 0);
+			else
+				SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		});
+	input->addKeyDownCallback(SDLK_F11, temp);
 
-		auto player = std::make_shared<Player>();
-		player->srs = srs;
-		entity.addComponent(&**cbs->behaviours.add(player));
-
-		Collider collider;
-		collider.r = 32.0f;
-		entity.addComponent(cs->colliders.add(std::move(collider)));
-
-		entities.emplace_back(std::move(entity));
-	}
-
-	// create enemy
-	{
-		Entity entity;
-		entity.p.y = 500.0f;
-
-		Sprite sprite;
-		sprite.texture = SDL_CreateTextureFromSurface(render, IMG_Load("potato_evil.png"));
-		sprite.rect.x = 0;
-		sprite.rect.y = 0;
-		sprite.rect.w = 128;
-		sprite.rect.h = 128;
-		entity.addComponent(srs->sprites.add(std::move(sprite)));
-
-		auto enemy = std::make_shared<Enemy>();
-		enemy->cs = cs;
-		entity.addComponent(&**cbs->behaviours.add(enemy));
-
-		Collider collider;
-		collider.r = 32.0f;
-		entity.addComponent(cs->colliders.add(std::move(collider)));
-
-		entities.emplace_back(std::move(entity));
-	}
-
-	auto texture = SDL_CreateTextureFromSurface(render, SDL_LoadBMP("test.bmp"));
-
-	// create some props
-	for (size_t i = 0; i < 100; ++i)
-	{
-		Entity entity;
-		entity.p.x = i * 100;
-		entity.p.y = 0;
-
-		Sprite sprite;
-		sprite.texture = texture;
-		sprite.rect.x = 0;
-		sprite.rect.y = 0;
-		sprite.rect.w = 32;
-		sprite.rect.h = 32;
-		entity.addComponent(srs->sprites.add(std::move(sprite)));
-
-		Collider collider;
-		collider.r = 16.0f;
-		entity.addComponent(cs->colliders.add(std::move(collider)));
-
-		entities.emplace_back(std::move(entity));
-	}
+	temp2 = Spritesheet::get("potato.png");
 }
 
 Engine::~Engine()
@@ -188,7 +127,7 @@ void Engine::run()
 		full = double(end - start) / freq;
 		start = SDL_GetPerformanceCounter();
 
-		std::cout << 1.0 / full << std::endl;
+		//std::cout << int(1.0 / full) << " : " << int(1.0 / busy) << std::endl;
 
 		SDL_RenderPresent(render);
 	}

@@ -2,20 +2,40 @@
 
 #include <SDL.h>
 
+#include "Spritesheet.h"
+
+#include <iostream>
+
 SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
 {
 	//this->sprites = sprites;
 	this->render = render;
+
+	camera_position = Vec2();
+
+	flicker = false;
 }
 
 void SpriteRenderSystem::tick(float dt)
 {
-	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
+	flicker = !flicker;
+
+	auto ss = Spritesheet::get("potato.png");
+
+	ss->counter += 1;
+	std::cout << ss->counter << std::endl;
+
+	int w, h;
+	SDL_GetRendererOutputSize(render, &w, &h);
 	for (auto sprite : sprites.components)
 	{
+		/*if (flicker)
+			SDL_SetTextureColorMod(sprite.texture, 255, 0, 0);
+		else
+			SDL_SetTextureColorMod(sprite.texture, 0, 255, 255);*/
 		SDL_Rect rect;
-		rect.x = sprite.entity->p.x - sprite.rect.w / 2 - camera_position.x;
-		rect.y = sprite.entity->p.y - sprite.rect.h / 2 - camera_position.y;
+		rect.x = (sprite.entity->p.x - camera_position.x) - sprite.rect.w / 2 + w / 2;
+		rect.y = (sprite.entity->p.y - camera_position.y) - sprite.rect.h / 2 + h / 2;
 		rect.w = sprite.rect.w;
 		rect.h = sprite.rect.h;
 		SDL_RenderCopy(render, sprite.texture, &sprite.rect, &rect);

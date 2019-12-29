@@ -4,8 +4,10 @@
 
 #include "Entity.h"
 
+#include "SpriteRenderSystem.h"
 #include "InputSystem.h"
 #include "CustomBehaviourSystem.h"
+#include "CollisionSystem.h"
 
 // forward declarations to avoid unnecessary includes
 
@@ -17,6 +19,8 @@ class System;
 
 class Sprite;
 
+class Spritesheet;
+
 class Engine
 {
 public:
@@ -27,10 +31,16 @@ public:
 
 	void stop();
 
+	SpriteRenderSystem * srs;
 	InputSystem * input;
 	CustomBehaviourSystem * cbs;
+	CollisionSystem * cs;
 
-private:
+	std::shared_ptr<std::function<void(void)>> temp;
+
+	std::shared_ptr<Spritesheet> temp2;
+
+//private:
 
 	SDL_Window * window;
 	SDL_Renderer * render;
