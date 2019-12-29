@@ -3,6 +3,8 @@
 #include "Player.h"
 #include "Enemy.h"
 
+#include "FrameRate.h"
+
 int main(int argc, char* args[])
 {
 	Engine engine;
@@ -55,6 +57,16 @@ int main(int argc, char* args[])
 		Collider collider;
 		collider.r = 16.0f;
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
+
+		engine.entities.emplace_back(std::move(entity));
+	}
+
+	// create fps counter
+	{
+		Entity entity;
+
+		auto fps = std::make_shared<FrameRate>();
+		entity.addComponent(&**engine.cbs->behaviours.add(fps));
 
 		engine.entities.emplace_back(std::move(entity));
 	}

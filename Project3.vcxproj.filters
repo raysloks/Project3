@@ -90,6 +90,9 @@
     <ClCompile Include="Enemy.cpp">
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
+    <ClCompile Include="FrameRate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -145,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="Enemy.h">
       <Filter>Header Files\Custom Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameRate.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

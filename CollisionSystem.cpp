@@ -55,7 +55,9 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(Vec2 p, float r)
 
 	for (size_t i = 0; i < colliders.components.size(); ++i)
 	{
-		auto& a = colliders.components.at(i);
+		auto& a = colliders.components[i];
+		if (a.entity == nullptr)
+			continue;
 		Vec2 diff = a.entity->p - p;
 		float distance = diff.Len();
 		float r_sum = a.r + r;

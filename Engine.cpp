@@ -130,8 +130,10 @@ void Engine::run()
 		start_busy = SDL_GetPerformanceCounter();
 
 		end = SDL_GetPerformanceCounter();
-		full = double(end - start) / freq;
-		start = SDL_GetPerformanceCounter();
+		uint64_t diff = end - start;
+		start = end;
+
+		full = double(diff) / freq;
 
 		//std::cout << int(1.0 / full) << " : " << int(1.0 / busy) << std::endl;
 
@@ -149,4 +151,5 @@ void Engine::remove_entity(Entity * entity)
 	entity->guid = 0;
 	for (auto i : entity->components)
 		i.second->entity = nullptr;
+	entity->components.clear();
 }
