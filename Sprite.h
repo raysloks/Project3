@@ -4,11 +4,15 @@
 
 #include <SDL.h>
 
+#include <memory>
+
+class Spritesheet;
+
 class Sprite :
 	public Component
 {
 public:
-	SDL_Texture * texture;
+	std::shared_ptr<Spritesheet> sheet;
 	SDL_Rect rect;
 };
 

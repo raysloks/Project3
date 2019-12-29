@@ -1,6 +1,26 @@
 #include "Spritesheet.h"
 
-Spritesheet::Spritesheet(const std::string & fname)
+#include <SDL.h>
+#include <SDL_image.h>
+
+#include <thread>
+
+Spritesheet::Spritesheet(const std::string& fname)
 {
-	counter = 0;
+	surface = nullptr;
+	texture = nullptr;
+
+	std::thread t([this, fname]()
+		{
+			surface = IMG_Load(fname.c_str());
+		});
+	t.detach();
+}
+
+SDL_Texture * Spritesheet::getTexture(SDL_Renderer * render)
+{
+	if (!texture)
+		if (surface)
+			texture = SDL_CreateTextureFromSurface(render, surface);
+	return texture;
 }

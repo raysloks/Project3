@@ -2,6 +2,8 @@
 
 #include <SDL_image.h>
 
+#include "Spritesheet.h"
+
 #include "Player.h"
 #include "Enemy.h"
 
@@ -14,7 +16,7 @@ int main(int argc, char* args[])
 		Entity entity;
 
 		Sprite sprite;
-		sprite.texture = SDL_CreateTextureFromSurface(engine.render, IMG_Load("potato.png"));
+		sprite.sheet = Spritesheet::get("potato.png");
 		sprite.rect.x = 0;
 		sprite.rect.y = 0;
 		sprite.rect.w = 128;
@@ -38,7 +40,7 @@ int main(int argc, char* args[])
 		entity.p.y = 500.0f;
 
 		Sprite sprite;
-		sprite.texture = SDL_CreateTextureFromSurface(engine.render, IMG_Load("potato_evil.png"));
+		sprite.sheet = Spritesheet::get("potato_evil.png");
 		sprite.rect.x = 0;
 		sprite.rect.y = 0;
 		sprite.rect.w = 128;
@@ -56,8 +58,6 @@ int main(int argc, char* args[])
 		engine.entities.emplace_back(std::move(entity));
 	}
 
-	auto texture = SDL_CreateTextureFromSurface(engine.render, SDL_LoadBMP("test.bmp"));
-
 	// create some props
 	for (size_t i = 0; i < 100; ++i)
 	{
@@ -66,7 +66,7 @@ int main(int argc, char* args[])
 		entity.p.y = 0;
 
 		Sprite sprite;
-		sprite.texture = texture;
+		sprite.sheet = Spritesheet::get("test.png");
 		sprite.rect.x = 0;
 		sprite.rect.y = 0;
 		sprite.rect.w = 32;

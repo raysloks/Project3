@@ -20,11 +20,6 @@ void SpriteRenderSystem::tick(float dt)
 {
 	flicker = !flicker;
 
-	auto ss = Spritesheet::get("potato.png");
-
-	ss->counter += 1;
-	std::cout << ss->counter << std::endl;
-
 	int w, h;
 	SDL_GetRendererOutputSize(render, &w, &h);
 	for (auto sprite : sprites.components)
@@ -38,6 +33,6 @@ void SpriteRenderSystem::tick(float dt)
 		rect.y = (sprite.entity->p.y - camera_position.y) - sprite.rect.h / 2 + h / 2;
 		rect.w = sprite.rect.w;
 		rect.h = sprite.rect.h;
-		SDL_RenderCopy(render, sprite.texture, &sprite.rect, &rect);
+		SDL_RenderCopy(render, sprite.sheet->getTexture(render), &sprite.rect, &rect);
 	}
 }
