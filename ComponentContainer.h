@@ -28,14 +28,14 @@ inline T * ComponentContainer<T>::add(T && component)
 {
 	if (vacant.empty())
 	{
-		components.emplace_back(component);
+		components.emplace_back(std::move(component));
 		return &components.back();
 	}
 	else
 	{
 		size_t index = vacant.top();
 		vacant.pop();
-		components[index] = component;
+		components[index] = std::move(component);
 		return &components.at(index);
 	}
 }

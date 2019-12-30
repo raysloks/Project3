@@ -11,10 +11,16 @@ class Player :
 	public CustomBehaviour
 {
 public:
+	Player();
+
 	void tick(float dt);
 
 	std::shared_ptr<std::function<void(const Collision&)>> on_collision;
 
 	std::shared_ptr<std::function<void(void)>> on_attack;
+
+	Vec2 v;
+
+	float anim = 0.0f;
 };
 

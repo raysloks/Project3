@@ -12,6 +12,6 @@ public:
 
 	ComponentContainer<Collider> colliders;
 
-	std::map<float, Collider*> overlapCircle(Vec2 p, float r);
+	std::map<float, Collider*> overlapCircle(const Vec2& p, float r);
 };
 

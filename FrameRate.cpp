@@ -1,7 +1,5 @@
 #include "FrameRate.h"
 
-#include "Spritesheet.h"
-
 void FrameRate::tick(float dt)
 {
 	if (sprites.empty())
@@ -15,8 +13,10 @@ void FrameRate::tick(float dt)
 		for (size_t i = 0; i < 4; ++i)
 		{
 			Entity entity;
+			entity.p.x = 32 + i * 16;
+			entity.p.y = 32;
 
-			auto sprite = srs->sprites.add(std::move(Sprite(font)));
+			auto sprite = srs->ui.add(Sprite(font));
 			sprites.push_back(sprite);
 			entity.addComponent(sprite);
 
@@ -30,7 +30,7 @@ void FrameRate::tick(float dt)
 
 	double tps = 1.0 / (double(diff) / freq);
 
-	std::string text = std::to_string(tps);
+	std::string text = std::to_string(round(tps));
 	for (size_t i = 0; i < sprites.size(); ++i)
 	{
 		if (i < text.size())
@@ -44,7 +44,5 @@ void FrameRate::tick(float dt)
 			sprites[i]->subsprite_x = 0;
 			sprites[i]->subsprite_y = 0;
 		}
-		sprites[i]->entity->p = srs->camera_position + Vec2(0.0f, -300.0f);
-		sprites[i]->entity->p.x += i * 16;
 	}
 }

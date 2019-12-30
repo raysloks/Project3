@@ -4,6 +4,7 @@
 
 void CollisionSystem::tick(float dt)
 {
+	Collision collision;
 	for (size_t i = 0; i < colliders.components.size() - 1; ++i)
 	{
 		auto& a = colliders.components[i];
@@ -16,29 +17,34 @@ void CollisionSystem::tick(float dt)
 			if (b.entity == nullptr)
 				continue;
 
-			Vec2 diff = a.entity->p - b.entity->p;
-			float distance = diff.Len();
-			Vec2 dir = diff / distance;
-			float r_sum = a.r + b.r;
-			if (distance < r_sum && distance != 0.0f)
+			Vec2 diff = b.entity->p - a.entity->p;
+
+			if (a.shape->check(diff, b.shape.get(), collision))
 			{
+				collision.p += a.entity->p;
+				collision.other = &b;
+			
 				for (auto i = a.callbacks.begin(); i != a.callbacks.end();)
 				{
 					auto callback = i->lock();
 					if (callback)
 					{
-						(*callback)(Collision{ a.entity->p - dir * a.r, -dir, r_sum - distance, &b });
+						(*callback)(collision);
 						++i;
 					}
 					else
 						a.callbacks.erase(i);
 				}
+
+				collision.flip();
+				collision.other = &a;
+
 				for (auto i = b.callbacks.begin(); i != b.callbacks.end();)
 				{
 					auto callback = i->lock();
 					if (callback)
 					{
-						(*callback)(Collision{ b.entity->p + dir * b.r, dir, r_sum - distance, &a });
+						(*callback)(collision);
 						++i;
 					}
 					else
@@ -49,20 +55,26 @@ void CollisionSystem::tick(float dt)
 	}
 }
 
-std::map<float, Collider*> CollisionSystem::overlapCircle(Vec2 p, float r)
+#include "Circle.h"
+
+std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r)
 {
 	std::map<float, Collider*> ret;
+
+	Circle circle(r);
+
+	Collision collision;
 
 	for (size_t i = 0; i < colliders.components.size(); ++i)
 	{
 		auto& a = colliders.components[i];
 		if (a.entity == nullptr)
 			continue;
+
 		Vec2 diff = a.entity->p - p;
-		float distance = diff.Len();
-		float r_sum = a.r + r;
-		if (distance < r)
-			ret.insert(std::make_pair(distance, &a));
+		
+		if (circle.check(diff, a.shape.get(), collision))
+			ret.insert(std::make_pair(r - collision.pen, &a));
 	}
 
 	return ret;

@@ -10,33 +10,34 @@ public:
 	Vec2(float a, float b);
 	~Vec2(void);
 	
-	float Len(void)const;
-	float LenPwr(void)const;
+	float Len(void) const;
+	float LenPwr(void) const;
 
 	Vec2& Normalize(void);
 	Vec2 Normalized(void) const;
 
-	float Dot(const Vec2& rhs)const;
+	float Dot(const Vec2& rhs) const;
 
-	void Truncate(float lim);
+	Vec2& Truncate(float lim);
+	Vec2 Truncated(float lim) const;
 	
 	const Vec2& operator+=(const Vec2& rhs);
 	const Vec2& operator-=(const Vec2& rhs);
 	const Vec2& operator*=(const Vec2& rhs);
 	const Vec2& operator*=(float rhs);
 	const Vec2& operator/=(float rhs);
-	Vec2 operator+(const Vec2& rhs)const;
-	Vec2 operator-(const Vec2& rhs)const;
-	Vec2 operator*(const Vec2& rhs)const;
-	Vec2 operator*(float rhs)const;
-	Vec2 operator/(float rhs)const;
+	Vec2 operator+(const Vec2& rhs) const;
+	Vec2 operator-(const Vec2& rhs) const;
+	Vec2 operator*(const Vec2& rhs) const;
+	Vec2 operator*(float rhs) const;
+	Vec2 operator/(float rhs) const;
 
-	bool operator!=(const Vec2& rhs)const;
-	bool operator==(const Vec2& rhs)const;
-	bool operator<(const Vec2& rhs)const;
-	bool operator<=(const Vec2& rhs)const;
-	bool operator>(const Vec2& rhs)const;
-	bool operator>=(const Vec2& rhs)const;
+	bool operator!=(const Vec2& rhs) const;
+	bool operator==(const Vec2& rhs) const;
+	bool operator<(const Vec2& rhs) const;
+	bool operator<=(const Vec2& rhs) const;
+	bool operator>(const Vec2& rhs) const;
+	bool operator>=(const Vec2& rhs) const;
 };
 
 Vec2 operator-(const Vec2& rhs);

@@ -12,24 +12,29 @@ int main(int argc, char* args[])
 	// create player
 	{
 		Entity entity;
+		entity.x = 50;
 
-		Sprite sprite("potato.png");
-		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+		auto sprite = Spritesheet::get("dude_one.png");
+		sprite->columns = 4;
+		sprite->rows = 2;
+		entity.addComponent(engine.srs->sprites.add(Sprite(sprite)));
 
 		auto player = std::make_shared<Player>();
 		entity.addComponent(&**engine.cbs->behaviours.add(player));
 
 		Collider collider;
-		collider.r = 32.0f;
+		collider.shape = std::make_unique<Circle>(8.0f);
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
 		engine.entities.emplace_back(std::move(entity));
 	}
 
 	// create enemy
+	for (size_t i = 0; i < 10; ++i)
 	{
 		Entity entity;
-		entity.p.y = 500.0f;
+		entity.x = 50 + 200 * i;
+		entity.y = 500;
 
 		Sprite sprite("potato_evil.png");
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
@@ -38,7 +43,7 @@ int main(int argc, char* args[])
 		entity.addComponent(&**engine.cbs->behaviours.add(enemy));
 
 		Collider collider;
-		collider.r = 32.0f;
+		collider.shape = std::make_unique<Circle>(16.0f);
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
 		engine.entities.emplace_back(std::move(entity));
@@ -48,14 +53,14 @@ int main(int argc, char* args[])
 	for (size_t i = 0; i < 100; ++i)
 	{
 		Entity entity;
-		entity.p.x = i * 100;
-		entity.p.y = 100;
+		entity.x = i % 10 * 100;
+		entity.y = i / 10 * 100;
 
-		Sprite sprite("circle34.png");
+		Sprite sprite("tile.png");
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 		Collider collider;
-		collider.r = 16.0f;
+		collider.shape = std::make_unique<Rectangle>(Vec2(16.0f, 16.0f));
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
 		engine.entities.emplace_back(std::move(entity));

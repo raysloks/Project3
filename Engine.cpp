@@ -93,10 +93,10 @@ void Engine::run()
 				stop();
 				break;
 			case SDL_KEYDOWN:
-				input->processKeyDown(e.key);
+				input->processKeyDownEvent(e.key);
 				break;
 			case SDL_KEYUP:
-				input->processKeyUp(e.key);
+				input->processKeyUpEvent(e.key);
 				break;
 			case SDL_WINDOWEVENT:
 				switch (e.window.event)
@@ -112,9 +112,6 @@ void Engine::run()
 				break;
 			}
 		}
-
-		SDL_SetRenderDrawColor(render, 100, 200, 100, 255);
-		SDL_RenderClear(render);
 
 		for (auto system : systems)
 			system->tick(full);
@@ -144,6 +141,10 @@ void Engine::run()
 void Engine::stop()
 {
 	stopped = true;
+}
+
+void Engine::add_entity(Entity && entity)
+{
 }
 
 void Engine::remove_entity(Entity * entity)

@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Circle.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
@@ -156,7 +157,9 @@
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Resource.cpp" />
+    <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SpriteRenderSystem.cpp" />
     <ClCompile Include="Spritesheet.cpp" />
@@ -164,6 +167,7 @@
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Circle.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="CollisionSystem.h" />
@@ -177,7 +181,9 @@
     <ClInclude Include="FrameRate.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Shape.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteRenderSystem.h" />
     <ClInclude Include="Spritesheet.h" />

@@ -34,7 +34,14 @@ public:
 
 	uint64_t guid;
 
-	Vec2 p;
+	union
+	{
+		Vec2 p;
+		struct
+		{
+			float x, y;
+		};
+	};
 
 	std::map<std::string, Component*> components;
 };

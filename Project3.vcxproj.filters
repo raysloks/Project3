@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Custom Behaviours">
       <UniqueIdentifier>{75edcae1-7249-406d-b015-63a740f883d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Shapes">
+      <UniqueIdentifier>{3ac6b068-9af9-477f-8354-384f9c9fc36f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shapes">
+      <UniqueIdentifier>{ca14b0f1-c692-4083-a843-7da30a45dbae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -93,6 +99,15 @@
     <ClCompile Include="FrameRate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Shape.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Circle.cpp">
+      <Filter>Source Files\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="Rectangle.cpp">
+      <Filter>Source Files\Shapes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -151,6 +166,15 @@
     </ClInclude>
     <ClInclude Include="FrameRate.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shape.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Circle.h">
+      <Filter>Header Files\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="Rectangle.h">
+      <Filter>Header Files\Shapes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

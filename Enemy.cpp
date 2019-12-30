@@ -17,7 +17,7 @@ void Enemy::tick(float dt)
 		entity->getComponent<Collider>()->callbacks.push_back(on_collision);
 	}
 
-	float speed = 300.0f;
+	float speed = 30.0f;
 
 	Vec2 move;
 
@@ -25,7 +25,7 @@ void Enemy::tick(float dt)
 	for (auto i : in_range)
 	{
 		auto player = dynamic_cast<Player*>(i.second->entity->getComponent<CustomBehaviour>());
-		if (player)
+		if (player && i.first > 100.0f)
 		{
 			move = player->entity->p - entity->p;
 		}

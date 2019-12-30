@@ -49,17 +49,20 @@ float Vec2::Dot(const Vec2& rhs) const
 	return x * rhs.x + y * rhs.y;
 }
 
-void Vec2::Truncate(float lim)
+Vec2& Vec2::Truncate(float lim)
 {
 	float l = LenPwr();
-	if (l == 0.0f)
-	{
-		x = 0.0f;
-		y = 0.0f;
-		return;
-	}
 	if (l > lim * lim)
 		*this = *this / sqrt(l) * lim;
+	return *this;
+}
+
+Vec2 Vec2::Truncated(float lim) const
+{
+	float l = LenPwr();
+	if (l > lim * lim)
+		return Vec2(*this) / sqrt(l) * lim;
+	return Vec2(*this);
 }
 
 const Vec2& Vec2::operator+=(const Vec2& rhs)

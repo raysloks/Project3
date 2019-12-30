@@ -7,6 +7,9 @@ class Collider;
 class Collision
 {
 public:
+
+	void flip();
+
 	Vec2 p, n;
 	float pen;
 	Collider * other;

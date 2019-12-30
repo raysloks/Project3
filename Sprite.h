@@ -6,7 +6,7 @@
 
 #include <memory>
 
-class Spritesheet;
+#include "Spritesheet.h"
 
 class Sprite :
 	public Component
@@ -18,5 +18,6 @@ public:
 
 	std::shared_ptr<Spritesheet> sheet;
 	size_t subsprite_x, subsprite_y;
+	float sort;
 };
 

@@ -6,6 +6,25 @@
 
 #include "Enemy.h"
 
+#include <iostream>
+
+Player::Player()
+{
+	on_attack = std::make_shared<std::function<void(void)>>([this]()
+		{
+			auto in_range = cs->overlapCircle(entity->p, 32.0f);
+			for (auto i : in_range)
+			{
+				auto enemy = dynamic_cast<Enemy*>(i.second->entity->getComponent<CustomBehaviour>());
+				if (enemy)
+				{
+					engine->remove_entity(enemy->entity);
+				}
+			}
+		});
+	input->addKeyDownCallback(SDLK_SPACE, on_attack);
+}
+
 void Player::tick(float dt)
 {
 	if (!on_collision)
@@ -13,28 +32,14 @@ void Player::tick(float dt)
 		on_collision = std::make_shared<std::function<void(const Collision&)>>([this](const Collision& collision)
 			{
 				entity->p -= collision.n * collision.pen;
+				v -= collision.n * v.Dot(collision.n);
 			});
 		entity->getComponent<Collider>()->callbacks.push_back(on_collision);
 	}
 
-	if (!on_attack)
-	{
-		on_attack = std::make_shared<std::function<void(void)>>([this]()
-			{
-				auto in_range = cs->overlapCircle(entity->p, 100.0f);
-				for (auto i : in_range)
-				{
-					auto enemy = dynamic_cast<Enemy*>(i.second->entity->getComponent<CustomBehaviour>());
-					if (enemy)
-					{
-						engine->remove_entity(enemy->entity);
-					}
-				}
-			});
-		input->addKeyDownCallback(SDLK_SPACE, on_attack);
-	}
-
-	float speed = 240.0f;
+	float speed = 60.0f;
+	float acceleration = 240.0f;
+	float deceleration = 480.0f;
 
 	Vec2 move;
 
@@ -47,19 +52,31 @@ void Player::tick(float dt)
 	if (input->isKeyDown(SDLK_d))
 		move.x += 1.0f;
 
+	auto sprite = entity->getComponent<Sprite>();
+
+
 	float l = move.Len();
 	if (l != 0.0f)
 	{
 		move /= l;
 
-		move *= speed * dt;
+		v += move * (acceleration + deceleration) * dt;
 
-		entity->p += move;
+		if (move.x < 0.0f)
+			sprite->subsprite_y = 1;
+		if (move.x > 0.0f)
+			sprite->subsprite_y = 0;
 	}
 
-	if (srs)
-	{
-		srs->camera_position.x = entity->p.x;
-		srs->camera_position.y = entity->p.y;
-	}
+	v -= v.Truncated(deceleration * dt);
+	v.Truncate(speed);
+
+	entity->p += v * dt;
+
+	anim += v.Len() * dt * 0.5f;
+
+	sprite->subsprite_x = (int(anim) % sprite->sheet->columns);
+
+	srs->camera_position.x = entity->p.x;
+	srs->camera_position.y = entity->p.y;
 }
