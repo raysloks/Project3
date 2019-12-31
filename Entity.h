@@ -16,6 +16,8 @@ public:
 	Entity(Entity && entity) noexcept;
 	~Entity();
 
+	Entity & operator=(Entity && entity) noexcept;
+
 	template <class T>
 	void addComponent(T * component)
 	{

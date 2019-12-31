@@ -22,8 +22,6 @@ Engine::Engine()
 
 	framerate_cap = 0.0;
 
-	entities.reserve(256 * 256);
-
 	// initialize systems
 
 	input = new InputSystem();
@@ -145,7 +143,7 @@ void Engine::stop()
 
 void Engine::add_entity(Entity && entity)
 {
-	entities.emplace_back(std::move(entity));
+	entities.add(std::move(entity));
 }
 
 void Engine::remove_entity(Entity * entity)
@@ -154,4 +152,5 @@ void Engine::remove_entity(Entity * entity)
 	for (auto i : entity->components)
 		i.second->entity = nullptr;
 	entity->components.clear();
+	entities.remove(entity);
 }

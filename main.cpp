@@ -12,6 +12,8 @@ int main(int argc, char* args[])
 {
 	Engine engine;
 
+	engine.input->setKeyBinding(1 | (1ull << 32), SDLK_SPACE);
+
 	// create player
 	{
 		Entity entity;
@@ -30,7 +32,7 @@ int main(int argc, char* args[])
 		collider.shape = std::make_unique<Circle>(6.0f);
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
-		engine.entities.emplace_back(std::move(entity));
+		engine.add_entity(std::move(entity));
 	}
 
 	// create enemy
@@ -50,7 +52,7 @@ int main(int argc, char* args[])
 		collider.shape = std::make_unique<Circle>(16.0f);
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
-		engine.entities.emplace_back(std::move(entity));
+		engine.add_entity(std::move(entity));
 	}
 
 	const int w = 100;
@@ -63,7 +65,7 @@ int main(int argc, char* args[])
 	{
 		for (int y = 0; y < h; ++y)
 		{
-			tilemap.at(x, y) = 1;
+			tilemap[x][y] = 1;
 		}
 	}
 
@@ -72,7 +74,7 @@ int main(int argc, char* args[])
 	for (size_t i = 0; i < 200; ++i)
 	{
 		if (x < w && y < h)
-			tilemap.at(x, y) = 0;
+			tilemap[x][y] = 0;
 		if (rand() % 2)
 		{
 			x += 1;
@@ -86,10 +88,10 @@ int main(int argc, char* args[])
 	// create some walls
 	for (size_t i = 0; i < w * h; ++i)
 	{
-		int x = i % w;
-		int y = i / w;
+		int x = i / h;
+		int y = i % h;
 
-		if (tilemap.at(x, y))
+		if (tilemap[x][y])
 		{
 			Entity entity;
 			entity.p = Vec2(x, y) * tilemap.tile_size;
@@ -101,7 +103,7 @@ int main(int argc, char* args[])
 			collider.shape = std::make_unique<Rectangle>(Vec2(16.0f, 16.0f));
 			entity.addComponent(engine.cs->colliders.add(std::move(collider)));*/
 
-			engine.entities.emplace_back(std::move(entity));
+			engine.add_entity(std::move(entity));
 		}
 	}
 
@@ -112,7 +114,7 @@ int main(int argc, char* args[])
 		collider.shape = std::make_unique<TilemapShape>(&tilemap);
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
-		engine.entities.emplace_back(std::move(entity));
+		engine.add_entity(std::move(entity));
 	}
 
 	// create fps counter
@@ -122,7 +124,7 @@ int main(int argc, char* args[])
 		auto fps = std::make_shared<FrameRate>();
 		entity.addComponent(&**engine.cbs->behaviours.add(fps));
 
-		engine.entities.emplace_back(std::move(entity));
+		engine.add_entity(std::move(entity));
 	}
 
 	engine.run();

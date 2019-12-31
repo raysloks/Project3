@@ -8,7 +8,7 @@ TilemapShape::TilemapShape(Tilemap * tilemap) : tilemap(tilemap), rectangle(tile
 
 void TilemapShape::checkTile(int x, int y, const Vec2& diff, const Shape * other, std::vector<Collision>& collisions) const
 {
-	if (x >= 0 && x < tilemap->w && y >= 0 && y < tilemap->h && tilemap->tiles[x + y * tilemap->w])
+	if (x >= 0 && x < tilemap->w && y >= 0 && y < tilemap->h && (*tilemap)[x][y])
 		rectangle.check(diff - Vec2(x, y) * tilemap->tile_size, other, collisions);
 }
 

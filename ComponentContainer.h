@@ -36,14 +36,14 @@ inline T * ComponentContainer<T>::add(T && component)
 		size_t index = vacant.top();
 		vacant.pop();
 		components[index] = std::move(component);
-		return &components.at(index);
+		return &components[index];
 	}
 }
 
 template<class T>
 inline void ComponentContainer<T>::remove(T * pComponent)
 {
-	size_t index = std::distance(components.begin(), pComponent);
+	size_t index = std::distance(&*components.begin(), pComponent);
 	vacant.push(index);
 }
 

@@ -20,7 +20,7 @@ void FrameRate::tick(float dt)
 			sprites.push_back(sprite);
 			entity.addComponent(sprite);
 
-			engine->entities.emplace_back(std::move(entity));
+			engine->add_entity(std::move(entity));
 		}
 	}
 

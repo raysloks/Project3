@@ -48,7 +48,7 @@ public:
 
 	double framerate_cap;
 
-	std::vector<Entity> entities;
+	ComponentContainer<Entity> entities;
 	std::vector<System*> systems;
 
 	std::shared_ptr<std::function<void(void)>> fullscreen_toggle_func;
