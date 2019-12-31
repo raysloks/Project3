@@ -5,6 +5,9 @@
 
 #include "FrameRate.h"
 
+#include "Tilemap.h"
+#include "TilemapShape.h"
+
 int main(int argc, char* args[])
 {
 	Engine engine;
@@ -13,6 +16,7 @@ int main(int argc, char* args[])
 	{
 		Entity entity;
 		entity.x = 50;
+		entity.y = -50;
 
 		auto sprite = Spritesheet::get("dude_one.png");
 		sprite->columns = 4;
@@ -23,7 +27,7 @@ int main(int argc, char* args[])
 		entity.addComponent(&**engine.cbs->behaviours.add(player));
 
 		Collider collider;
-		collider.shape = std::make_unique<Circle>(8.0f);
+		collider.shape = std::make_unique<Circle>(6.0f);
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
 		engine.entities.emplace_back(std::move(entity));
@@ -34,7 +38,7 @@ int main(int argc, char* args[])
 	{
 		Entity entity;
 		entity.x = 50 + 200 * i;
-		entity.y = 500;
+		entity.y = -500;
 
 		Sprite sprite("potato_evil.png");
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
@@ -49,18 +53,63 @@ int main(int argc, char* args[])
 		engine.entities.emplace_back(std::move(entity));
 	}
 
-	// create some props
-	for (size_t i = 0; i < 100; ++i)
+	const int w = 100;
+	const int h = 100;
+
+	Tilemap tilemap(w, h);
+	tilemap.tile_size = Vec2(16.0f, 16.0f);
+
+	for (int x = 0; x < w; ++x)
+	{
+		for (int y = 0; y < h; ++y)
+		{
+			tilemap.at(x, y) = 1;
+		}
+	}
+
+	int x = 0;
+	int y = 0;
+	for (size_t i = 0; i < 200; ++i)
+	{
+		if (x < w && y < h)
+			tilemap.at(x, y) = 0;
+		if (rand() % 2)
+		{
+			x += 1;
+		}
+		else
+		{
+			y += 1;
+		}
+	}
+
+	// create some walls
+	for (size_t i = 0; i < w * h; ++i)
+	{
+		int x = i % w;
+		int y = i / w;
+
+		if (tilemap.at(x, y))
+		{
+			Entity entity;
+			entity.p = Vec2(x, y) * tilemap.tile_size;
+
+			Sprite sprite("tile.png");
+			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+			/*Collider collider;
+			collider.shape = std::make_unique<Rectangle>(Vec2(16.0f, 16.0f));
+			entity.addComponent(engine.cs->colliders.add(std::move(collider)));*/
+
+			engine.entities.emplace_back(std::move(entity));
+		}
+	}
+
 	{
 		Entity entity;
-		entity.x = i % 10 * 100;
-		entity.y = i / 10 * 100;
-
-		Sprite sprite("tile.png");
-		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
+		
 		Collider collider;
-		collider.shape = std::make_unique<Rectangle>(Vec2(16.0f, 16.0f));
+		collider.shape = std::make_unique<TilemapShape>(&tilemap);
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
 		engine.entities.emplace_back(std::move(entity));

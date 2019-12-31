@@ -10,7 +10,7 @@ class Rectangle :
 public:
 	Rectangle(const Vec2& size);
 
-	bool check(const Vec2& diff, const Shape * other, Collision& collision) const;
+	void check(const Vec2& diff, const Shape * other, std::vector<Collision>& collisions) const;
 
 	Vec2 size;
 };

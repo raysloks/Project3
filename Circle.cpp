@@ -6,7 +6,7 @@ Circle::Circle(float r) : r(r)
 {
 }
 
-bool Circle::check(const Vec2& diff, const Shape * other, Collision & c) const
+void Circle::check(const Vec2& diff, const Shape * other, std::vector<Collision>& collisions) const
 {
 	auto circle = dynamic_cast<const Circle*>(other);
 	if (circle)
@@ -16,20 +16,21 @@ bool Circle::check(const Vec2& diff, const Shape * other, Collision & c) const
 		float r_sum = r + circle->r;
 		if (distance < r_sum && distance != 0.0f)
 		{
+			Collision c;
 			c.pen = r_sum - distance;
 			c.p = dir * (r - c.pen * 0.5f);
 			c.n = dir;
-			return true;
+			collisions.emplace_back(std::move(c));
 		}
+		return;
 	}
-	auto rectangle = dynamic_cast<const Rectangle*>(other);
-	if (rectangle)
+	if (other)
 	{
-		if (rectangle->check(-diff, this, c))
+		size_t i = collisions.size();
+		other->check(-diff, this, collisions);
+		for (; i < collisions.size(); ++i)
 		{
-			c.flip();
-			return true;
+			collisions[i].flip();
 		}
 	}
-	return false;
 }

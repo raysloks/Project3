@@ -2,9 +2,11 @@
 
 #include "Collision.h"
 
+#include <vector>
+
 class Shape
 {
 public:
-	virtual bool check(const Vec2& diff, const Shape * other, Collision& collision) const;
+	virtual void check(const Vec2& diff, const Shape * other, std::vector<Collision>& collisions) const;
 };
 

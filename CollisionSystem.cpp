@@ -2,9 +2,13 @@
 
 #include <iostream>
 
+#include <algorithm>
+
 void CollisionSystem::tick(float dt)
 {
-	Collision collision;
+	std::vector<Collision> collisions;
+	collisions.reserve(256);
+
 	for (size_t i = 0; i < colliders.components.size() - 1; ++i)
 	{
 		auto& a = colliders.components[i];
@@ -17,13 +21,25 @@ void CollisionSystem::tick(float dt)
 			if (b.entity == nullptr)
 				continue;
 
-			Vec2 diff = b.entity->p - a.entity->p;
-
-			if (a.shape->check(diff, b.shape.get(), collision))
+			size_t count = 0;
+			do
 			{
+				Vec2 diff = b.entity->p - a.entity->p;
+
+				collisions.clear();
+
+				a.shape->check(diff, b.shape.get(), collisions);
+
+				if (collisions.empty())
+					break;
+
+				std::sort(collisions.begin(), collisions.end(), [](auto a, auto b) { return a.pen > b.pen; });
+
+				auto& collision = collisions.front();
+
 				collision.p += a.entity->p;
 				collision.other = &b;
-			
+
 				for (auto i = a.callbacks.begin(); i != a.callbacks.end();)
 				{
 					auto callback = i->lock();
@@ -50,7 +66,7 @@ void CollisionSystem::tick(float dt)
 					else
 						b.callbacks.erase(i);
 				}
-			}
+			} while (collisions.size() > 1 && ++count < 2);
 		}
 	}
 }
@@ -63,7 +79,8 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 
 	Circle circle(r);
 
-	Collision collision;
+	std::vector<Collision> collisions;
+	collisions.reserve(256);
 
 	for (size_t i = 0; i < colliders.components.size(); ++i)
 	{
@@ -73,8 +90,12 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 
 		Vec2 diff = a.entity->p - p;
 		
-		if (circle.check(diff, a.shape.get(), collision))
-			ret.insert(std::make_pair(r - collision.pen, &a));
+		size_t j = collisions.size();
+		circle.check(diff, a.shape.get(), collisions);
+		for (; j < collisions.size(); ++j)
+		{
+			ret.insert(std::make_pair(r - collisions[i].pen, &a));
+		}
 	}
 
 	return ret;

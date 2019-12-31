@@ -13,7 +13,7 @@ void FrameRate::tick(float dt)
 		for (size_t i = 0; i < 4; ++i)
 		{
 			Entity entity;
-			entity.p.x = 32 + i * 16;
+			entity.p.x = 32 + i * 8;
 			entity.p.y = 32;
 
 			auto sprite = srs->ui.add(Sprite(font));

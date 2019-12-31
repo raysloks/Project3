@@ -8,7 +8,7 @@ class Circle :
 public:
 	Circle(float r);
 
-	bool check(const Vec2& diff, const Shape * other, Collision& collision) const;
+	void check(const Vec2& diff, const Shape * other, std::vector<Collision>& collisions) const;
 
 	float r;
 };

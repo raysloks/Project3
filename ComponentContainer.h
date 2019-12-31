@@ -20,7 +20,7 @@ public:
 template<class T>
 inline ComponentContainer<T>::ComponentContainer()
 {
-	components.reserve(256);
+	components.reserve(256 * 256);
 }
 
 template<class T>

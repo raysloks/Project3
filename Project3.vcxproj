@@ -164,6 +164,8 @@
     <ClCompile Include="SpriteRenderSystem.cpp" />
     <ClCompile Include="Spritesheet.cpp" />
     <ClCompile Include="System.cpp" />
+    <ClCompile Include="Tilemap.cpp" />
+    <ClCompile Include="TilemapShape.cpp" />
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -188,6 +190,8 @@
     <ClInclude Include="SpriteRenderSystem.h" />
     <ClInclude Include="Spritesheet.h" />
     <ClInclude Include="System.h" />
+    <ClInclude Include="Tilemap.h" />
+    <ClInclude Include="TilemapShape.h" />
     <ClInclude Include="Vec2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

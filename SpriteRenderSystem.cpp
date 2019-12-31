@@ -25,7 +25,7 @@ void SpriteRenderSystem::tick(float dt)
 
 	SDL_SetRenderTarget(render, offscreen);
 
-	SDL_SetRenderDrawColor(render, 100, 200, 100, 255);
+	SDL_SetRenderDrawColor(render, 120, 180, 60, 255);
 	SDL_RenderClear(render);
 
 	int w, h;
@@ -53,8 +53,8 @@ void SpriteRenderSystem::tick(float dt)
 		SDL_Rect dst = sprite.sheet->surface->clip_rect;
 		dst.w /= sprite.sheet->columns;
 		dst.h /= sprite.sheet->rows;
-		dst.x = (int(sprite.entity->p.x) - int(camera_position.x)) - dst.w / 2 + w / 2;
-		dst.y = (int(sprite.entity->p.y) - int(camera_position.y)) - dst.h / 2 + h / 2;
+		dst.x = (roundf(sprite.entity->p.x) - roundf(camera_position.x)) - dst.w / 2 + w / 2;
+		dst.y = (roundf(sprite.entity->p.y) - roundf(camera_position.y)) - dst.h / 2 + h / 2;
 
 		SDL_RenderCopy(render, sprite.sheet->getTexture(render), &src, &dst);
 	}
@@ -64,8 +64,8 @@ void SpriteRenderSystem::tick(float dt)
 	SDL_Rect rect;
 	rect.w = w * scale;
 	rect.h = h * scale;
-	rect.x = (int(camera_position.x) - camera_position.x) * scale - (rect.w - screen_w) / 2;
-	rect.y = (int(camera_position.y) - camera_position.y) * scale - (rect.h - screen_h) / 2;
+	rect.x = (roundf(camera_position.x) - camera_position.x) * scale - (rect.w - screen_w) / 2;
+	rect.y = (roundf(camera_position.y) - camera_position.y) * scale - (rect.h - screen_h) / 2;
 
 	SDL_RenderCopy(render, offscreen, nullptr, &rect);
 

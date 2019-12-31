@@ -12,17 +12,13 @@ Player::Player()
 {
 	on_attack = std::make_shared<std::function<void(void)>>([this]()
 		{
-			auto in_range = cs->overlapCircle(entity->p, 32.0f);
-			for (auto i : in_range)
+			auto in_range = cs->overlapCircle(entity->p + v * 1.0f, 6.0f);
+			if (in_range.empty())
 			{
-				auto enemy = dynamic_cast<Enemy*>(i.second->entity->getComponent<CustomBehaviour>());
-				if (enemy)
-				{
-					engine->remove_entity(enemy->entity);
-				}
+				entity->p += v * 1.0f;
 			}
 		});
-	input->addKeyDownCallback(SDLK_SPACE, on_attack);
+	input->addKeyDownCallback(1 | (1ull << 32), on_attack);
 }
 
 void Player::tick(float dt)
@@ -33,6 +29,9 @@ void Player::tick(float dt)
 			{
 				entity->p -= collision.n * collision.pen;
 				v -= collision.n * v.Dot(collision.n);
+
+				srs->camera_position.x = entity->p.x;
+				srs->camera_position.y = entity->p.y;
 			});
 		entity->getComponent<Collider>()->callbacks.push_back(on_collision);
 	}

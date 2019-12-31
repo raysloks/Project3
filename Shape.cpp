@@ -1,6 +1,5 @@
 #include "Shape.h"
 
-bool Shape::check(const Vec2& diff, const Shape * other, Collision & collision) const
+void Shape::check(const Vec2& diff, const Shape * other, std::vector<Collision>& collisions) const
 {
-	return false;
 }

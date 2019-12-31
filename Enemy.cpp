@@ -17,15 +17,15 @@ void Enemy::tick(float dt)
 		entity->getComponent<Collider>()->callbacks.push_back(on_collision);
 	}
 
-	float speed = 30.0f;
+	float speed = 240.0f;
 
 	Vec2 move;
 
-	auto in_range = cs->overlapCircle(entity->p, 300.0f);
+	auto in_range = cs->overlapCircle(entity->p, 100.0f);
 	for (auto i : in_range)
 	{
 		auto player = dynamic_cast<Player*>(i.second->entity->getComponent<CustomBehaviour>());
-		if (player && i.first > 100.0f)
+		if (player && i.first > 50.0f)
 		{
 			move = player->entity->p - entity->p;
 		}

@@ -22,18 +22,18 @@ Engine::Engine()
 
 	framerate_cap = 0.0;
 
-	entities.reserve(1024);
+	entities.reserve(256 * 256);
 
 	// initialize systems
-
-	cs = new CollisionSystem();
-	systems.push_back(cs);
 
 	input = new InputSystem();
 	systems.push_back(input);
 
 	cbs = new CustomBehaviourSystem();
 	systems.push_back(cbs);
+
+	cs = new CollisionSystem();
+	systems.push_back(cs);
 
 	srs = new SpriteRenderSystem(render);
 	systems.push_back(srs);
@@ -145,6 +145,7 @@ void Engine::stop()
 
 void Engine::add_entity(Entity && entity)
 {
+	entities.emplace_back(std::move(entity));
 }
 
 void Engine::remove_entity(Entity * entity)
