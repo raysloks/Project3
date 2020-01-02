@@ -36,9 +36,25 @@ bool InputSystem::isKeyDown(uint64_t key)
 	return keysDown.find(key) != keysDown.end();
 }
 
+bool InputSystem::isKeyPressed(uint64_t key)
+{
+	return keysPressed.find(key) != keysPressed.end();
+}
+
+bool InputSystem::isKeyReleased(uint64_t key)
+{
+	return keysReleased.find(key) != keysReleased.end();
+}
+
 void InputSystem::setKeyBinding(uint64_t action, uint64_t key)
 {
 	keyBindings[key] = action;
+}
+
+void InputSystem::tick(float dt)
+{
+	keysPressed.clear();
+	keysReleased.clear();
 }
 
 void InputSystem::processKeyDown(uint64_t sym)
@@ -56,6 +72,7 @@ void InputSystem::processKeyDown(uint64_t sym)
 			onKeyDown.erase(i);
 	}
 	keysDown.insert(sym);
+	keysPressed.insert(sym);
 }
 
 void InputSystem::processKeyUp(uint64_t sym)
@@ -73,4 +90,5 @@ void InputSystem::processKeyUp(uint64_t sym)
 			onKeyUp.erase(i);
 	}
 	keysDown.erase(sym);
+	keysReleased.insert(sym);
 }

@@ -24,9 +24,6 @@ Engine::Engine()
 
 	// initialize systems
 
-	input = new InputSystem();
-	systems.push_back(input);
-
 	cbs = new CustomBehaviourSystem();
 	systems.push_back(cbs);
 
@@ -35,6 +32,9 @@ Engine::Engine()
 
 	srs = new SpriteRenderSystem(render);
 	systems.push_back(srs);
+
+	input = new InputSystem();
+	systems.push_back(input);
 
 
 	// allow custom behaviours easy access to systems

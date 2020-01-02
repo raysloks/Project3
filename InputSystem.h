@@ -23,8 +23,13 @@ public:
 	void addKeyUpCallback(uint64_t key, const std::shared_ptr<std::function<void(void)>> & callback);
 
 	bool isKeyDown(uint64_t key);
+	bool isKeyPressed(uint64_t key);
+	bool isKeyReleased(uint64_t key);
 
 	void setKeyBinding(uint64_t action, uint64_t key);
+
+	// clears pressed and released keys
+	void tick(float dt);
 
 private:
 
@@ -33,7 +38,7 @@ private:
 	void processKeyDown(uint64_t sym);
 	void processKeyUp(uint64_t sym);
 
-	std::set<uint64_t> keysDown;
+	std::set<uint64_t> keysDown, keysPressed, keysReleased;
 	std::multimap<uint64_t, std::weak_ptr<std::function<void(void)>>> onKeyDown, onKeyUp;
 };
 

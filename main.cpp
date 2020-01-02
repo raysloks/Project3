@@ -25,8 +25,8 @@ int main(int argc, char* args[])
 	// create player
 	{
 		Entity entity;
-		entity.x = 50;
-		entity.y = -50;
+		entity.x = 16;
+		entity.y = 16;
 
 		auto sprite = Spritesheet::get("dude_one.png");
 		sprite->columns = 4;
@@ -77,20 +77,21 @@ int main(int argc, char* args[])
 		}
 	}
 
-	for (size_t i = 0; i < 4; ++i)
+	// create cave-like paths
+	for (size_t i = 0; i < 8; ++i)
 	{
 		int x = 0;
 		int y = 0;
-		for (size_t i = 0; i < 2000; ++i)
+		for (size_t i = 0; i < 600; ++i)
 		{
-			if (x < 0)
-				x = 0;
-			if (y < 0)
-				y = 0;
-			if (x > w - 1)
-				x = w - 1;
-			if (y > h - 1)
-				y = h - 1;
+			if (x < 1)
+				x = 1;
+			if (y < 1)
+				y = 1;
+			if (x > w - 2)
+				x = w - 2;
+			if (y > h - 2)
+				y = h - 2;
 			tilemap[x][y] = 0;
 			switch (rand() % 6)
 			{
@@ -106,7 +107,6 @@ int main(int argc, char* args[])
 			case 3:
 				x += 1;
 				break;
-				break;
 			case 4:
 				y += 1;
 				break;
@@ -117,7 +117,8 @@ int main(int argc, char* args[])
 		}
 	}
 
-	// create some walls
+	// create a sprite for each tile
+	// should probably be replaced by some sort of tile rendering system
 	for (size_t i = 0; i < w * h; ++i)
 	{
 		int x = i / h;
@@ -135,6 +136,7 @@ int main(int argc, char* args[])
 		}
 	}
 
+	// create tilemap collider
 	{
 		Entity entity;
 		

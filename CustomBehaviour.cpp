@@ -1,10 +1,10 @@
 #include "CustomBehaviour.h"
 
-thread_local Engine * CustomBehaviour::engine;
-thread_local SpriteRenderSystem * CustomBehaviour::srs;
-thread_local InputSystem * CustomBehaviour::input;
-thread_local CustomBehaviourSystem * CustomBehaviour::cbs;
-thread_local CollisionSystem * CustomBehaviour::cs;
+Engine * CustomBehaviour::engine;
+SpriteRenderSystem * CustomBehaviour::srs;
+InputSystem * CustomBehaviour::input;
+CustomBehaviourSystem * CustomBehaviour::cbs;
+CollisionSystem * CustomBehaviour::cs;
 
 CustomBehaviour::~CustomBehaviour()
 {

@@ -17,9 +17,10 @@ public:
 	virtual void tick(float dt);
 	
 	// static storage of system pointers to allow more convenient access for custom behaviours
-	static thread_local Engine * engine;
-	static thread_local SpriteRenderSystem * srs;
-	static thread_local InputSystem * input;
-	static thread_local CustomBehaviourSystem * cbs;
-	static thread_local CollisionSystem * cs;
+	static Engine * engine;
+	static SpriteRenderSystem * srs;
+	static InputSystem * input;
+	static CustomBehaviourSystem * cbs;
+	static CollisionSystem * cs;
+	// may need to make thread_local or something if multiple engines are running off the same process
 };
