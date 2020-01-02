@@ -4,7 +4,10 @@
 
 void CustomBehaviourSystem::tick(float dt)
 {
-	for (auto behaviour : behaviours.components)
-		if (behaviour->entity)
-			behaviour->tick(dt);
+	for (auto& behaviour : behaviours.components)
+		if (behaviour)
+			if (behaviour->entity)
+				behaviour->tick(dt);
+			else
+				behaviour.reset();
 }

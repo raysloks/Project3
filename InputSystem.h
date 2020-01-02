@@ -12,6 +12,8 @@
 
 struct SDL_KeyboardEvent;
 
+class SpriteRenderSystem;
+
 class InputSystem :
 	public System
 {
@@ -26,12 +28,17 @@ public:
 	bool isKeyPressed(uint64_t key);
 	bool isKeyReleased(uint64_t key);
 
+	Vec2 getCursorPosition();
+	Vec2 getCursorPositionInWorld(SpriteRenderSystem * srs);
+
 	void setKeyBinding(uint64_t action, uint64_t key);
 
 	// clears pressed and released keys
 	void tick(float dt);
 
 private:
+
+	Vec2 cursorPosition;
 
 	std::map<uint64_t, uint64_t> keyBindings;
 

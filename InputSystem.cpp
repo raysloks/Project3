@@ -46,6 +46,16 @@ bool InputSystem::isKeyReleased(uint64_t key)
 	return keysReleased.find(key) != keysReleased.end();
 }
 
+Vec2 InputSystem::getCursorPosition()
+{
+	return cursorPosition;
+}
+
+Vec2 InputSystem::getCursorPositionInWorld(SpriteRenderSystem * srs)
+{
+	return Vec2();
+}
+
 void InputSystem::setKeyBinding(uint64_t action, uint64_t key)
 {
 	keyBindings[key] = action;

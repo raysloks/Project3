@@ -15,6 +15,8 @@ public:
 
 	void tick(float dt);
 
+private:
+
 	std::shared_ptr<std::function<void(const Collision&)>> on_collision;
 
 	std::shared_ptr<std::function<void(void)>> on_attack;

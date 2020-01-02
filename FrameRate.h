@@ -8,6 +8,8 @@ class FrameRate :
 public:
 	void tick(float dt);
 
+private:
+
 	uint64_t start, end, freq;
 
 	std::vector<size_t> sprites;

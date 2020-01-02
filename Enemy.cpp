@@ -6,6 +6,13 @@
 
 #include "Player.h"
 
+#include <iostream>
+
+Enemy::~Enemy()
+{
+	std::cout << "OOF";
+}
+
 void Enemy::tick(float dt)
 {
 	if (!on_collision)
@@ -17,7 +24,7 @@ void Enemy::tick(float dt)
 		entity->getComponent<Collider>()->callbacks.push_back(on_collision);
 	}
 
-	float speed = 240.0f;
+	float speed = 24.0f;
 
 	Vec2 move;
 

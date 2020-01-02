@@ -19,5 +19,7 @@ public:
 	std::shared_ptr<Spritesheet> sheet;
 	size_t subsprite_x, subsprite_y;
 	float sort;
+
+	SDL_Color color;
 };
 

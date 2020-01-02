@@ -21,8 +21,7 @@ Player::Player()
 				auto enemy = i.second->entity->getComponent<Enemy>();
 				if (enemy)
 				{
-					Vec2 diff = enemy->entity->p - entity->p;
-					enemy->entity->p += diff.Normalized() * 128.0f;
+					engine->remove_entity(enemy->entity);
 				}
 			}
 		});
