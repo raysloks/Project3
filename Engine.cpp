@@ -141,9 +141,14 @@ void Engine::stop()
 	stopped = true;
 }
 
-void Engine::add_entity(Entity && entity)
+size_t Engine::add_entity(Entity && entity)
 {
-	entities.add(std::move(entity));
+	return entities.get_index(entities.add(std::move(entity)));
+}
+
+Entity * Engine::get_entity(size_t index)
+{
+	return &entities.components[index];
 }
 
 void Engine::remove_entity(Entity * entity)
@@ -153,4 +158,9 @@ void Engine::remove_entity(Entity * entity)
 		i.second->entity = nullptr;
 	entity->components.clear();
 	entities.remove(entity);
+}
+
+void Engine::remove_entity(size_t entity)
+{
+	remove_entity(&entities.components[entity]);
 }

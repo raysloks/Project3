@@ -10,6 +10,6 @@ public:
 
 	uint64_t start, end, freq;
 
-	std::vector<Sprite*> sprites;
+	std::vector<size_t> sprites;
 };
 

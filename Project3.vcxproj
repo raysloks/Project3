@@ -147,7 +147,6 @@
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="Component.cpp" />
-    <ClCompile Include="ComponentContainer.cpp" />
     <ClCompile Include="CustomBehaviour.cpp" />
     <ClCompile Include="CustomBehaviourSystem.cpp" />
     <ClCompile Include="Enemy.cpp" />

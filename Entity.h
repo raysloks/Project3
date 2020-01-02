@@ -18,12 +18,16 @@ public:
 
 	Entity & operator=(Entity && entity) noexcept;
 
+	void componentMoved(Component * pOld, Component * pNew);
+
 	template <class T>
 	void addComponent(T * component)
 	{
 		component->entity = this;
 		components.insert(std::make_pair(typeid(*component).name(), component));
 	}
+
+	void removeComponent(Component * component);
 
 	template <class T>
 	void removeComponent(T * component)

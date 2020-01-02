@@ -13,6 +13,8 @@ public:
 	void remove(T * pComponent);
 	void remove(size_t index);
 
+	size_t get_index(T * pComponent);
+
 	std::vector<T> components;
 	std::stack<size_t> vacant;
 };
@@ -20,7 +22,7 @@ public:
 template<class T>
 inline ComponentContainer<T>::ComponentContainer()
 {
-	components.reserve(256 * 256);
+	//components.reserve(256 * 256);
 }
 
 template<class T>
@@ -51,4 +53,10 @@ template<class T>
 inline void ComponentContainer<T>::remove(size_t index)
 {
 	vacant.push(index);
+}
+
+template<class T>
+inline size_t ComponentContainer<T>::get_index(T * pComponent)
+{
+	return pComponent - &components[0];
 }

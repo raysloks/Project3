@@ -36,8 +36,10 @@ public:
 	CustomBehaviourSystem * cbs;
 	CollisionSystem * cs;
 
-	void add_entity(Entity&& entity);
+	size_t add_entity(Entity&& entity);
+	Entity * get_entity(size_t index);
 	void remove_entity(Entity * entity);
+	void remove_entity(size_t entity);
 
 //private:
 

@@ -94,7 +94,7 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 		circle.check(diff, a.shape.get(), collisions);
 		for (; j < collisions.size(); ++j)
 		{
-			ret.insert(std::make_pair(r - collisions[i].pen, &a));
+			ret.insert(std::make_pair(r - collisions[j].pen, &a));
 		}
 	}
 

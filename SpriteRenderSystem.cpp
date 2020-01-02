@@ -40,7 +40,7 @@ void SpriteRenderSystem::tick(float dt)
 			if (sprite.sheet->surface)
 				sorted.insert(std::make_pair(sprite.entity->p.y + sprite.sort, &sprite));
 
-	for (auto i : sorted)
+	for (auto& i : sorted)
 	{
 		auto& sprite = *i.second;
 

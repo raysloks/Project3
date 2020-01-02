@@ -49,14 +49,14 @@ int main(int argc, char* args[])
 		entity.x = 100;
 		entity.y = 100;
 
-		Sprite sprite("potato_evil.png");
+		Sprite sprite("potato_evil_small.png");
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 		auto enemy = std::make_shared<Enemy>();
 		entity.addComponent(&**engine.cbs->behaviours.add(enemy));
 
 		Collider collider;
-		collider.shape = std::make_unique<Circle>(16.0f);
+		collider.shape = std::make_unique<Circle>(8.0f);
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
 		engine.add_entity(std::move(entity));
