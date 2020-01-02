@@ -6,29 +6,13 @@
 
 #include "Player.h"
 
-#include <iostream>
-
-Enemy::~Enemy()
-{
-	std::cout << "OOF";
-}
-
 void Enemy::tick(float dt)
 {
-	if (!on_collision)
-	{
-		on_collision = std::make_shared<std::function<void(const Collision&)>>([this](const Collision& collision)
-			{
-				entity->p -= collision.n * collision.pen;
-			});
-		entity->getComponent<Collider>()->callbacks.push_back(on_collision);
-	}
-
 	float speed = 24.0f;
 
 	Vec2 move;
 
-	auto in_range = cs->overlapCircle(entity->p, 100.0f);
+	auto in_range = cs->overlapCircle(entity->p, 1000.0f);
 	for (auto i : in_range)
 	{
 		auto player = i.second->entity->getComponent<Player>();
@@ -46,5 +30,14 @@ void Enemy::tick(float dt)
 		move *= speed * dt;
 
 		entity->p += move;
+	}
+
+	auto sprite = entity->getComponent<Sprite>();
+	if (sprite)
+	{
+		if (move.x < 0.0f)
+			sprite->subsprite_y = 1;
+		if (move.x > 0.0f)
+			sprite->subsprite_y = 0;
 	}
 }

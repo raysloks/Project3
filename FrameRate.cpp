@@ -4,8 +4,6 @@ void FrameRate::tick(float dt)
 {
 	if (sprites.empty())
 	{
-		freq = SDL_GetPerformanceFrequency();
-
 		auto font = Spritesheet::get("font.png");
 		font->rows = 16;
 		font->columns = 16;
@@ -23,13 +21,22 @@ void FrameRate::tick(float dt)
 		}
 	}
 
-	end = SDL_GetPerformanceCounter();
-	uint64_t diff = end - start;
-	start = end;
+	double tps = 1.0 / engine->full;
 
-	double tps = 1.0 / (double(diff) / freq);
+	records.push_back(tps);
+	if (records.size() > 60)
+		records.erase(records.begin());
 
-	std::string text = std::to_string(lround(tps));
+	double sum = 0.0;
+	double min = records.front();
+	for (auto record : records)
+	{
+		sum += record;
+		if (record < min)
+			min = record;
+	}
+
+	std::string text = std::to_string(lround(sum / records.size())) + " " + std::to_string(lround(min)) + " " + std::to_string(lround(tps));
 	for (size_t i = 0; i < sprites.size(); ++i)
 	{
 		auto sprite = engine->get_entity(sprites[i])->getComponent<Sprite>();

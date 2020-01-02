@@ -25,7 +25,7 @@ void SpriteRenderSystem::tick(float dt)
 
 	SDL_SetRenderTarget(render, offscreen);
 
-	SDL_SetRenderDrawColor(render, 120, 180, 60, 255);
+	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
 	SDL_RenderClear(render);
 
 	int w, h;
@@ -38,11 +38,13 @@ void SpriteRenderSystem::tick(float dt)
 	for (auto& sprite : sprites.components)
 		if (sprite.entity)
 			if (sprite.sheet->surface)
-				sorted.insert(std::make_pair(sprite.entity->p.y + sprite.sort, &sprite));
+				sorted.insert(std::make_pair(sprite.entity->getPosition().y + sprite.sort, &sprite));
 
 	for (auto& i : sorted)
 	{
 		auto& sprite = *i.second;
+
+		auto p = sprite.entity->getPosition();
 
 		SDL_Rect src = sprite.sheet->surface->clip_rect;
 		src.w /= sprite.sheet->columns;
@@ -53,10 +55,10 @@ void SpriteRenderSystem::tick(float dt)
 		SDL_Rect dst = sprite.sheet->surface->clip_rect;
 		dst.w /= sprite.sheet->columns;
 		dst.h /= sprite.sheet->rows;
-		dst.x = (roundf(sprite.entity->p.x) - roundf(camera_position.x)) - dst.w / 2 + w / 2;
-		dst.y = (roundf(sprite.entity->p.y) - roundf(camera_position.y)) - dst.h / 2 + h / 2;
+		dst.x = (roundf(p.x) - roundf(camera_position.x)) - dst.w / 2 + w / 2;
+		dst.y = (roundf(p.y) - roundf(camera_position.y)) - dst.h / 2 + h / 2;
 
-		SDL_RenderCopy(render, sprite.sheet->getTexture(render), &src, &dst);
+		SDL_RenderCopyEx(render, sprite.sheet->getTexture(render), &src, &dst, sprite.rotation, nullptr, sprite.flip);
 	}
 
 	SDL_SetRenderTarget(render, nullptr);

@@ -9,9 +9,7 @@ public:
 	void tick(float dt);
 
 private:
-
-	uint64_t start, end, freq;
-
+	std::vector<double> records;
 	std::vector<size_t> sprites;
 };
 

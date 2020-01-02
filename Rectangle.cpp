@@ -14,7 +14,7 @@ void checkCornerCircle(const Vec2& corner, const Vec2 circle_center, const Circl
 
 	float distance = diff.Len();
 	Vec2 dir = diff / distance;
-	if (distance < circle->r && distance != 0.0f)
+	if (distance <= circle->r && distance != 0.0f)
 	{
 		Collision c;
 		c.pen = circle->r - distance;
@@ -34,7 +34,7 @@ void Rectangle::check(const Vec2& diff, const Shape * other, std::vector<Collisi
 
 		Vec2 sep = abs_diff - size;
 
-		if (sep.x < circle->r && sep.y < 0.0f)
+		if (sep.x <= circle->r && sep.y <= 0.0f)
 		{
 			Collision c;
 			c.n = Vec2(sign_diff.x, 0.0f);
@@ -44,7 +44,7 @@ void Rectangle::check(const Vec2& diff, const Shape * other, std::vector<Collisi
 			return;
 		}
 
-		if (sep.x < 0.0f && sep.y < circle->r)
+		if (sep.x <= 0.0f && sep.y <= circle->r)
 		{
 			Collision c;
 			c.n = Vec2(0.0f, sign_diff.y);

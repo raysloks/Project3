@@ -24,7 +24,7 @@ void CollisionSystem::tick(float dt)
 			size_t count = 0;
 			do
 			{
-				Vec2 diff = b.entity->p - a.entity->p;
+				Vec2 diff = b.entity->getPosition() - a.entity->getPosition();
 
 				collisions.clear();
 

@@ -76,7 +76,7 @@ void Engine::run()
 	uint64_t start_busy = SDL_GetPerformanceCounter();
 	uint64_t end, end_busy;
 
-	double full = 1.0 / 60.0;
+	full = 1.0f / 60.0;
 	double busy = 1.0 / 60.0;
 
 	while (!stopped)
@@ -124,15 +124,13 @@ void Engine::run()
 		}
 		start_busy = SDL_GetPerformanceCounter();
 
+		SDL_RenderPresent(render);
+
 		end = SDL_GetPerformanceCounter();
 		uint64_t diff = end - start;
 		start = end;
 
 		full = double(diff) / freq;
-
-		//std::cout << int(1.0 / full) << " : " << int(1.0 / busy) << std::endl;
-
-		SDL_RenderPresent(render);
 	}
 }
 
@@ -153,10 +151,7 @@ Entity * Engine::get_entity(size_t index)
 
 void Engine::remove_entity(Entity * entity)
 {
-	entity->guid = 0;
-	for (auto i : entity->components)
-		i.second->entity = nullptr;
-	entity->components.clear();
+	*entity = std::move(Entity());
 	entities.remove(entity);
 }
 

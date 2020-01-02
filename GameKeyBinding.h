@@ -9,5 +9,6 @@ enum GameKeyBinding : uint64_t
 	KB_UP,
 	KB_LEFT,
 	KB_DOWN,
-	KB_RIGHT
+	KB_RIGHT,
+	KB_DASH
 };

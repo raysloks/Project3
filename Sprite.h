@@ -20,6 +20,10 @@ public:
 	size_t subsprite_x, subsprite_y;
 	float sort;
 
+	float rotation;
+
+	SDL_RendererFlip flip;
+
 	SDL_Color color;
 };
 

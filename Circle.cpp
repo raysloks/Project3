@@ -14,7 +14,7 @@ void Circle::check(const Vec2& diff, const Shape * other, std::vector<Collision>
 		float distance = diff.Len();
 		Vec2 dir = diff / distance;
 		float r_sum = r + circle->r;
-		if (distance < r_sum && distance != 0.0f)
+		if (distance <= r_sum && distance != 0.0f)
 		{
 			Collision c;
 			c.pen = r_sum - distance;

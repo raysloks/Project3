@@ -2,6 +2,7 @@
 
 #include "Player.h"
 #include "Enemy.h"
+#include "SpriteAnimator.h"
 
 #include "FrameRate.h"
 
@@ -16,7 +17,9 @@ int main(int argc, char* args[])
 {
 	Engine engine;
 
-	engine.input->setKeyBinding(KB_ATTACK, SDLK_SPACE);
+	engine.input->setKeyBinding(KB_ATTACK, SDLK_f);
+	engine.input->setKeyBinding(KB_DASH, SDLK_SPACE);
+
 	engine.input->setKeyBinding(KB_UP, SDLK_w);
 	engine.input->setKeyBinding(KB_LEFT, SDLK_a);
 	engine.input->setKeyBinding(KB_DOWN, SDLK_s);
@@ -49,8 +52,14 @@ int main(int argc, char* args[])
 		entity.x = 100;
 		entity.y = 100;
 
-		Sprite sprite("potato_evil_small.png");
+		Sprite sprite("ghost.png");
+		sprite.sheet->columns = 2;
+		sprite.sheet->rows = 2;
+		sprite.sort = 32;
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+		auto animator = std::make_shared<SpriteAnimator>(2.0f);
+		entity.addComponent(&**engine.cbs->behaviours.add(std::move(animator)));
 
 		auto enemy = std::make_shared<Enemy>();
 		entity.addComponent(&**engine.cbs->behaviours.add(enemy));
@@ -58,6 +67,24 @@ int main(int argc, char* args[])
 		Collider collider;
 		collider.shape = std::make_unique<Circle>(8.0f);
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
+
+		engine.add_entity(std::move(entity));
+	}
+
+	// create test animation
+	{
+		Entity entity;
+		entity.x = 50;
+		entity.y = 50;
+
+		Sprite sprite("key_glimmer.png");
+		sprite.sheet->columns = 4;
+		sprite.sheet->rows = 4;
+		sprite.sort = -8;
+		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+		auto animator = std::make_shared<SpriteAnimator>(15.0f);
+		entity.addComponent(&**engine.cbs->behaviours.add(std::move(animator)));
 
 		engine.add_entity(std::move(entity));
 	}
@@ -120,15 +147,39 @@ int main(int argc, char* args[])
 	// should probably be replaced by some sort of tile rendering system
 	for (size_t i = 0; i < w * h; ++i)
 	{
-		int x = i / h;
-		int y = i % h;
+		size_t x = i / h;
+		size_t y = i % h;
 
 		if (tilemap[x][y])
+		{
+			int walls = 4;
+			if (y != 0 && !tilemap[x][y - 1])
+				walls -= 1;
+			if (x != 0 && !tilemap[x - 1][y])
+				walls -= 1;
+			if (y != h - 1 && !tilemap[x][y + 1])
+				walls -= 1;
+			if (x != w - 1 && !tilemap[x + 1][y])
+				walls -= 1;
+
+			if (walls < 4)
+			{
+				Entity entity;
+				entity.p = Vec2(x, y) * tilemap.tile_size;
+
+				Sprite sprite("tile.png");
+				entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+				engine.add_entity(std::move(entity));
+			}
+		}
+		else
 		{
 			Entity entity;
 			entity.p = Vec2(x, y) * tilemap.tile_size;
 
-			Sprite sprite("tile.png");
+			Sprite sprite("floor.png");
+			sprite.sort = -128;
 			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 			engine.add_entity(std::move(entity));

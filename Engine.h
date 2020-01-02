@@ -41,6 +41,8 @@ public:
 	void remove_entity(Entity * entity);
 	void remove_entity(size_t entity);
 
+	double full;
+
 //private:
 
 	SDL_Window * window;

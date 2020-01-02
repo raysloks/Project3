@@ -6,6 +6,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 class Component;
 
@@ -19,6 +20,8 @@ public:
 	Entity & operator=(Entity && entity) noexcept;
 
 	void componentMoved(Component * pOld, Component * pNew);
+	void childMoved(Entity * pOld, Entity * pNew);
+	void setRoot(Entity * root);
 
 	template <class T>
 	void addComponent(T * component)
@@ -45,6 +48,14 @@ public:
 		return nullptr;
 	}
 
+	Vec2 getPosition();
+
+	Entity * getParent();
+	Entity * getRoot();
+
+	void addChild(Entity * child);
+	void removeChild(Entity * child);
+
 	uint64_t guid;
 
 	union
@@ -57,5 +68,10 @@ public:
 	};
 
 	std::map<std::string, Component*> components;
+
+private:
+	Entity * parent;
+	Entity * root;
+	std::vector<Entity*> children;
 };
 
