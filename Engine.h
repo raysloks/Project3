@@ -55,5 +55,5 @@ public:
 	ComponentContainer<Entity> entities;
 	std::vector<System*> systems;
 
-	std::shared_ptr<std::function<void(void)>> fullscreen_toggle_func;
+	std::function<void(void)> fullscreen_toggle_func;
 };

@@ -21,8 +21,8 @@ public:
 	void processKeyDownEvent(SDL_KeyboardEvent& event);
 	void processKeyUpEvent(SDL_KeyboardEvent& event);
 
-	void addKeyDownCallback(uint64_t key, const std::shared_ptr<std::function<void(void)>> & callback);
-	void addKeyUpCallback(uint64_t key, const std::shared_ptr<std::function<void(void)>> & callback);
+	void addKeyDownCallback(uint64_t key, const std::function<void(void)> & callback);
+	void addKeyUpCallback(uint64_t key, const std::function<void(void)> & callback);
 
 	bool isKeyDown(uint64_t key);
 	bool isKeyPressed(uint64_t key);
@@ -46,6 +46,6 @@ private:
 	void processKeyUp(uint64_t sym);
 
 	std::set<uint64_t> keysDown, keysPressed, keysReleased;
-	std::multimap<uint64_t, std::weak_ptr<std::function<void(void)>>> onKeyDown, onKeyUp;
+	std::multimap<uint64_t, std::function<void(void)>> onKeyDown, onKeyUp;
 };
 

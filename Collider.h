@@ -18,6 +18,6 @@ class Collider :
 public:
 	std::unique_ptr<Shape> shape;
 
-	std::vector<std::weak_ptr<std::function<void(const Collision&)>>> callbacks;
+	std::vector<std::function<void(const Collision&)>> callbacks;
 };
 

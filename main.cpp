@@ -56,6 +56,7 @@ int main(int argc, char* args[])
 		sprite.sheet->columns = 2;
 		sprite.sheet->rows = 2;
 		sprite.sort = 32;
+		sprite.color.a = 200;
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 		auto animator = std::make_shared<SpriteAnimator>(2.0f);
@@ -65,7 +66,7 @@ int main(int argc, char* args[])
 		entity.addComponent(&**engine.cbs->behaviours.add(enemy));
 
 		Collider collider;
-		collider.shape = std::make_unique<Circle>(8.0f);
+		collider.shape = std::make_unique<Circle>(6.0f);
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
 		engine.add_entity(std::move(entity));

@@ -58,7 +58,12 @@ void SpriteRenderSystem::tick(float dt)
 		dst.x = (roundf(p.x) - roundf(camera_position.x)) - dst.w / 2 + w / 2;
 		dst.y = (roundf(p.y) - roundf(camera_position.y)) - dst.h / 2 + h / 2;
 
-		SDL_RenderCopyEx(render, sprite.sheet->getTexture(render), &src, &dst, sprite.rotation, nullptr, sprite.flip);
+		auto texture = sprite.sheet->getTexture(render);
+
+		SDL_SetTextureColorMod(texture, sprite.color.r, sprite.color.g, sprite.color.b);
+		SDL_SetTextureAlphaMod(texture, sprite.color.a);
+
+		SDL_RenderCopyEx(render, texture, &src, &dst, sprite.rotation, nullptr, sprite.flip);
 	}
 
 	SDL_SetRenderTarget(render, nullptr);

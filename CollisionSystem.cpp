@@ -42,10 +42,10 @@ void CollisionSystem::tick(float dt)
 
 				for (auto i = a.callbacks.begin(); i != a.callbacks.end();)
 				{
-					auto callback = i->lock();
+					auto callback = *i;
 					if (callback)
 					{
-						(*callback)(collision);
+						callback(collision);
 						++i;
 					}
 					else
@@ -57,10 +57,10 @@ void CollisionSystem::tick(float dt)
 
 				for (auto i = b.callbacks.begin(); i != b.callbacks.end();)
 				{
-					auto callback = i->lock();
+					auto callback = *i;
 					if (callback)
 					{
-						(*callback)(collision);
+						callback(collision);
 						++i;
 					}
 					else

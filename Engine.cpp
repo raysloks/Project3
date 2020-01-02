@@ -46,13 +46,13 @@ Engine::Engine()
 
 
 	// add fullscreen toggle
-	fullscreen_toggle_func = std::make_shared<std::function<void(void)>>([this]()
-		{
-			if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP)
-				SDL_SetWindowFullscreen(window, 0);
-			else
-				SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-		});
+	fullscreen_toggle_func = [this]()
+	{
+		if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP)
+			SDL_SetWindowFullscreen(window, 0);
+		else
+			SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	};
 	input->addKeyDownCallback(SDLK_F11, fullscreen_toggle_func);
 }
 
@@ -146,6 +146,8 @@ size_t Engine::add_entity(Entity && entity)
 
 Entity * Engine::get_entity(size_t index)
 {
+	if (index > entities.components.size())
+		return nullptr;
 	return &entities.components[index];
 }
 

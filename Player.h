@@ -7,6 +7,8 @@
 
 class Collision;
 
+class SpriteShape;
+
 class Player :
 	public CustomBehaviour
 {
@@ -19,9 +21,9 @@ private:
 
 	void update_followers();
 
-	std::shared_ptr<std::function<void(const Collision&)>> on_collision;
+	std::function<void(const Collision&)> on_collision, on_hit;
 
-	std::shared_ptr<std::function<void(void)>> on_attack;
+	std::function<void(void)> on_attack;
 
 	Vec2 v;
 	
@@ -31,8 +33,9 @@ private:
 
 	float anim = 0.0f;
 
-	bool flip;
+	SpriteShape * sword_shape;
+	size_t sword = -1;
 
-	size_t shadow;
+	bool flip;
 };
 

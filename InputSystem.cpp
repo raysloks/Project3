@@ -21,12 +21,12 @@ void InputSystem::processKeyUpEvent(SDL_KeyboardEvent & event)
 		processKeyUp(i->second);
 }
 
-void InputSystem::addKeyDownCallback(uint64_t key, const std::shared_ptr<std::function<void(void)>>& callback)
+void InputSystem::addKeyDownCallback(uint64_t key, const std::function<void(void)> & callback)
 {
 	onKeyDown.insert(std::make_pair(key, callback));
 }
 
-void InputSystem::addKeyUpCallback(uint64_t key, const std::shared_ptr<std::function<void(void)>>& callback)
+void InputSystem::addKeyUpCallback(uint64_t key, const std::function<void(void)> & callback)
 {
 	onKeyUp.insert(std::make_pair(key, callback));
 }
@@ -72,10 +72,10 @@ void InputSystem::processKeyDown(uint64_t sym)
 	auto range = onKeyDown.equal_range(sym);
 	for (auto i = range.first; i != range.second;)
 	{
-		auto callback = i->second.lock();
+		auto callback = i->second;
 		if (callback)
 		{
-			(*callback)();
+			callback();
 			++i;
 		}
 		else
@@ -90,10 +90,10 @@ void InputSystem::processKeyUp(uint64_t sym)
 	auto range = onKeyUp.equal_range(sym);
 	for (auto i = range.first; i != range.second;)
 	{
-		auto callback = i->second.lock();
+		auto callback = i->second;
 		if (callback)
 		{
-			(*callback)();
+			callback();
 			++i;
 		}
 		else
