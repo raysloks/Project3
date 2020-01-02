@@ -8,11 +8,19 @@
 #include "Tilemap.h"
 #include "TilemapShape.h"
 
+#include "GameKeyBinding.h"
+
+#include "Text.h"
+
 int main(int argc, char* args[])
 {
 	Engine engine;
 
-	engine.input->setKeyBinding(1 | (1ull << 32), SDLK_SPACE);
+	engine.input->setKeyBinding(KB_ATTACK, SDLK_SPACE);
+	engine.input->setKeyBinding(KB_UP, SDLK_w);
+	engine.input->setKeyBinding(KB_LEFT, SDLK_a);
+	engine.input->setKeyBinding(KB_DOWN, SDLK_s);
+	engine.input->setKeyBinding(KB_RIGHT, SDLK_d);
 
 	// create player
 	{
@@ -69,19 +77,43 @@ int main(int argc, char* args[])
 		}
 	}
 
-	int x = 0;
-	int y = 0;
-	for (size_t i = 0; i < 200; ++i)
+	for (size_t i = 0; i < 4; ++i)
 	{
-		if (x < w && y < h)
+		int x = 0;
+		int y = 0;
+		for (size_t i = 0; i < 2000; ++i)
+		{
+			if (x < 0)
+				x = 0;
+			if (y < 0)
+				y = 0;
+			if (x > w - 1)
+				x = w - 1;
+			if (y > h - 1)
+				y = h - 1;
 			tilemap[x][y] = 0;
-		if (rand() % 2)
-		{
-			x += 1;
-		}
-		else
-		{
-			y += 1;
+			switch (rand() % 6)
+			{
+			case 0:
+				y -= 1;
+				break;
+			case 1:
+				x -= 1;
+				break;
+			case 2:
+				y += 1;
+				break;
+			case 3:
+				x += 1;
+				break;
+				break;
+			case 4:
+				y += 1;
+				break;
+			case 5:
+				x += 1;
+				break;
+			}
 		}
 	}
 
@@ -98,10 +130,6 @@ int main(int argc, char* args[])
 
 			Sprite sprite("tile.png");
 			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-			/*Collider collider;
-			collider.shape = std::make_unique<Rectangle>(Vec2(16.0f, 16.0f));
-			entity.addComponent(engine.cs->colliders.add(std::move(collider)));*/
 
 			engine.add_entity(std::move(entity));
 		}

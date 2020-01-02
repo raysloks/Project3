@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Shapes">
       <UniqueIdentifier>{ca14b0f1-c692-4083-a843-7da30a45dbae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Resources">
+      <UniqueIdentifier>{d5feabac-6325-4f9f-a503-d447085a5129}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Resources">
+      <UniqueIdentifier>{1121c463-7287-4109-93a6-685da29b765f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -84,9 +90,6 @@
     <ClCompile Include="Vec2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Spritesheet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="InputSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
@@ -95,9 +98,6 @@
     </ClCompile>
     <ClCompile Include="Enemy.cpp">
       <Filter>Source Files\Custom Behaviours</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameRate.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Shape.cpp">
       <Filter>Source Files</Filter>
@@ -113,6 +113,15 @@
     </ClCompile>
     <ClCompile Include="TilemapShape.cpp">
       <Filter>Source Files\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameRate.cpp">
+      <Filter>Source Files\Custom Behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="Spritesheet.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Source Files\Resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -158,9 +167,6 @@
     <ClInclude Include="Vec2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Spritesheet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="InputSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
@@ -169,9 +175,6 @@
     </ClInclude>
     <ClInclude Include="Enemy.h">
       <Filter>Header Files\Custom Behaviours</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameRate.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shape.h">
       <Filter>Header Files</Filter>
@@ -187,6 +190,18 @@
     </ClInclude>
     <ClInclude Include="TilemapShape.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameKeyBinding.h">
+      <Filter>Header Files\Custom Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameRate.h">
+      <Filter>Header Files\Custom Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="Spritesheet.h">
+      <Filter>Header Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Header Files\Resources</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -25,7 +25,7 @@ void Enemy::tick(float dt)
 	for (auto i : in_range)
 	{
 		auto player = dynamic_cast<Player*>(i.second->entity->getComponent<CustomBehaviour>());
-		if (player && i.first > 50.0f)
+		if (player && i.first > 10.0f)
 		{
 			move = player->entity->p - entity->p;
 		}

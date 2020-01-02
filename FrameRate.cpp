@@ -10,7 +10,7 @@ void FrameRate::tick(float dt)
 		font->rows = 16;
 		font->columns = 16;
 
-		for (size_t i = 0; i < 4; ++i)
+		for (size_t i = 0; i < 32; ++i)
 		{
 			Entity entity;
 			entity.p.x = 32 + i * 8;
@@ -30,7 +30,7 @@ void FrameRate::tick(float dt)
 
 	double tps = 1.0 / (double(diff) / freq);
 
-	std::string text = std::to_string(round(tps));
+	std::string text = std::to_string(lround(tps));
 	for (size_t i = 0; i < sprites.size(); ++i)
 	{
 		if (i < text.size())

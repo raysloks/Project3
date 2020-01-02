@@ -6,19 +6,27 @@
 
 #include "Enemy.h"
 
+#include "GameKeyBinding.h"
+
 #include <iostream>
 
 Player::Player()
 {
 	on_attack = std::make_shared<std::function<void(void)>>([this]()
 		{
-			auto in_range = cs->overlapCircle(entity->p + v * 1.0f, 6.0f);
-			if (in_range.empty())
+			auto in_range = cs->overlapCircle(entity->p, 16.0f);
+
+			for (auto i : in_range)
 			{
-				entity->p += v * 1.0f;
+				auto enemy = dynamic_cast<Enemy*>(i.second->entity->getComponent<CustomBehaviour>());
+				if (enemy)
+				{
+					Vec2 diff = enemy->entity->p - entity->p;
+					enemy->entity->p += diff.Normalized() * 128.0f;
+				}
 			}
 		});
-	input->addKeyDownCallback(1 | (1ull << 32), on_attack);
+	input->addKeyDownCallback(KB_ATTACK, on_attack);
 }
 
 void Player::tick(float dt)
@@ -42,13 +50,13 @@ void Player::tick(float dt)
 
 	Vec2 move;
 
-	if (input->isKeyDown(SDLK_w))
+	if (input->isKeyDown(KB_UP))
 		move.y -= 1.0f;
-	if (input->isKeyDown(SDLK_a))
+	if (input->isKeyDown(KB_LEFT))
 		move.x -= 1.0f;
-	if (input->isKeyDown(SDLK_s))
+	if (input->isKeyDown(KB_DOWN))
 		move.y += 1.0f;
-	if (input->isKeyDown(SDLK_d))
+	if (input->isKeyDown(KB_RIGHT))
 		move.x += 1.0f;
 
 	auto sprite = entity->getComponent<Sprite>();

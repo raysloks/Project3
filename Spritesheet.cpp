@@ -13,9 +13,12 @@ Spritesheet::Spritesheet(const std::string& fname)
 	rows = 1;
 	columns = 1;
 
+	loaded = false;
+
 	std::thread t([this, fname]()
 		{
 			surface = IMG_Load(fname.c_str());
+			loaded = true;
 		});
 	t.detach();
 }
