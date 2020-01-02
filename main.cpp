@@ -44,11 +44,10 @@ int main(int argc, char* args[])
 	}
 
 	// create enemy
-	for (size_t i = 0; i < 10; ++i)
 	{
 		Entity entity;
-		entity.x = 50 + 200 * i;
-		entity.y = -500;
+		entity.x = 100;
+		entity.y = 100;
 
 		Sprite sprite("potato_evil.png");
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));

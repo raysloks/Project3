@@ -18,7 +18,7 @@ Player::Player()
 
 			for (auto i : in_range)
 			{
-				auto enemy = dynamic_cast<Enemy*>(i.second->entity->getComponent<CustomBehaviour>());
+				auto enemy = i.second->entity->getComponent<Enemy>();
 				if (enemy)
 				{
 					Vec2 diff = enemy->entity->p - entity->p;
@@ -43,6 +43,9 @@ void Player::tick(float dt)
 			});
 		entity->getComponent<Collider>()->callbacks.push_back(on_collision);
 	}
+
+	if (input->isKeyPressed(SDLK_r))
+		entity->p = Vec2(16.0f, 16.0f);
 
 	float speed = 60.0f;
 	float acceleration = 240.0f;

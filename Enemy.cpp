@@ -24,7 +24,7 @@ void Enemy::tick(float dt)
 	auto in_range = cs->overlapCircle(entity->p, 100.0f);
 	for (auto i : in_range)
 	{
-		auto player = dynamic_cast<Player*>(i.second->entity->getComponent<CustomBehaviour>());
+		auto player = i.second->entity->getComponent<Player>();
 		if (player && i.first > 10.0f)
 		{
 			move = player->entity->p - entity->p;

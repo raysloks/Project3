@@ -22,7 +22,14 @@ public:
 	void addComponent(T * component)
 	{
 		component->entity = this;
-		components.insert(std::make_pair(typeid(T).name(), component));
+		components.insert(std::make_pair(typeid(*component).name(), component));
+	}
+
+	template <class T>
+	void removeComponent(T * component)
+	{
+		component->entity = nullptr;
+		components.erase(typeid(*component).name());
 	}
 
 	template <class T>
