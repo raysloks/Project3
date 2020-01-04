@@ -156,6 +156,7 @@
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Item.cpp" />
+    <ClCompile Include="KeyBindings.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mob.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -166,7 +167,7 @@
     <ClCompile Include="SpriteAnimator.cpp" />
     <ClCompile Include="SpriteRenderSystem.cpp" />
     <ClCompile Include="SpriteShape.cpp" />
-    <ClCompile Include="Spritesheet.cpp" />
+    <ClCompile Include="SpriteSheet.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Tilemap.cpp" />
@@ -190,16 +191,18 @@
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="Item.h" />
+    <ClInclude Include="KeyBindings.h" />
     <ClInclude Include="Mob.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Rectangle.h" />
+    <ClInclude Include="Reference.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteAnimator.h" />
     <ClInclude Include="SpriteRenderSystem.h" />
     <ClInclude Include="SpriteShape.h" />
-    <ClInclude Include="Spritesheet.h" />
+    <ClInclude Include="SpriteSheet.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Tilemap.h" />

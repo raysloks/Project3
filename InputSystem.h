@@ -10,7 +10,10 @@
 
 #include <set>
 
+#include "KeyBindings.h"
+
 struct SDL_KeyboardEvent;
+struct SDL_MouseMotionEvent;
 
 class SpriteRenderSystem;
 
@@ -21,6 +24,8 @@ public:
 	void processKeyDownEvent(SDL_KeyboardEvent& event);
 	void processKeyUpEvent(SDL_KeyboardEvent& event);
 
+	void processMouseMoveEvent(SDL_MouseMotionEvent& event);
+
 	void addKeyDownCallback(uint64_t key, const std::function<void(void)> & callback);
 	void addKeyUpCallback(uint64_t key, const std::function<void(void)> & callback);
 
@@ -28,19 +33,16 @@ public:
 	bool isKeyPressed(uint64_t key);
 	bool isKeyReleased(uint64_t key);
 
-	Vec2 getCursorPosition();
-	Vec2 getCursorPositionInWorld(SpriteRenderSystem * srs);
-
-	void setKeyBinding(uint64_t action, uint64_t key);
+	Vec2 getCursor();
 
 	// clears pressed and released keys
 	void tick(float dt);
 
+	KeyBindings keyBindings;
+
 private:
 
 	Vec2 cursorPosition;
-
-	std::map<uint64_t, uint64_t> keyBindings;
 
 	void processKeyDown(uint64_t sym);
 	void processKeyUp(uint64_t sym);

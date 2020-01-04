@@ -6,11 +6,11 @@ struct SDL_Renderer;
 struct SDL_Surface;
 struct SDL_Texture;
 
-class Spritesheet :
-	public Resource<Spritesheet>
+class SpriteSheet :
+	public Resource<SpriteSheet>
 {
 public:
-	Spritesheet(const std::string& fname);
+	SpriteSheet(const std::string& fname);
 
 	SDL_Texture * getTexture(SDL_Renderer * render);
 

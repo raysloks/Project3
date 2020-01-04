@@ -19,7 +19,7 @@ class System;
 
 class Sprite;
 
-class Spritesheet;
+class SpriteSheet;
 
 class Engine
 {
@@ -51,6 +51,7 @@ public:
 	bool stopped;
 
 	double framerate_cap;
+	float max_dt;
 
 	ComponentContainer<Entity> entities;
 	std::vector<System*> systems;

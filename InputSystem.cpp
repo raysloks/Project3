@@ -8,17 +8,19 @@ void InputSystem::processKeyDownEvent(SDL_KeyboardEvent & event)
 	if (event.repeat)
 		return;
 	processKeyDown(event.keysym.sym);
-	auto i = keyBindings.find(event.keysym.sym);
-	if (i != keyBindings.end())
-		processKeyDown(i->second);
+	processKeyDown(keyBindings.getAction(event.keysym.sym));
 }
 
 void InputSystem::processKeyUpEvent(SDL_KeyboardEvent & event)
 {
 	processKeyUp(event.keysym.sym);
-	auto i = keyBindings.find(event.keysym.sym);
-	if (i != keyBindings.end())
-		processKeyUp(i->second);
+	processKeyUp(keyBindings.getAction(event.keysym.sym));
+}
+
+void InputSystem::processMouseMoveEvent(SDL_MouseMotionEvent & event)
+{
+	cursorPosition.x = event.x;
+	cursorPosition.y = event.y;
 }
 
 void InputSystem::addKeyDownCallback(uint64_t key, const std::function<void(void)> & callback)
@@ -46,19 +48,9 @@ bool InputSystem::isKeyReleased(uint64_t key)
 	return keysReleased.find(key) != keysReleased.end();
 }
 
-Vec2 InputSystem::getCursorPosition()
+Vec2 InputSystem::getCursor()
 {
 	return cursorPosition;
-}
-
-Vec2 InputSystem::getCursorPositionInWorld(SpriteRenderSystem * srs)
-{
-	return Vec2();
-}
-
-void InputSystem::setKeyBinding(uint64_t action, uint64_t key)
-{
-	keyBindings[key] = action;
 }
 
 void InputSystem::tick(float dt)
@@ -69,6 +61,8 @@ void InputSystem::tick(float dt)
 
 void InputSystem::processKeyDown(uint64_t sym)
 {
+	if (sym == -1)
+		return;
 	auto range = onKeyDown.equal_range(sym);
 	for (auto i = range.first; i != range.second;)
 	{
@@ -87,6 +81,8 @@ void InputSystem::processKeyDown(uint64_t sym)
 
 void InputSystem::processKeyUp(uint64_t sym)
 {
+	if (sym == -1)
+		return;
 	auto range = onKeyUp.equal_range(sym);
 	for (auto i = range.first; i != range.second;)
 	{

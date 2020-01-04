@@ -16,7 +16,11 @@ class Collider :
 	public Component
 {
 public:
+	Collider();
+
 	std::unique_ptr<Shape> shape;
+
+	uint64_t layers;
 
 	std::vector<std::function<void(const Collision&)>> callbacks;
 };

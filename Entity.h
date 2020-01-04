@@ -4,6 +4,8 @@
 
 #include "Vec2.h"
 
+#include "Reference.h"
+
 #include <string>
 #include <map>
 #include <vector>
@@ -28,6 +30,13 @@ public:
 	{
 		component->entity = this;
 		components.insert(std::make_pair(typeid(*component).name(), component));
+	}
+
+	template <class T>
+	void addComponent(Reference<T> component)
+	{
+		component->entity = this;
+		components.insert(std::make_pair(typeid(*component).name(), &*component));
 	}
 
 	void removeComponent(Component * component);

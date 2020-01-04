@@ -19,7 +19,7 @@ public:
 
 private:
 
-	void update_followers();
+	void update_camera();
 
 	std::function<void(const Collision&)> on_collision, on_hit;
 

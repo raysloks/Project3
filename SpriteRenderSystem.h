@@ -10,6 +10,9 @@ class SpriteRenderSystem :
 public:
 	SpriteRenderSystem(SDL_Renderer * render);
 
+	Vec2 screenToWorld(const Vec2& screen_position);
+	Vec2 worldToScreen(const Vec2& world_position);
+
 	void tick(float dt);
 
 	ComponentContainer<Sprite> sprites, ui;
@@ -18,8 +21,13 @@ public:
 
 	SDL_Renderer * render;
 
+private:
 	SDL_Texture * offscreen;
 
 	bool flicker;
+
+	int w, h;
+	int screen_w, screen_h;
+	int scale;
 };
 

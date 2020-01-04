@@ -16,11 +16,20 @@ SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
 	flicker = false;
 }
 
+Vec2 SpriteRenderSystem::screenToWorld(const Vec2 & screen_position)
+{
+	return (screen_position - Vec2(screen_w, screen_h) * 0.5f) / scale + camera_position;
+}
+
+Vec2 SpriteRenderSystem::worldToScreen(const Vec2 & world_position)
+{
+	return Vec2();
+}
+
 void SpriteRenderSystem::tick(float dt)
 {
 	flicker = !flicker;
 
-	int screen_w, screen_h;
 	SDL_GetRendererOutputSize(render, &screen_w, &screen_h);
 
 	SDL_SetRenderTarget(render, offscreen);
@@ -28,10 +37,9 @@ void SpriteRenderSystem::tick(float dt)
 	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
 	SDL_RenderClear(render);
 
-	int w, h;
 	SDL_GetRendererOutputSize(render, &w, &h);
 
-	int scale = (screen_w + w - 1) / w;
+	scale = (screen_w + w - 1) / w;
 
 	std::multimap<float, Sprite*> sorted;
 

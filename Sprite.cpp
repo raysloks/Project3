@@ -19,12 +19,12 @@ Sprite::Sprite()
 	color.a = 255;
 }
 
-Sprite::Sprite(const std::shared_ptr<Spritesheet>& sheet) : Sprite()
+Sprite::Sprite(const std::shared_ptr<SpriteSheet>& sheet) : Sprite()
 {
 	this->sheet = sheet;
 }
 
 Sprite::Sprite(const std::string & sheet) : Sprite()
 {
-	this->sheet = Spritesheet::get(sheet);
+	this->sheet = SpriteSheet::get(sheet);
 }

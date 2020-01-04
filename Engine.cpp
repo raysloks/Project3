@@ -22,6 +22,8 @@ Engine::Engine()
 
 	framerate_cap = 0.0;
 
+	max_dt = 1.0 / 30.0;
+
 	// initialize systems
 
 	cbs = new CustomBehaviourSystem();
@@ -96,6 +98,9 @@ void Engine::run()
 			case SDL_KEYUP:
 				input->processKeyUpEvent(e.key);
 				break;
+			case SDL_MOUSEMOTION:
+				input->processMouseMoveEvent(e.motion);
+				break;
 			case SDL_WINDOWEVENT:
 				switch (e.window.event)
 				{
@@ -112,7 +117,14 @@ void Engine::run()
 		}
 
 		for (auto system : systems)
-			system->tick(full);
+		{
+			//auto start = SDL_GetPerformanceCounter();
+			system->tick(fmin(full, max_dt));
+			/*auto end = SDL_GetPerformanceCounter();
+			double duration = double(end - start) / freq;
+			std::cout << typeid(*system).name() << std::endl;
+			std::cout << 100 * duration / full << std::endl;*/
+		}
 
 		end_busy = SDL_GetPerformanceCounter();
 		busy = double(end_busy - start_busy) / freq;
@@ -141,7 +153,7 @@ void Engine::stop()
 
 size_t Engine::add_entity(Entity && entity)
 {
-	return entities.get_index(entities.add(std::move(entity)));
+	return entities.add(std::move(entity)).index;
 }
 
 Entity * Engine::get_entity(size_t index)

@@ -4,7 +4,7 @@ void FrameRate::tick(float dt)
 {
 	if (sprites.empty())
 	{
-		auto font = Spritesheet::get("font.png");
+		auto font = SpriteSheet::get("font.png");
 		font->rows = 16;
 		font->columns = 16;
 

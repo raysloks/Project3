@@ -1,11 +1,11 @@
-#include "Spritesheet.h"
+#include "SpriteSheet.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
 
 #include <thread>
 
-Spritesheet::Spritesheet(const std::string& fname)
+SpriteSheet::SpriteSheet(const std::string& fname)
 {
 	surface = nullptr;
 	texture = nullptr;
@@ -23,7 +23,7 @@ Spritesheet::Spritesheet(const std::string& fname)
 	t.detach();
 }
 
-SDL_Texture * Spritesheet::getTexture(SDL_Renderer * render)
+SDL_Texture * SpriteSheet::getTexture(SDL_Renderer * render)
 {
 	if (!texture)
 		if (surface)

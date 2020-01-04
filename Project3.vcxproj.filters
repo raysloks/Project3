@@ -114,9 +114,6 @@
     <ClCompile Include="FrameRate.cpp">
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
-    <ClCompile Include="Spritesheet.cpp">
-      <Filter>Source Files\Resources</Filter>
-    </ClCompile>
     <ClCompile Include="Text.cpp">
       <Filter>Source Files\Resources</Filter>
     </ClCompile>
@@ -133,6 +130,12 @@
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
     <ClCompile Include="Mob.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteSheet.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyBindings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -206,9 +209,6 @@
     <ClInclude Include="FrameRate.h">
       <Filter>Header Files\Custom Behaviours</Filter>
     </ClInclude>
-    <ClInclude Include="Spritesheet.h">
-      <Filter>Header Files\Resources</Filter>
-    </ClInclude>
     <ClInclude Include="Text.h">
       <Filter>Header Files\Resources</Filter>
     </ClInclude>
@@ -228,6 +228,15 @@
       <Filter>Header Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="Mob.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Reference.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteSheet.h">
+      <Filter>Header Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyBindings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

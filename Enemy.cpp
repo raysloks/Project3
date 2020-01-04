@@ -36,8 +36,8 @@ void Enemy::tick(float dt)
 	if (sprite)
 	{
 		if (move.x < 0.0f)
-			sprite->subsprite_y = 1;
+			sprite->flip = SDL_FLIP_HORIZONTAL;
 		if (move.x > 0.0f)
-			sprite->subsprite_y = 0;
+			sprite->flip = SDL_FLIP_NONE;
 	}
 }

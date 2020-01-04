@@ -17,13 +17,13 @@ int main(int argc, char* args[])
 {
 	Engine engine;
 
-	engine.input->setKeyBinding(KB_ATTACK, SDLK_f);
-	engine.input->setKeyBinding(KB_DASH, SDLK_SPACE);
+	engine.input->keyBindings.set(KB_ATTACK, SDLK_f);
+	engine.input->keyBindings.set(KB_DASH, SDLK_SPACE);
 
-	engine.input->setKeyBinding(KB_UP, SDLK_w);
-	engine.input->setKeyBinding(KB_LEFT, SDLK_a);
-	engine.input->setKeyBinding(KB_DOWN, SDLK_s);
-	engine.input->setKeyBinding(KB_RIGHT, SDLK_d);
+	engine.input->keyBindings.set(KB_UP, SDLK_w);
+	engine.input->keyBindings.set(KB_LEFT, SDLK_a);
+	engine.input->keyBindings.set(KB_DOWN, SDLK_s);
+	engine.input->keyBindings.set(KB_RIGHT, SDLK_d);
 
 	// create player
 	{
@@ -31,7 +31,7 @@ int main(int argc, char* args[])
 		entity.x = 16;
 		entity.y = 16;
 
-		auto sprite = Spritesheet::get("dude_one.png");
+		auto sprite = SpriteSheet::get("dude_one.png");
 		sprite->columns = 4;
 		sprite->rows = 2;
 		entity.addComponent(engine.srs->sprites.add(Sprite(sprite)));
@@ -43,7 +43,18 @@ int main(int argc, char* args[])
 		collider.shape = std::make_unique<Circle>(6.0f);
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
-		engine.add_entity(std::move(entity));
+		auto player_entity_index = engine.add_entity(std::move(entity));
+
+		{
+			Entity entity;
+			engine.get_entity(player_entity_index)->addChild(&entity);
+
+			Sprite sprite("shadow.png");
+			sprite.sort = -16;
+			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+			engine.add_entity(std::move(entity));
+		}
 	}
 
 	// create enemy
@@ -53,13 +64,12 @@ int main(int argc, char* args[])
 		entity.y = 100;
 
 		Sprite sprite("ghost.png");
-		sprite.sheet->columns = 2;
-		sprite.sheet->rows = 2;
+		sprite.sheet->columns = 24;
 		sprite.sort = 32;
 		sprite.color.a = 200;
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
-		auto animator = std::make_shared<SpriteAnimator>(2.0f);
+		auto animator = std::make_shared<SpriteAnimator>(16.0f);
 		entity.addComponent(&**engine.cbs->behaviours.add(std::move(animator)));
 
 		auto enemy = std::make_shared<Enemy>();
@@ -67,10 +77,42 @@ int main(int argc, char* args[])
 
 		Collider collider;
 		collider.shape = std::make_unique<Circle>(6.0f);
+		collider.layers = 2;
 		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
 
-		engine.add_entity(std::move(entity));
+		auto enemy_entity_index = engine.add_entity(std::move(entity));
+
+		{
+			Entity entity;
+			engine.get_entity(enemy_entity_index)->addChild(&entity);
+
+			Sprite sprite("shadow.png");
+			sprite.sort = -16;
+			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+			engine.add_entity(std::move(entity));
+		}
 	}
+
+	/*for (int x = 0; x < 40; ++x)
+	{
+		for (int y = 0; y < 40; ++y)
+		{
+			Entity entity;
+			entity.p = Vec2(x, y) + Vec2(50, 50);
+
+			Sprite sprite("pixel.png");
+			sprite.color = SDL_Color{ 0, 0, 0, 255 };
+			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+			Collider collider;
+			collider.shape = std::make_unique<Circle>(0.5f);
+			collider.layers = 2;
+			entity.addComponent(engine.cs->colliders.add(std::move(collider)));
+
+			engine.add_entity(std::move(entity));
+		}
+	}*/
 
 	// create test animation
 	{

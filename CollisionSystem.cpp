@@ -21,6 +21,9 @@ void CollisionSystem::tick(float dt)
 			if (b.entity == nullptr)
 				continue;
 
+			if ((a.layers & b.layers) == 0)
+				continue;
+
 			size_t count = 0;
 			do
 			{
