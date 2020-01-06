@@ -26,6 +26,9 @@ int main(int argc, char* args[])
 	engine.input->keyBindings.set(KB_DOWN, SDLK_s);
 	engine.input->keyBindings.set(KB_RIGHT, SDLK_d);
 
+	// TODO remove after a better option to keep a resource loaded is added
+	auto swoop = SpriteSheet::get("swoop.png");
+
 	// create player
 	{
 		Entity entity;
@@ -61,6 +64,7 @@ int main(int argc, char* args[])
 	}
 
 	// create bouncing ball
+	if (false)
 	{
 		Entity entity;
 		entity.x = 16 * 2;
@@ -169,7 +173,8 @@ int main(int argc, char* args[])
 		}
 	}*/
 
-	// create test animation
+	// create key
+	if (false)
 	{
 		Entity entity;
 		entity.x = 16 * 2;
@@ -188,49 +193,14 @@ int main(int argc, char* args[])
 	}
 
 	auto floor = SpriteSheet::get("floor.png");
-	while (!floor->loaded)
-	{
-		SDL_Delay(0);
-		// TODO on load
-	}
-		
-	auto floor_iso = std::make_shared<SpriteSheet>(32, 16);
-	for (intmax_t x = 0; x < 32; ++x)
-	{
-		for (intmax_t y = 0; y < 16; ++y)
-		{
-			intmax_t ox = (x + 1) / 2 + y - 8;
-			intmax_t oy = y - (x + 1) / 2 + 8;
 
-			SDL_Color & iso = *(SDL_Color*)((uint8_t*)floor_iso->surface->pixels + y * floor_iso->surface->pitch + x * 4);
+	auto floor_iso_gen_lossy = floor->makeIsometricFloorLossy(false);
+	auto floor_iso_gen_lossy_blur = floor->makeIsometricFloorLossy(true);
+	auto floor_iso_gen_lossless = floor->makeIsometricFloorLossless();
 
-			if (ox >= 0 && ox < floor->surface->w && oy >= 0 && oy < floor->surface->h)
-			{
-				SDL_Color & og = *(SDL_Color*)((uint8_t*)floor->surface->pixels + oy * floor->surface->pitch + ox * 4);
-
-				iso = og;
-
-				ox = ox * 2 - 15;
-				oy = oy * 2 - 15;
-
-				if (ox * ox + oy * oy < 64)
-				{
-					iso.r += 128;
-					iso.r /= 2;
-					iso.g /= 32;
-					iso.b /= 32;
-				}
-			}
-			else
-			{
-				iso.r = 0;
-				iso.g = 0;
-				iso.b = 0;
-				iso.a = 0;
-			}
-		}
-	}
-	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen.png", floor_iso));
+	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy", floor_iso_gen_lossy));
+	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy_blur", floor_iso_gen_lossy_blur));
+	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossless", floor_iso_gen_lossless));
 
 	const int w = 100;
 	const int h = 100;
@@ -242,7 +212,7 @@ int main(int argc, char* args[])
 	{
 		for (int y = 0; y < h; ++y)
 		{
-			tilemap[x][y] = (rand() % 4 << 1) | 1;
+			tilemap[x][y].tile = (rand() % 4 << 1) | 1;
 		}
 	}
 
@@ -286,7 +256,7 @@ int main(int argc, char* args[])
 				x = w - 2;
 			if (y > h - 2)
 				y = h - 2;
-			tilemap[x][y] = 0;
+			tilemap[x][y].tile = 0;
 
 			int dir = rand() % 4;
 			if (dir == (prev_dir + 2) % 4)
@@ -321,24 +291,25 @@ int main(int argc, char* args[])
 	{
 		for (size_t y = 0; y < h; ++y)
 		{
-			if (tilemap[x][y])
+			auto& tile = tilemap[x][y];
+			if (tile.tile)
 			{
 				int walls = 0;
-				if (tilemap.at(x + 1, y + 1))
+				if (tilemap.at(x + 1, y + 1).tile)
 					walls += 1;
-				if (tilemap.at(x, y + 1))
+				if (tilemap.at(x, y + 1).tile)
 					walls += 1;
-				if (tilemap.at(x - 1, y + 1))
+				if (tilemap.at(x - 1, y + 1).tile)
 					walls += 1;
-				if (tilemap.at(x - 1, y))
+				if (tilemap.at(x - 1, y).tile)
 					walls += 1;
-				if (tilemap.at(x - 1, y - 1))
+				if (tilemap.at(x - 1, y - 1).tile)
 					walls += 1;
-				if (tilemap.at(x, y - 1))
+				if (tilemap.at(x, y - 1).tile)
 					walls += 1;
-				if (tilemap.at(x + 1, y - 1))
+				if (tilemap.at(x + 1, y - 1).tile)
 					walls += 1;
-				if (tilemap.at(x + 1, y))
+				if (tilemap.at(x + 1, y).tile)
 					walls += 1;
 
 				if (walls < 8)
@@ -347,7 +318,7 @@ int main(int argc, char* args[])
 					entity.p = Vec2(x, y) * tilemap.tile_size;
 
 					Sprite sprite("tile_iso.png");
-					size_t tile_index = (tilemap[x][y] >> 1) % 4;
+					size_t tile_index = (tile.tile >> 1) % 4;
 					sprite.subsprite_x = tile_index % sprite.sheet->columns;
 					sprite.subsprite_y = tile_index / sprite.sheet->columns;
 					entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
@@ -360,16 +331,26 @@ int main(int argc, char* args[])
 				Entity entity;
 				entity.p = Vec2(x, y) * tilemap.tile_size;
 
-				auto tile = "floor_iso.png";
+				auto sheet = SpriteSheet::get("floor_iso_gen_lossless");
 
-				/*if (rand() % 2)
-					tile = "floor_iso_gen.png";*/
-
-				Sprite sprite(tile);
+				Sprite sprite(sheet);
 				sprite.sort = -256;
 				entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 				engine.add_entity(std::move(entity));
+
+				if (rand() % 16 == 0)
+				{
+					Entity entity;
+					entity.p = Vec2(x, y) * tilemap.tile_size;
+
+					Sprite sprite(SpriteSheet::get("splatter.png")->makeIsometricFloorLossless());
+					sprite.sort = -128;
+					sprite.color.a = 200;
+					entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+					engine.add_entity(std::move(entity));
+				}
 			}
 		}
 	}
@@ -391,6 +372,19 @@ int main(int argc, char* args[])
 
 		auto fps = std::make_shared<FrameRate>();
 		entity.addComponent(&**engine.cbs->behaviours.add(fps));
+
+		engine.add_entity(std::move(entity));
+	}
+
+	{
+		Entity entity;
+		entity.p = Vec2(-50, 1600);
+
+		auto sheet = SpriteSheet::get("floor_iso_gen_lossless");
+
+		Sprite sprite(sheet);
+		sprite.sort = -256;
+		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 		engine.add_entity(std::move(entity));
 	}

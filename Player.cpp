@@ -23,13 +23,16 @@ Player::Player()
 
 		Entity entity;
 
-		auto sheet = SpriteSheet::get("swoop.png");
-		sheet->columns = 4;
 
-		auto sprite = srs->sprites.add(Sprite(sheet));
+		auto swoop = SpriteSheet::get("swoop.png");
+		swoop->columns = 4;
+
+		auto swoop_iso = swoop->makeIsometricFloorLossless(atan2f(direction.x, -direction.y) * 180.0f / float(M_PI));
+
+		auto sprite = srs->sprites.add(Sprite(swoop_iso));
 		sprite->sort = -8;
-		sprite->rotation = atan2f(direction.x, -direction.y) * 180.0f / float(M_PI);
-		sprite->flip = flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+		//sprite->rotation = atan2f(direction.x, -direction.y) * 180.0f / float(M_PI);
+		//sprite->flip = flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 		entity.addComponent(sprite);
 
 		auto animator = std::make_shared<SpriteAnimator>(30.0f);
@@ -37,7 +40,8 @@ Player::Player()
 		entity.addComponent(&**cbs->behaviours.add(std::move(animator)));
 		
 		auto collider = cs->colliders.add(Collider());
-		collider->shape = std::make_unique<SpriteShape>(sprite);
+		collider->shape = std::make_unique<Circle>(10.0f);
+		//collider->shape = std::make_unique<SpriteShape>(sprite);
 		collider->layers = 2;
 
 		auto hit = std::make_shared<std::set<Enemy*>>();

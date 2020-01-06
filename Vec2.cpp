@@ -1,5 +1,7 @@
 #include "Vec2.h"
 
+#define _USE_MATH_DEFINES
+
 #include <cmath>
 
 Vec2::Vec2(void) : x(0.0f), y(0.0f)
@@ -63,6 +65,15 @@ Vec2 Vec2::Truncated(float lim) const
 	if (l > lim * lim)
 		return Vec2(*this) / sqrt(l) * lim;
 	return Vec2(*this);
+}
+
+Vec2 & Vec2::Rotate(float degs)
+{
+	float rads = degs * M_PI / 180.0f;
+	float sin = sinf(rads);
+	float cos = cosf(rads);
+	*this = Vec2(y * sin + x * cos, -x * sin + y * cos);
+	return *this;
 }
 
 const Vec2& Vec2::operator+=(const Vec2& rhs)

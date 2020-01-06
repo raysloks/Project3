@@ -141,6 +141,9 @@
     <ClCompile Include="Mob.cpp">
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
+    <ClCompile Include="Tile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -244,6 +247,9 @@
     </ClInclude>
     <ClInclude Include="Mob.h">
       <Filter>Header Files\Custom Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
