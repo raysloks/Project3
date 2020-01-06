@@ -15,6 +15,8 @@ public:
 	float speed;
 	float time;
 
+	float freeze;
+
 	bool destroy;
 };
 

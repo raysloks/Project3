@@ -35,9 +35,16 @@ void Enemy::tick(float dt)
 	auto sprite = entity->getComponent<Sprite>();
 	if (sprite)
 	{
-		if (move.x < 0.0f)
+		if (move.x < move.y)
 			sprite->flip = SDL_FLIP_HORIZONTAL;
-		if (move.x > 0.0f)
+		if (move.x > move.y)
 			sprite->flip = SDL_FLIP_NONE;
+	}
+
+	for (auto child : entity->getChildren())
+	{
+		auto child_sprite = child->getComponent<Sprite>();
+		if (child_sprite)
+			child_sprite->flip = sprite->flip;
 	}
 }

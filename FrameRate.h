@@ -10,6 +10,6 @@ public:
 
 private:
 	std::vector<double> records;
-	std::vector<size_t> sprites;
+	std::vector<Reference<Sprite>> sprites;
 };
 

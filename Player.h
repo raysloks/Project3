@@ -34,7 +34,7 @@ private:
 	float anim = 0.0f;
 
 	SpriteShape * sword_shape;
-	size_t sword = -1;
+	Reference<Entity> sword;
 
 	bool flip;
 };

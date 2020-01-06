@@ -149,19 +149,19 @@ void Entity::removeComponent(Component * component)
 	}
 }
 
-Vec2 Entity::getPosition()
+Vec2 Entity::getPosition() const
 {
 	if (parent)
 		return p + parent->getPosition();
 	return p;
 }
 
-Entity * Entity::getParent()
+Entity * Entity::getParent() const
 {
 	return parent;
 }
 
-Entity * Entity::getRoot()
+Entity * Entity::getRoot() const
 {
 	return root;
 }
@@ -182,4 +182,9 @@ void Entity::removeChild(Entity * child)
 	children.erase(std::find(children.begin(), children.end(), child));
 	child->parent = nullptr;
 	child->setRoot(child);
+}
+
+const std::vector<Entity*>& Entity::getChildren()
+{
+	return children;
 }

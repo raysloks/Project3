@@ -17,7 +17,9 @@ void FrameRate::tick(float dt)
 			auto sprite = srs->ui.add(Sprite(font));
 			entity.addComponent(sprite);
 
-			sprites.push_back(engine->add_entity(std::move(entity)));
+			engine->add_entity(std::move(entity));
+
+			sprites.push_back(sprite);
 		}
 	}
 
@@ -39,7 +41,7 @@ void FrameRate::tick(float dt)
 	std::string text = std::to_string(lround(sum / records.size())) + " " + std::to_string(lround(min)) + " " + std::to_string(lround(tps));
 	for (size_t i = 0; i < sprites.size(); ++i)
 	{
-		auto sprite = engine->get_entity(sprites[i])->getComponent<Sprite>();
+		auto sprite = sprites[i];
 		if (i < text.size())
 		{
 			size_t c = text[i];

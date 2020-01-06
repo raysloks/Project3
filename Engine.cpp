@@ -101,16 +101,6 @@ void Engine::run()
 			case SDL_MOUSEMOTION:
 				input->processMouseMoveEvent(e.motion);
 				break;
-			case SDL_WINDOWEVENT:
-				switch (e.window.event)
-				{
-				case SDL_WINDOWEVENT_RESIZED:
-					//screen = SDL_GetWindowSurface(window);
-					break;
-				default:
-					break;
-				}
-				break;
 			default:
 				break;
 			}
@@ -151,9 +141,9 @@ void Engine::stop()
 	stopped = true;
 }
 
-size_t Engine::add_entity(Entity && entity)
+Reference<Entity> Engine::add_entity(Entity && entity)
 {
-	return entities.add(std::move(entity)).index;
+	return entities.add(std::move(entity));
 }
 
 Entity * Engine::get_entity(size_t index)
@@ -169,7 +159,7 @@ void Engine::remove_entity(Entity * entity)
 	entities.remove(entity);
 }
 
-void Engine::remove_entity(size_t entity)
+void Engine::remove_entity(size_t index)
 {
-	remove_entity(&entities.components[entity]);
+	remove_entity(&entities.components[index]);
 }

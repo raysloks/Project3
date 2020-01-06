@@ -1,12 +1,17 @@
 #include "SpriteAnimator.h"
 
-SpriteAnimator::SpriteAnimator(float speed, float time, size_t frame_count) : speed(speed), time(time), frame_count(frame_count), destroy(false)
+SpriteAnimator::SpriteAnimator(float speed, float time, size_t frame_count) : speed(speed), time(time), frame_count(frame_count), destroy(false), freeze(0.0f)
 {
 }
 
 void SpriteAnimator::tick(float dt)
 {
-	time += dt * speed;
+	freeze -= dt;
+	if (freeze < 0.0f)
+	{
+		time -= freeze * speed;
+		freeze = 0.0f;
+	}
 
 	if (auto sprite = entity->getComponent<Sprite>())
 	{

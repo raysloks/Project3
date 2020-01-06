@@ -47,7 +47,9 @@ Player::Player()
 			{
 				if (hit->find(enemy) == hit->end())
 				{
-					enemy->entity->p += direction * 20.0f;
+					sword->getComponent<SpriteAnimator>()->freeze = fmaxf(sword->getComponent<SpriteAnimator>()->freeze, 2.0f / 30.0f);
+					enemy->entity->getComponent<SpriteAnimator>()->freeze = fmaxf(sword->getComponent<SpriteAnimator>()->freeze, 4.0f / 30.0f);
+					enemy->entity->p += direction * 4.0f;
 					hit->insert(enemy);
 				}
 			}
@@ -72,7 +74,9 @@ void Player::tick(float dt)
 		on_collision = [this](const Collision& collision)
 			{
 				entity->p -= collision.n * collision.pen;
-				v -= collision.n * v.Dot(collision.n);
+				float v_dot_n = v.Dot(collision.n);
+				if (v_dot_n > 0.0f)
+					v -= collision.n * v_dot_n;
 
 				n = collision.n;
 
@@ -86,7 +90,7 @@ void Player::tick(float dt)
 	if (input->isKeyPressed(SDLK_r))
 		entity->p = Vec2(16.0f, 16.0f);
 
-	float speed = 120.0f;
+	float speed = 60.0f;
 	float acceleration = 120.0f;
 	float deceleration = 480.0f;
 
@@ -100,13 +104,14 @@ void Player::tick(float dt)
 		move.y += 1.0f;
 	if (input->isKeyDown(KB_RIGHT))
 		move.x += 1.0f;
+	move = Vec2(move.x + move.y, move.y - move.x);
 
 	if (move != Vec2())
 		facing = move.Normalized();
 
-	if (move.x < 0.0f)
+	if (move.x < move.y)
 		sprite->subsprite_y = 1;
-	if (move.x > 0.0f)
+	if (move.x > move.y)
 		sprite->subsprite_y = 0;
 
 	float n_dot_move = n.Dot(move);

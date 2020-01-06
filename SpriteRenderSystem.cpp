@@ -46,7 +46,12 @@ void SpriteRenderSystem::tick(float dt)
 	for (auto& sprite : sprites.components)
 		if (sprite.entity)
 			if (sprite.sheet->surface)
-				sorted.insert(std::make_pair(sprite.entity->getPosition().y + sprite.sort, &sprite));
+			{
+				auto p = sprite.entity->getPosition();
+				sorted.insert(std::make_pair(p.y + p.x + sprite.sort, &sprite));
+			}
+
+	Vec2 camera_position_iso(camera_position.x - camera_position.y, (camera_position.y + camera_position.x) * 0.5f);
 
 	for (auto& i : sorted)
 	{
@@ -60,11 +65,15 @@ void SpriteRenderSystem::tick(float dt)
 		src.x += sprite.subsprite_x * src.w;
 		src.y += sprite.subsprite_y * src.h;
 
+		Vec2 p_iso(p.x - p.y, (p.y + p.x) * 0.5f);
+
+		Vec2 flip(sprite.flip & SDL_FLIP_HORIZONTAL ? 1.0f : -1.0f, sprite.flip & SDL_FLIP_VERTICAL ? 1.0f : -1.0f);
+
 		SDL_Rect dst = sprite.sheet->surface->clip_rect;
 		dst.w /= sprite.sheet->columns;
 		dst.h /= sprite.sheet->rows;
-		dst.x = (roundf(p.x) - roundf(camera_position.x)) - dst.w / 2 + w / 2;
-		dst.y = (roundf(p.y) - roundf(camera_position.y)) - dst.h / 2 + h / 2;
+		dst.x = (roundf(p_iso.x) - roundf(camera_position_iso.x)) - sprite.sheet->offset_x * flip.x - dst.w / 2 + w / 2;
+		dst.y = (roundf(p_iso.y) - roundf(camera_position_iso.y)) - sprite.sheet->offset_y * flip.y - dst.h / 2 + h / 2;
 
 		auto texture = sprite.sheet->getTexture(render);
 
@@ -79,8 +88,8 @@ void SpriteRenderSystem::tick(float dt)
 	SDL_Rect rect;
 	rect.w = w * scale;
 	rect.h = h * scale;
-	rect.x = (roundf(camera_position.x) - camera_position.x) * scale - (rect.w - screen_w) / 2;
-	rect.y = (roundf(camera_position.y) - camera_position.y) * scale - (rect.h - screen_h) / 2;
+	rect.x = (roundf(camera_position_iso.x) - camera_position_iso.x) * scale - (rect.w - screen_w) / 2;
+	rect.y = (roundf(camera_position_iso.y) - camera_position_iso.y) * scale - (rect.h - screen_h) / 2;
 
 	SDL_RenderCopy(render, offscreen, nullptr, &rect);
 
@@ -96,11 +105,13 @@ void SpriteRenderSystem::tick(float dt)
 				src.x += sprite.subsprite_x * src.w;
 				src.y += sprite.subsprite_y * src.h;
 
+				Vec2 flip(sprite.flip & SDL_FLIP_HORIZONTAL ? 1.0f : -1.0f, sprite.flip & SDL_FLIP_VERTICAL ? 1.0f : -1.0f);
+
 				SDL_Rect dst = sprite.sheet->surface->clip_rect;
 				dst.w /= sprite.sheet->columns;
 				dst.h /= sprite.sheet->rows;
-				dst.x = sprite.entity->p.x - dst.w / 2;
-				dst.y = sprite.entity->p.y - dst.h / 2;
+				dst.x = sprite.entity->p.x - sprite.sheet->offset_x * flip.x - dst.w / 2;
+				dst.y = sprite.entity->p.y - sprite.sheet->offset_y * flip.y - dst.h / 2;
 				dst.w *= scale;
 				dst.h *= scale;
 				dst.x *= scale;

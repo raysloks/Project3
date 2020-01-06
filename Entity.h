@@ -22,8 +22,6 @@ public:
 	Entity & operator=(Entity && entity) noexcept;
 
 	void componentMoved(Component * pOld, Component * pNew);
-	void childMoved(Entity * pOld, Entity * pNew);
-	void setRoot(Entity * root);
 
 	template <class T>
 	void addComponent(T * component)
@@ -49,7 +47,7 @@ public:
 	}
 
 	template <class T>
-	T * getComponent()
+	T * getComponent() const
 	{
 		auto component = components.find(typeid(T).name());
 		if (component != components.end())
@@ -57,15 +55,15 @@ public:
 		return nullptr;
 	}
 
-	Vec2 getPosition();
+	Vec2 getPosition() const;
 
-	Entity * getParent();
-	Entity * getRoot();
+	Entity * getParent() const;
+	Entity * getRoot() const;
 
 	void addChild(Entity * child);
 	void removeChild(Entity * child);
 
-	uint64_t guid;
+	const std::vector<Entity*>& getChildren();
 
 	union
 	{
@@ -76,9 +74,15 @@ public:
 		};
 	};
 
+private:
+
+	uint64_t guid;
+
 	std::map<std::string, Component*> components;
 
-private:
+	void childMoved(Entity * pOld, Entity * pNew);
+	void setRoot(Entity * root);
+
 	Entity * parent;
 	Entity * root;
 	std::vector<Entity*> children;
