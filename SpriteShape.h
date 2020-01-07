@@ -15,6 +15,7 @@ public:
 
 	void check(const Vec2& diff, const Shape * other, std::vector<Collision>& collisions) const;
 
+	std::shared_ptr<SpriteSheet> sheet;
 	Reference<Sprite> sprite;
 };
 

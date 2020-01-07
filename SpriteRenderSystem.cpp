@@ -16,9 +16,10 @@ SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
 	flicker = false;
 }
 
-Vec2 SpriteRenderSystem::screenToWorld(const Vec2 & screen_position)
+Vec2 SpriteRenderSystem::screenToWorld(const Vec2 & p)
 {
-	return (screen_position - Vec2(screen_w, screen_h) * 0.5f) / scale + camera_position;
+	Vec2 eye = (p - Vec2(screen_w, screen_h) * 0.5f) / scale;
+	return Vec2(eye.x * 0.5f + eye.y, eye.y - eye.x * 0.5f) + camera_position;
 }
 
 Vec2 SpriteRenderSystem::worldToScreen(const Vec2 & world_position)

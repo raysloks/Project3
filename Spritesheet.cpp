@@ -147,6 +147,9 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossy(bool blur)
 	return nullptr;
 }
 
+#include <set>
+#include <iostream>
+
 std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossless(float rotation)
 {
 	while (!loaded)
@@ -171,10 +174,16 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossless(float rotat
 		sheet->columns = columns;
 		sheet->rows = rows;
 
+		float rads = rotation * M_PI / 180.0f;
+		float sin = sinf(rads);
+		float cos = cosf(rads);
+
 		for (intmax_t c = 0; c < columns; ++c)
 		{
 			for (intmax_t r = 0; r < rows; ++r)
 			{
+				std::set<std::pair<intmax_t, intmax_t>> og_pixels_used;
+				size_t pixel_count = 0;
 				for (intmax_t x = 0; x < nw; ++x)
 				{
 					for (intmax_t y = 0; y < nh; ++y)
@@ -189,14 +198,15 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossless(float rotat
 						intmax_t ox = xrfx / 2 + y + h / 2 - nh;
 						intmax_t oy = y - xrfy / 2 + h / 2;
 
-						if (rotation != 0.0f)
-						{
-							Vec2 temp(ox - w / 2, oy - h / 2);
-							temp.Rotate(rotation);
+						ox -= w / 2;
+						oy -= h / 2;
 
-							ox = lroundf(temp.x + w / 2);
-							oy = lroundf(temp.y + h / 2);
-						}
+						intmax_t temp = oy * sin + ox * cos;
+						oy = oy * cos - ox * sin;
+						ox = temp;
+
+						ox += w / 2;
+						oy += h / 2;
 
 						SDL_Color & iso = *(SDL_Color*)((uint8_t*)sheet->surface->pixels + (y + r * nh) * sheet->surface->pitch + (x + c * nw) * 4);
 
@@ -205,6 +215,9 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossless(float rotat
 							SDL_Color & og = *(SDL_Color*)((uint8_t*)surface->pixels + (oy + r * h) * surface->pitch + (ox + c * w) * 4);
 
 							iso = og;
+
+							//og_pixels_used.insert(std::make_pair(ox, oy));
+							//++pixel_count;
 						}
 						else
 						{
@@ -215,6 +228,8 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossless(float rotat
 						}
 					}
 				}
+
+				//std::cout << pixel_count << " (" << og_pixels_used.size() << ") / " << w * h << std::endl;
 			}
 		}
 

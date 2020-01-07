@@ -144,6 +144,9 @@
     <ClCompile Include="Tile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GroundEffectChunk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -249,6 +252,9 @@
       <Filter>Header Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="Tile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GroundEffectChunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

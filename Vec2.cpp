@@ -72,7 +72,7 @@ Vec2 & Vec2::Rotate(float degs)
 	float rads = degs * M_PI / 180.0f;
 	float sin = sinf(rads);
 	float cos = cosf(rads);
-	*this = Vec2(y * sin + x * cos, -x * sin + y * cos);
+	*this = Vec2(y * sin + x * cos, y * cos - x * sin);
 	return *this;
 }
 

@@ -29,42 +29,7 @@ int main(int argc, char* args[])
 	// TODO remove after a better option to keep a resource loaded is added
 	auto swoop = SpriteSheet::get("swoop.png");
 
-	// create player
-	{
-		Entity entity;
-		entity.x = 16;
-		entity.y = 16 * (100 - 2);
-
-		auto sprite = SpriteSheet::get("dude_one.png");
-		sprite->columns = 4;
-		sprite->rows = 2;
-		sprite->offset_y = -8;
-		entity.addComponent(engine.srs->sprites.add(Sprite(sprite)));
-
-		auto player = std::make_shared<Player>();
-		entity.addComponent(&**engine.cbs->behaviours.add(player));
-
-		Collider collider;
-		collider.shape = std::make_unique<Circle>(5.0f);
-		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
-
-		auto player_entity = engine.add_entity(std::move(entity));
-
-		{
-			Entity entity;
-			player_entity->addChild(&entity);
-
-			Sprite sprite("shadow5_iso.png");
-			sprite.sort = -64;
-			sprite.color = SDL_Color({ 0, 0, 0, 64 });
-			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-			engine.add_entity(std::move(entity));
-		}
-	}
-
 	// create bouncing ball
-	if (false)
 	{
 		Entity entity;
 		entity.x = 16 * 2;
@@ -174,7 +139,6 @@ int main(int argc, char* args[])
 	}*/
 
 	// create key
-	if (false)
 	{
 		Entity entity;
 		entity.x = 16 * 2;
@@ -257,6 +221,14 @@ int main(int argc, char* args[])
 			if (y > h - 2)
 				y = h - 2;
 			tilemap[x][y].tile = 0;
+			if (rand() % 16 == 0)
+			{
+				size_t prevalence = rand() % 16;
+				for (size_t i = 0; i < 16 * 16; ++i)
+				{
+					tilemap[x][y].effects.set(i / 16, i % 16, rand() % 16 <= prevalence);
+				}
+			}
 
 			int dir = rand() % 4;
 			if (dir == (prev_dir + 2) % 4)
@@ -339,17 +311,9 @@ int main(int argc, char* args[])
 
 				engine.add_entity(std::move(entity));
 
-				if (rand() % 16 == 0)
+				if (!tile.effects.empty())
 				{
-					Entity entity;
-					entity.p = Vec2(x, y) * tilemap.tile_size;
-
-					Sprite sprite(SpriteSheet::get("splatter.png")->makeIsometricFloorLossless());
-					sprite.sort = -128;
-					sprite.color.a = 200;
-					entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-					engine.add_entity(std::move(entity));
+					tile.refreshEffectSprite(Vec2(x, y) * tilemap.tile_size);
 				}
 			}
 		}
@@ -376,17 +340,39 @@ int main(int argc, char* args[])
 		engine.add_entity(std::move(entity));
 	}
 
+	// create player
 	{
 		Entity entity;
-		entity.p = Vec2(-50, 1600);
+		entity.x = 16;
+		entity.y = 16 * (100 - 2);
 
-		auto sheet = SpriteSheet::get("floor_iso_gen_lossless");
+		auto sprite = SpriteSheet::get("dude_one.png");
+		sprite->columns = 4;
+		sprite->rows = 2;
+		sprite->offset_y = -8;
+		entity.addComponent(engine.srs->sprites.add(Sprite(sprite)));
 
-		Sprite sprite(sheet);
-		sprite.sort = -256;
-		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+		auto player = std::make_shared<Player>();
+		player->tm = &tilemap;
+		entity.addComponent(&**engine.cbs->behaviours.add(player));
 
-		engine.add_entity(std::move(entity));
+		Collider collider;
+		collider.shape = std::make_unique<Circle>(5.0f);
+		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
+
+		auto player_entity = engine.add_entity(std::move(entity));
+
+		{
+			Entity entity;
+			player_entity->addChild(&entity);
+
+			Sprite sprite("shadow5_iso.png");
+			sprite.sort = -64;
+			sprite.color = SDL_Color({ 0, 0, 0, 64 });
+			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+			engine.add_entity(std::move(entity));
+		}
 	}
 
 	engine.run();

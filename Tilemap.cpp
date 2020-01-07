@@ -17,3 +17,22 @@ Tile * Tilemap::operator[](size_t x)
 {
 	return &tiles[x * h];
 }
+
+uint8_t Tilemap::getEffect(const Vec2 & p)
+{
+	auto tile_p = p / tile_size;
+	intmax_t x = llroundf(tile_p.x);
+	intmax_t y = llroundf(tile_p.y);
+	auto& tile = at(x, y);
+	return tile.effects.get(p - (Vec2(x, y) - Vec2(0.5f, 0.5f)) * tile_size);
+}
+
+void Tilemap::setEffect(const Vec2 & p, uint8_t effect)
+{
+	auto tile_p = p / tile_size;
+	intmax_t x = llroundf(tile_p.x);
+	intmax_t y = llroundf(tile_p.y);
+	auto& tile = at(x, y);
+	tile.effects.set(p - (Vec2(x, y) - Vec2(0.5f, 0.5f)) * tile_size, effect);
+	tile.refreshEffectSprite(Vec2(x, y) * tile_size);
+}

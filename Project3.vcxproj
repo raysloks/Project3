@@ -154,6 +154,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="FrameRate.cpp" />
+    <ClCompile Include="GroundEffectChunk.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Item.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="FrameRate.h" />
     <ClInclude Include="GameKeyBinding.h" />
+    <ClInclude Include="GroundEffectChunk.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="Item.h" />

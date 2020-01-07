@@ -9,6 +9,8 @@ class Collision;
 
 class SpriteShape;
 
+class Tilemap;
+
 class Player :
 	public CustomBehaviour
 {
@@ -16,6 +18,8 @@ public:
 	Player();
 
 	void tick(float dt);
+
+	Tilemap * tm;
 
 private:
 

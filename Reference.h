@@ -10,11 +10,14 @@ public:
 	Reference();
 	Reference(ComponentContainer<T> * container, size_t index);
 
-	ComponentContainer<T> * container;
-	size_t index;
-
 	T & operator*() const;
 	T * operator->() const;
+
+	operator bool() const;
+
+private:
+	ComponentContainer<T> * container;
+	size_t index;
 };
 
 #include "ComponentContainer.h"
@@ -39,4 +42,10 @@ template<class T>
 inline T * Reference<T>::operator->() const
 {
 	return &container->components[index];
+}
+
+template<class T>
+inline Reference<T>::operator bool() const
+{
+	return container;
 }

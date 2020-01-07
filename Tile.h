@@ -1,13 +1,24 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
+
+#include "GroundEffectChunk.h"
+
+#include "Sprite.h"
+
+class SpriteSheet;
 
 class Tile
 {
 public:
-	uint8_t * operator[](size_t x);
+	std::shared_ptr<SpriteSheet> makeEffectSheet();
+	void refreshEffectSprite(const Vec2& p);
 	
 	uint32_t tile;
-	uint8_t * effects;
+
+	GroundEffectChunk effects;
+
+	Reference<Sprite> effect_sprite;
 };
 
