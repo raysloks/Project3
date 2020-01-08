@@ -11,7 +11,7 @@ SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
 
 	camera_position = Vec2();
 
-	offscreen = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 512, 512);
+	offscreen = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 512, 256 + 32);
 
 	flicker = false;
 }

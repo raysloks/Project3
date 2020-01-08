@@ -159,6 +159,7 @@
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="KeyBindings.cpp" />
+    <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mob.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="KeyBindings.h" />
+    <ClInclude Include="Level.h" />
     <ClInclude Include="Mob.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Rectangle.h" />

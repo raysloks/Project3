@@ -55,7 +55,7 @@ Player::Player()
 				{
 					sword->getComponent<SpriteAnimator>()->freeze = fmaxf(sword->getComponent<SpriteAnimator>()->freeze, 2.0f / 30.0f);
 					enemy->entity->getComponent<SpriteAnimator>()->freeze = fmaxf(sword->getComponent<SpriteAnimator>()->freeze, 4.0f / 30.0f);
-					enemy->entity->p += direction * 4.0f;
+					enemy->entity->p += direction * 20.0f;
 					hit->insert(enemy);
 				}
 			}
@@ -70,27 +70,39 @@ Player::Player()
 
 		flip = !flip;
 	};
-	input->addKeyDownCallback(KB_ATTACK, on_attack);
+	input->addKeyDownCallback(KB_ACTION_0, on_attack);
+
+	input->addKeyDownCallback(KB_ACTION_1, std::bind(&Player::onAction, this, 1));
+
+	blood = 0;
+
+	on_collision = false;
 }
 
 void Player::tick(float dt)
 {
-	tm->setEffect(entity->p, 1);
+	{
+		auto current = tm->getEffect(entity->p);
+		if (current > blood)
+		{
+			tm->setEffect(entity->p, current - 1);
+			++blood;
+		}
+		else if (current < blood)
+		{
+			if (current == 0)
+			{
+				tm->setEffect(entity->p, current + 1);
+				--blood;
+			}
+		}
+	}
 
 	if (!on_collision)
 	{
-		on_collision = [this](const Collision& collision)
-			{
-				entity->p -= collision.n * collision.pen;
-				float v_dot_n = v.Dot(collision.n);
-				if (v_dot_n > 0.0f)
-					v -= collision.n * v_dot_n;
-
-				n = collision.n;
-
-				update_camera();
-			};
-		entity->getComponent<Collider>()->callbacks.push_back(on_collision);
+		on_collision = true;
+		//entity->getComponent<Collider>()->callbacks.push_back(on_collision);
+		entity->getComponent<Collider>()->callbacks.push_back(std::bind(&Player::onCollision, this, std::placeholders::_1));
 	}
 
 	auto sprite = entity->getComponent<Sprite>();
@@ -100,7 +112,7 @@ void Player::tick(float dt)
 
 	float speed = 60.0f;
 	float acceleration = 120.0f;
-	float deceleration = 480.0f;
+	float deceleration = 240.0f;
 
 	Vec2 move;
 
@@ -149,6 +161,29 @@ void Player::tick(float dt)
 	anim += v.Len() * dt * 0.5f;
 
 	sprite->subsprite_x = (int(anim) % sprite->sheet->columns);
+
+	update_camera();
+}
+
+void Player::onAction(size_t action)
+{
+	if (action == 1)
+	{
+		auto target = srs->screenToWorld(input->getCursor());
+		auto in_range = cs->overlapCircle(target, 0.0f);
+		if (in_range.empty())
+			entity->p = target;
+	}
+}
+
+void Player::onCollision(const Collision & collision)
+{
+	entity->p -= collision.n * collision.pen;
+	float v_dot_n = v.Dot(collision.n);
+	if (v_dot_n > 0.0f)
+		v -= collision.n * v_dot_n;
+
+	n = collision.n;
 
 	update_camera();
 }

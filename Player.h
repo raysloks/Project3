@@ -23,9 +23,15 @@ public:
 
 private:
 
+	void onAction(size_t action);
+
+	void onCollision(const Collision& collision);
+
 	void update_camera();
 
-	std::function<void(const Collision&)> on_collision, on_hit;
+	bool on_collision;
+
+	std::function<void(const Collision&)> on_hit;
 
 	std::function<void(void)> on_attack;
 
@@ -41,5 +47,7 @@ private:
 	Reference<Entity> sword;
 
 	bool flip;
+
+	size_t blood;
 };
 

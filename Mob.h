@@ -6,5 +6,7 @@ class Mob :
 	public CustomBehaviour
 {
 public:
+
+	Vec2 v;
 };
 
