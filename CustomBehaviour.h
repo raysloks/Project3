@@ -14,6 +14,8 @@ class CustomBehaviour :
 public:
 	virtual ~CustomBehaviour();
 
+	virtual void start();
+
 	virtual void tick(float dt);
 	
 	// static storage of system pointers to allow more convenient access for custom behaviours

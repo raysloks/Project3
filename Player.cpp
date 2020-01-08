@@ -42,7 +42,7 @@ Player::Player()
 
 		auto animator = std::make_shared<SpriteAnimator>(30.0f);
 		animator->destroy = true;
-		entity.addComponent(&**cbs->behaviours.add(std::move(animator)));
+		entity.addComponent(cbs->add(std::move(animator)));
 		
 		auto collider = cs->colliders.add(Collider());
 		//collider->shape = std::make_unique<Circle>(10.0f);
@@ -73,15 +73,13 @@ Player::Player()
 
 		flip = !flip;
 	};
-	input->addKeyDownCallback(KB_ACTION_0, on_attack);
 
+	input->addKeyDownCallback(KB_ACTION_0, std::bind(&Player::onAction, this, 0));
 	input->addKeyDownCallback(KB_ACTION_1, std::bind(&Player::onAction, this, 1));
 	input->addKeyDownCallback(KB_ACTION_2, std::bind(&Player::onAction, this, 2));
 	input->addKeyDownCallback(KB_ACTION_3, std::bind(&Player::onAction, this, 3));
 
 	blood = 0;
-
-	on_collision = false;
 }
 
 void Player::tick(float dt)
@@ -103,23 +101,16 @@ void Player::tick(float dt)
 		}
 	}
 
-	if (!on_collision)
-	{
-		on_collision = true;
-		//entity->getComponent<Collider>()->callbacks.push_back(on_collision);
-		entity->getComponent<Collider>()->callbacks.push_back(std::bind(&Player::onCollision, this, std::placeholders::_1));
-	}
-
 	auto sprite = entity->getComponent<Sprite>();
 
 	if (input->isKeyPressed(SDLK_r))
-		entity->p = Vec2(16.0f, 16.0f);
+		entity->p = Vec2(16.0f, 1600.0f);
 
-	float speed = 60.0f;
-	float acceleration = 120.0f;
-	float deceleration = 240.0f;
+	speed = 60.0f;
+	acceleration = 120.0f;
+	deceleration = 240.0f;
 
-	Vec2 move;
+	move = Vec2();
 
 	if (input->isKeyDown(KB_UP))
 		move.y -= 1.0f;
@@ -139,35 +130,37 @@ void Player::tick(float dt)
 	if (move.x > move.y)
 		sprite->subsprite_y = 0;
 
-	float n_dot_move = n.Dot(move);
-	if (n_dot_move > 0.0f)
-		move -= n * n_dot_move;
-	
-	n = Vec2();
-
-	entity->p += v * dt;
-
-	Vec2 v_prev = v;
-
-	float l = move.Len();
-	if (l != 0.0f)
-	{
-		move /= l;
-
-		v += move * (acceleration + deceleration) * dt;
-	}
-
-	v -= v.Truncated(deceleration * dt);
-	v.Truncate(speed);
-
-	Vec2 at = v - v_prev;
-	entity->p += at * 0.5f * dt;
-
 	anim += v.Len() * dt * 0.5f;
+
+	Mob::tick(dt);
 
 	sprite->subsprite_x = (int(anim) % sprite->sheet->columns);
 
 	update_camera();
+}
+
+void Player::onCollision(const Collision & collision)
+{
+	Mob::onCollision(collision);
+
+	update_camera();
+}
+
+void Player::splatter()
+{
+	for (size_t i = 0; i < 50; ++i)
+	{
+		Vec2 p;
+		p.x = rand() % 17 - 8;
+		p.Rotate(rand() % 360);
+
+		p += entity->p;
+
+		auto current = tm->getEffect(p);
+		tm->setEffect(p, current + 1);
+	}
+
+	blood += 15;
 }
 
 #include "Projectile.h"
@@ -177,6 +170,7 @@ void Player::onAction(size_t action)
 	switch (action)
 	{
 	case 0:
+		on_attack();
 		break;
 	case 1:
 	{
@@ -187,7 +181,7 @@ void Player::onAction(size_t action)
 	}
 	break;
 	case 2:
-		engine->remove_entity(entity);
+		//engine->remove_entity(entity);
 		break;
 	case 3:
 	{
@@ -199,7 +193,7 @@ void Player::onAction(size_t action)
 
 		auto projectile = std::make_shared<Projectile>();
 		projectile->v = srs->screenToWorld(input->getCursor()) - entity->p;
-		entity->addComponent(&**cbs->behaviours.add(projectile));
+		entity->addComponent(cbs->add(projectile));
 
 		auto collider = cs->colliders.add(Collider());
 		entity->addComponent(collider);
@@ -217,18 +211,6 @@ void Player::onAction(size_t action)
 	default:
 		break;
 	}
-}
-
-void Player::onCollision(const Collision & collision)
-{
-	entity->p -= collision.n * collision.pen;
-	float v_dot_n = v.Dot(collision.n);
-	if (v_dot_n > 0.0f)
-		v -= collision.n * v_dot_n;
-
-	n = collision.n;
-
-	update_camera();
 }
 
 void Player::update_camera()

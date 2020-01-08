@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CustomBehaviour.h"
+#include "Mob.h"
 
 #include <memory>
 #include <functional>
@@ -12,7 +12,7 @@ class SpriteShape;
 class Tilemap;
 
 class Player :
-	public CustomBehaviour
+	public Mob
 {
 public:
 	Player();
@@ -21,25 +21,19 @@ public:
 
 	Tilemap * tm;
 
-	int64_t hp, hp_max;
+	void onCollision(const Collision & collision);
+
+	void splatter();
 
 private:
 
 	void onAction(size_t action);
 
-	void onCollision(const Collision& collision);
-
 	void update_camera();
-
-	bool on_collision;
 
 	std::function<void(const Collision&)> on_hit;
 
 	std::function<void(void)> on_attack;
-
-	Vec2 v;
-	
-	Vec2 n;
 
 	Vec2 facing;
 

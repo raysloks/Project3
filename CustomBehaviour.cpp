@@ -10,6 +10,10 @@ CustomBehaviour::~CustomBehaviour()
 {
 }
 
+void CustomBehaviour::start()
+{
+}
+
 void CustomBehaviour::tick(float dt)
 {
 }

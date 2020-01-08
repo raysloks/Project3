@@ -25,7 +25,10 @@ void Enemy::tick(float dt)
 			else
 			{
 				if (rand() % 30 == 0)
+				{
 					player->hp -= rand() % 10 + 1;
+					player->splatter();
+				}
 			}
 		}
 	}

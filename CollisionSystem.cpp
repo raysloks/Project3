@@ -9,6 +9,7 @@ void CollisionSystem::tick(float dt)
 	std::vector<Collision> collisions;
 	collisions.reserve(256);
 
+	// TODO make a component class for each collider shape to avoid virtual function calls and 'flipping'
 	for (size_t i = 0; i < colliders.components.size() - 1; ++i)
 	{
 		auto& a = colliders.components[i];

@@ -13,8 +13,8 @@ void HealthDisplay::tick(float dt)
 		for (size_t i = 0; i < 32; ++i)
 		{
 			Entity entity;
-			entity.p.x = 32 + i * 8;
-			entity.p.y = 64;
+			entity.p.x = 50 + i * 8;
+			entity.p.y = 200;
 
 			auto sprite = srs->ui.add(Sprite(font));
 			sprite->color = SDL_Color({ 255, 0, 0, 255 });

@@ -28,6 +28,12 @@ int main(int argc, char* args[])
 	engine.input->keyBindings.set(KB_ACTION_1, SDLK_2);
 	engine.input->keyBindings.set(KB_ACTION_2, SDLK_3);
 	engine.input->keyBindings.set(KB_ACTION_3, SDLK_4);
+	engine.input->keyBindings.set(KB_ACTION_4, SDLK_5);
+	engine.input->keyBindings.set(KB_ACTION_5, SDLK_6);
+	engine.input->keyBindings.set(KB_ACTION_6, SDLK_7);
+	engine.input->keyBindings.set(KB_ACTION_7, SDLK_8);
+	engine.input->keyBindings.set(KB_ACTION_8, SDLK_9);
+	engine.input->keyBindings.set(KB_ACTION_9, SDLK_0);
 
 	// TODO remove after a better option to keep a resource loaded is added
 	auto swoop = SpriteSheet::get("swoop.png");
@@ -46,7 +52,7 @@ int main(int argc, char* args[])
 		auto bouncing_ball = std::make_shared<BouncingBall>();
 		bouncing_ball->v = Vec2(25.0f, 25.0f);
 		bouncing_ball->z = 25.0f;
-		entity.addComponent(&**engine.cbs->behaviours.add(bouncing_ball));
+		entity.addComponent(engine.cbs->add(bouncing_ball));
 
 		Collider collider;
 		collider.shape = std::make_unique<Circle>(5.0f);
@@ -78,10 +84,10 @@ int main(int argc, char* args[])
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 		auto animator = std::make_shared<SpriteAnimator>(10.0f);
-		entity.addComponent(&**engine.cbs->behaviours.add(std::move(animator)));
+		entity.addComponent(engine.cbs->add(std::move(animator)));
 
 		auto enemy = std::make_shared<Enemy>();
-		entity.addComponent(&**engine.cbs->behaviours.add(enemy));
+		entity.addComponent(engine.cbs->add(enemy));
 
 		Collider collider;
 		collider.shape = std::make_unique<Circle>(6.0f);
@@ -103,7 +109,7 @@ int main(int argc, char* args[])
 			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 			auto animator = std::make_shared<SpriteAnimator>(1.0f);
-			entity.addComponent(&**engine.cbs->behaviours.add(std::move(animator)));
+			entity.addComponent(engine.cbs->add(std::move(animator)));
 
 			engine.add_entity(std::move(entity));
 		}
@@ -154,7 +160,7 @@ int main(int argc, char* args[])
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 		auto animator = std::make_shared<SpriteAnimator>(15.0f);
-		entity.addComponent(&**engine.cbs->behaviours.add(std::move(animator)));
+		entity.addComponent(engine.cbs->add(std::move(animator)));
 
 		engine.add_entity(std::move(entity));
 	}
@@ -347,7 +353,7 @@ int main(int argc, char* args[])
 
 		auto player = std::make_shared<Player>();
 		player->tm = &tilemap;
-		entity.addComponent(&**engine.cbs->behaviours.add(player));
+		entity.addComponent(engine.cbs->add(player));
 
 		Collider collider;
 		collider.shape = std::make_unique<Circle>(5.0f);
@@ -374,7 +380,7 @@ int main(int argc, char* args[])
 
 			auto display = std::make_shared<HealthDisplay>();
 			display->player = player;
-			entity.addComponent(&**engine.cbs->behaviours.add(display));
+			entity.addComponent(engine.cbs->add(display));
 
 			engine.add_entity(std::move(entity));
 		}
@@ -385,7 +391,7 @@ int main(int argc, char* args[])
 		Entity entity;
 
 		auto fps = std::make_shared<FrameRate>();
-		entity.addComponent(&**engine.cbs->behaviours.add(fps));
+		entity.addComponent(engine.cbs->add(fps));
 
 		engine.add_entity(std::move(entity));
 	}
