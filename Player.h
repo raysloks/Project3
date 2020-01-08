@@ -21,6 +21,8 @@ public:
 
 	Tilemap * tm;
 
+	int64_t hp, hp_max;
+
 private:
 
 	void onAction(size_t action);

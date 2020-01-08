@@ -6,6 +6,7 @@
 #include "BouncingBall.h"
 
 #include "FrameRate.h"
+#include "HealthDisplay.h"
 
 #include "Tilemap.h"
 #include "TilemapShape.h"
@@ -67,7 +68,7 @@ int main(int argc, char* args[])
 	{
 		Entity entity;
 		entity.x = 100;
-		entity.y = 100;
+		entity.y = 1000;
 
 		Sprite sprite("ghost.png");
 		sprite.sheet->columns = 25;
@@ -332,16 +333,6 @@ int main(int argc, char* args[])
 		engine.add_entity(std::move(entity));
 	}
 
-	// create fps counter
-	{
-		Entity entity;
-
-		auto fps = std::make_shared<FrameRate>();
-		entity.addComponent(&**engine.cbs->behaviours.add(fps));
-
-		engine.add_entity(std::move(entity));
-	}
-
 	// create player
 	{
 		Entity entity;
@@ -364,6 +355,7 @@ int main(int argc, char* args[])
 
 		auto player_entity = engine.add_entity(std::move(entity));
 
+		// create shadow
 		{
 			Entity entity;
 			player_entity->addChild(&entity);
@@ -375,6 +367,27 @@ int main(int argc, char* args[])
 
 			engine.add_entity(std::move(entity));
 		}
+
+		// create health display
+		{
+			Entity entity;
+
+			auto display = std::make_shared<HealthDisplay>();
+			display->player = player;
+			entity.addComponent(&**engine.cbs->behaviours.add(display));
+
+			engine.add_entity(std::move(entity));
+		}
+	}
+
+	// create fps counter
+	{
+		Entity entity;
+
+		auto fps = std::make_shared<FrameRate>();
+		entity.addComponent(&**engine.cbs->behaviours.add(fps));
+
+		engine.add_entity(std::move(entity));
 	}
 
 	engine.run();

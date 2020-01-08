@@ -18,6 +18,9 @@
 
 Player::Player()
 {
+	hp = 100;
+	hp_max = 100;
+
 	on_attack = [this]()
 	{
 		Vec2 direction = srs->screenToWorld(input->getCursor()) - entity->p;
@@ -73,6 +76,8 @@ Player::Player()
 	input->addKeyDownCallback(KB_ACTION_0, on_attack);
 
 	input->addKeyDownCallback(KB_ACTION_1, std::bind(&Player::onAction, this, 1));
+	input->addKeyDownCallback(KB_ACTION_2, std::bind(&Player::onAction, this, 2));
+	input->addKeyDownCallback(KB_ACTION_3, std::bind(&Player::onAction, this, 3));
 
 	blood = 0;
 
@@ -165,14 +170,52 @@ void Player::tick(float dt)
 	update_camera();
 }
 
+#include "Projectile.h"
+
 void Player::onAction(size_t action)
 {
-	if (action == 1)
+	switch (action)
+	{
+	case 0:
+		break;
+	case 1:
 	{
 		auto target = srs->screenToWorld(input->getCursor());
 		auto in_range = cs->overlapCircle(target, 0.0f);
 		if (in_range.empty())
 			entity->p = target;
+	}
+	break;
+	case 2:
+		engine->remove_entity(entity);
+		break;
+	case 3:
+	{
+		auto entity = engine->add_entity(Entity());
+		entity->p = this->entity->p;
+
+		Sprite sprite("ball.png");
+		entity->addComponent(srs->sprites.add(std::move(sprite)));
+
+		auto projectile = std::make_shared<Projectile>();
+		projectile->v = srs->screenToWorld(input->getCursor()) - entity->p;
+		entity->addComponent(&**cbs->behaviours.add(projectile));
+
+		auto collider = cs->colliders.add(Collider());
+		entity->addComponent(collider);
+
+		collider->shape = std::make_unique<Circle>(3.0f);
+		collider->callbacks.push_back([projectile](const Collision& collision)
+			{
+				projectile->entity->p -= collision.n * collision.pen;
+				float v_dot_n = projectile->v.Dot(collision.n);
+				if (v_dot_n > 0.0f)
+					projectile->v -= collision.n * v_dot_n * 2.0f;
+			});
+	}
+	break;
+	default:
+		break;
 	}
 }
 

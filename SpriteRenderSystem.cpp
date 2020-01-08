@@ -100,6 +100,8 @@ void SpriteRenderSystem::tick(float dt)
 		{
 			if (sprite.sheet->surface)
 			{
+				auto p = sprite.entity->getPosition();
+
 				SDL_Rect src = sprite.sheet->surface->clip_rect;
 				src.w /= sprite.sheet->columns;
 				src.h /= sprite.sheet->rows;
@@ -111,14 +113,19 @@ void SpriteRenderSystem::tick(float dt)
 				SDL_Rect dst = sprite.sheet->surface->clip_rect;
 				dst.w /= sprite.sheet->columns;
 				dst.h /= sprite.sheet->rows;
-				dst.x = sprite.entity->p.x - sprite.sheet->offset_x * flip.x - dst.w / 2;
-				dst.y = sprite.entity->p.y - sprite.sheet->offset_y * flip.y - dst.h / 2;
+				dst.x = roundf(p.x) - sprite.sheet->offset_x * flip.x - dst.w / 2;
+				dst.y = roundf(p.y) - sprite.sheet->offset_y * flip.y - dst.h / 2;
 				dst.w *= scale;
 				dst.h *= scale;
 				dst.x *= scale;
 				dst.y *= scale;
 
-				SDL_RenderCopy(render, sprite.sheet->getTexture(render), &src, &dst);
+				auto texture = sprite.sheet->getTexture(render);
+
+				SDL_SetTextureColorMod(texture, sprite.color.r, sprite.color.g, sprite.color.b);
+				SDL_SetTextureAlphaMod(texture, sprite.color.a);
+
+				SDL_RenderCopyEx(render, texture, &src, &dst, sprite.rotation, nullptr, sprite.flip);
 			}
 		}
 	}

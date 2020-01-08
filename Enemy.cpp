@@ -16,9 +16,17 @@ void Enemy::tick(float dt)
 	for (auto i : in_range)
 	{
 		auto player = i.second->entity->getComponent<Player>();
-		if (player && i.first > 10.0f)
+		if (player)
 		{
-			move = player->entity->p - entity->p;
+			if (i.first > 10.0f)
+			{
+				move = player->entity->p - entity->p;
+			}
+			else
+			{
+				if (rand() % 30 == 0)
+					player->hp -= rand() % 10 + 1;
+			}
 		}
 	}
 
