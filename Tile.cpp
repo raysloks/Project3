@@ -16,7 +16,7 @@ std::shared_ptr<SpriteSheet> Tile::makeEffectSheet()
 			pixel = SDL_Color({ 0, 0, 0, 0 });
 			auto effect = effects.get(x, y);
 			if (effect)
-				pixel = SDL_Color({ 80, 0, 0, uint8_t(256 - 32 / effect) });
+				pixel = SDL_Color({ 80, 0, 0, uint8_t(255 - 32 / effect) });
 		}
 	}
 

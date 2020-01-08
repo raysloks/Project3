@@ -8,9 +8,11 @@
 
 void Enemy::tick(float dt)
 {
-	float speed = 24.0f;
+	speed = 24.0f;
+	acceleration = 9001.0f;
+	deceleration = 9001.0f;
 
-	Vec2 move;
+	move = Vec2();
 
 	auto in_range = cs->overlapCircle(entity->p, 1000.0f);
 	for (auto i : in_range)
@@ -33,15 +35,7 @@ void Enemy::tick(float dt)
 		}
 	}
 
-	float l = move.Len();
-	if (l != 0.0f)
-	{
-		move /= l;
-
-		move *= speed * dt;
-
-		entity->p += move;
-	}
+	Mob::tick(dt);
 
 	auto sprite = entity->getComponent<Sprite>();
 	if (sprite)

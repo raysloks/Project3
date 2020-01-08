@@ -151,13 +151,16 @@ void Player::splatter()
 	for (size_t i = 0; i < 50; ++i)
 	{
 		Vec2 p;
-		p.x = rand() % 17 - 8;
+		p.x = rand() % 17 - 8 + rand() % 17 - 8 + rand() % 17 - 8;
 		p.Rotate(rand() % 360);
 
 		p += entity->p;
 
-		auto current = tm->getEffect(p);
-		tm->setEffect(p, current + 1);
+		uintmax_t current = tm->getEffect(p);
+		if (current < 255)
+			tm->setEffect(p, current + 1);
+		else
+			blood += 1;
 	}
 
 	blood += 15;
@@ -181,7 +184,7 @@ void Player::onAction(size_t action)
 	}
 	break;
 	case 2:
-		//engine->remove_entity(entity);
+		splatter();
 		break;
 	case 3:
 	{

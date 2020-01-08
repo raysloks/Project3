@@ -1,14 +1,9 @@
 #pragma once
 
-#include "CustomBehaviour.h"
-
-#include <memory>
-#include <functional>
-
-class Collision;
+#include "Mob.h"
 
 class Enemy :
-	public CustomBehaviour
+	public Mob
 {
 public:
 	void tick(float dt);
