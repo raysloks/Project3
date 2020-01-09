@@ -1,21 +1,14 @@
 #include "BouncingBall.h"
 
+void BouncingBall::start()
+{
+	auto collider = getComponent<CircleCollider>();
+	if (collider)
+		collider->callbacks.push_back(std::bind(&BouncingBall::onCollision, this, std::placeholders::_1));
+}
+
 void BouncingBall::tick(float dt)
 {
-	if (!on_collision)
-	{
-		on_collision = [this](const Collision& collision)
-		{
-			entity->p -= collision.n * collision.pen;
-			float v_dot_n = v.Dot(collision.n);
-			if (v_dot_n > 0.0f)
-				v -= collision.n * v_dot_n * 2.0f;
-
-			update_visual();
-		};
-		entity->getComponent<Collider>()->callbacks.push_back(on_collision);
-	}
-
 	entity->p += v * dt;
 
 	float az = -500;
@@ -31,6 +24,16 @@ void BouncingBall::tick(float dt)
 		if (vz < 0.0f)
 			vz = -vz;
 	}
+
+	update_visual();
+}
+
+void BouncingBall::onCollision(const Collision & collision)
+{
+	entity->p -= collision.n * collision.pen;
+	float v_dot_n = v.Dot(collision.n);
+	if (v_dot_n > 0.0f)
+		v -= collision.n * v_dot_n * 2.0f;
 
 	update_visual();
 }

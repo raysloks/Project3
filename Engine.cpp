@@ -58,8 +58,9 @@ Engine::Engine()
 	input->addKeyDownCallback(SDLK_F11, fullscreen_toggle_func);
 
 
-	//cursor_sheet = SpriteSheet::get("cursor.png")->makeScaled(4);
-	//cursor = nullptr;
+	cursor_sheet_new = nullptr;
+	cursor_sheet = nullptr;
+	cursor = nullptr;
 }
 
 Engine::~Engine()
@@ -87,18 +88,31 @@ void Engine::run()
 
 	while (!stopped)
 	{
-		if (cursor == nullptr)
+		if (cursor_sheet != cursor_sheet_new)
 		{
-			if (cursor_sheet)
+			auto cursor_prev = cursor;
+			if (cursor_sheet_new)
 			{
-				if (cursor_sheet->loaded)
+				if (cursor_sheet_new->loaded)
 				{
-					if (cursor_sheet->surface)
-					{
-						cursor = SDL_CreateColorCursor(cursor_sheet->surface, 4, 4);
-						SDL_SetCursor(cursor);
-					}
+					if (cursor_sheet_new->surface)
+						cursor = SDL_CreateColorCursor(cursor_sheet_new->surface, 4, 4);
+					else
+						cursor = nullptr; // i guess we just default the cursor if we failed to load the requested image
+					cursor_sheet = cursor_sheet_new;
 				}
+			}
+			else
+			{
+				cursor = nullptr;
+				cursor_sheet = cursor_sheet_new;
+			}
+
+			if (cursor != cursor_prev)
+			{
+				SDL_SetCursor(cursor);
+				if (cursor_prev)
+					SDL_FreeCursor(cursor_prev);
 			}
 		}
 
@@ -181,4 +195,9 @@ void Engine::remove_entity(Entity * entity)
 void Engine::remove_entity(size_t index)
 {
 	remove_entity(&entities.components[index]);
+}
+
+void Engine::setCursor(const std::shared_ptr<SpriteSheet>& sheet)
+{
+	cursor_sheet_new = sheet;
 }

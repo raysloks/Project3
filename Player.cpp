@@ -29,7 +29,6 @@ Player::Player()
 		Entity entity;
 
 		auto swoop = SpriteSheet::get("swoop.png");
-		swoop->columns = 4;
 
 		auto swoop_iso = swoop->makeIsometricFloorLossless(atan2f(direction.x, -direction.y) * 180.0f / float(M_PI));
 
@@ -197,10 +196,9 @@ void Player::onAction(size_t action)
 		projectile->v = srs->screenToWorld(input->getCursor()) - entity->p;
 		entity->addComponent(cbs->add(projectile));
 
-		auto collider = cs->colliders.add(Collider());
+		auto collider = cs->circles.add(CircleCollider(3.0f));
 		entity->addComponent(collider);
 
-		collider->shape = std::make_unique<Circle>(3.0f);
 		collider->callbacks.push_back([projectile](const Collision& collision)
 			{
 				projectile->entity->p -= collision.n * collision.pen;

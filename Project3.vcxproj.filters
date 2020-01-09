@@ -43,6 +43,12 @@
     <Filter Include="Header Files\Resources">
       <UniqueIdentifier>{1121c463-7287-4109-93a6-685da29b765f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Components\Colliders">
+      <UniqueIdentifier>{309e1f7a-cc78-4ceb-bbc4-de59998870ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\Colliders">
+      <UniqueIdentifier>{1d855a31-4ff7-4d5f-8e15-378f8d5baeab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -161,6 +167,18 @@
     </ClCompile>
     <ClCompile Include="Body.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CircleCollider.cpp">
+      <Filter>Source Files\Components\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="RectangleCollider.cpp">
+      <Filter>Source Files\Components\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteCollider.cpp">
+      <Filter>Source Files\Components\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="TilemapCollider.cpp">
+      <Filter>Source Files\Components\Colliders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -286,6 +304,18 @@
     </ClInclude>
     <ClInclude Include="Body.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CircleCollider.h">
+      <Filter>Header Files\Components\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="RectangleCollider.h">
+      <Filter>Header Files\Components\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteCollider.h">
+      <Filter>Header Files\Components\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="TilemapCollider.h">
+      <Filter>Header Files\Components\Colliders</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

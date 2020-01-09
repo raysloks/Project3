@@ -2,7 +2,7 @@
 
 void Mob::start()
 {
-	auto collider = entity->getComponent<Collider>();
+	auto collider = getComponent<CircleCollider>();
 	if (collider)
 		collider->callbacks.push_back(std::bind(&Mob::onCollision, this, std::placeholders::_1));
 }

@@ -34,5 +34,7 @@ void Tilemap::setEffect(const Vec2 & p, uint8_t effect)
 	intmax_t y = llroundf(tile_p.y);
 	auto& tile = at(x, y);
 	tile.effects.set(p - (Vec2(x, y) - Vec2(0.5f, 0.5f)) * tile_size, effect);
+
+	// TODO only refresh sprite once per frame
 	tile.refreshEffectSprite(Vec2(x, y) * tile_size);
 }

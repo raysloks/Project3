@@ -8,7 +8,7 @@ Rectangle::Rectangle(const Vec2 & size) : size(size)
 {
 }
 
-void checkCornerCircle(const Vec2& corner, const Vec2 circle_center, const Circle * circle, std::vector<Collision>& collisions)
+void checkCornerCircle(const Vec2& corner, const Vec2& circle_center, const Circle * circle, std::vector<Collision>& collisions)
 {
 	Vec2 diff = circle_center - corner;
 

@@ -6,6 +6,8 @@ class BouncingBall :
 	public CustomBehaviour
 {
 public:
+	void start();
+
 	void tick(float dt);
 
 	float z;
@@ -13,8 +15,8 @@ public:
 	float vz;
 
 	Reference<Sprite> visual;
-
-	std::function<void(const Collision&)> on_collision;
+	
+	void onCollision(const Collision & collision);
 
 private:
 	void update_visual();

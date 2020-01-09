@@ -19,5 +19,6 @@ void FollowCursor::tick(float dt)
 				sprite->color = SDL_Color({ 200, 100, 100, 100 });
 			}
 		}
+		sprite->color = SDL_Color();
 	}
 }

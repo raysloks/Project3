@@ -55,9 +55,7 @@ int main(int argc, char* args[])
 		bouncing_ball->z = 25.0f;
 		entity.addComponent(engine.cbs->add(bouncing_ball));
 
-		Collider collider;
-		collider.shape = std::make_unique<Circle>(5.0f);
-		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
+		entity.addComponent(engine.cs->circles.add(CircleCollider(5.0f)));
 
 		engine.add_entity(std::move(entity));
 
@@ -90,10 +88,9 @@ int main(int argc, char* args[])
 		auto enemy = std::make_shared<Enemy>();
 		entity.addComponent(engine.cbs->add(enemy));
 
-		Collider collider;
-		collider.shape = std::make_unique<Circle>(6.0f);
+		CircleCollider collider(6.0f);
 		collider.layers = 2;
-		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
+		entity.addComponent(engine.cs->circles.add(std::move(collider)));
 
 		auto enemy_entity = engine.add_entity(std::move(entity));
 
@@ -219,7 +216,6 @@ int main(int argc, char* args[])
 		if (length_category == 20)
 			length = rand() % 200 + 100;
 
-
 		for (size_t i = 0; i <= length; ++i)
 		{
 			if (x < 1)
@@ -231,15 +227,6 @@ int main(int argc, char* args[])
 			if (y > h - 2)
 				y = h - 2;
 			tilemap[x][y].tile = 0;
-
-			/*if (rand() % 16 == 0)
-			{
-				size_t prevalence = rand() % 32 + 1ull;
-				for (size_t i = 0; i < 16 * 16; ++i)
-				{
-					tilemap[x][y].effects.set(i / 16, i % 16, rand() % prevalence);
-				}
-			}*/
 
 			int dir = rand() % 4;
 			if (dir == (prev_dir + 2) % 4)
@@ -334,9 +321,7 @@ int main(int argc, char* args[])
 	{
 		Entity entity;
 		
-		Collider collider;
-		collider.shape = std::make_unique<TilemapShape>(&tilemap);
-		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
+		entity.addComponent(engine.cs->tilemaps.add(TilemapCollider(&tilemap)));
 
 		engine.add_entity(std::move(entity));
 	}
@@ -357,9 +342,7 @@ int main(int argc, char* args[])
 		player->tm = &tilemap;
 		entity.addComponent(engine.cbs->add(player));
 
-		Collider collider;
-		collider.shape = std::make_unique<Circle>(5.0f);
-		entity.addComponent(engine.cs->colliders.add(std::move(collider)));
+		entity.addComponent(engine.cs->circles.add(CircleCollider(5.0f)));
 
 		auto player_entity = engine.add_entity(std::move(entity));
 

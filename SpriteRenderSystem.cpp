@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include "CustomBehaviour.h"
+
 SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
 {
 	//this->sprites = sprites;
@@ -40,7 +42,12 @@ void SpriteRenderSystem::tick(float dt)
 
 	SDL_GetRendererOutputSize(render, &w, &h);
 
-	scale = (screen_w + w - 1) / w;
+	int scale_new = (screen_w + w - 1) / w;
+	if (scale_new < 1)
+		scale_new = 1;
+	if (scale_new != scale)
+		CustomBehaviour::engine->setCursor(SpriteSheet::get("cursor.png")->makeScaled(scale_new)); // TODO SUPER HACKY fix asap
+	scale = scale_new;
 
 	std::multimap<float, Sprite*> sorted;
 

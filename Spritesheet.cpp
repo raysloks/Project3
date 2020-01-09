@@ -7,8 +7,9 @@
 
 #include "Vec2.h"
 
-#include <set>
-#include <iostream>
+#include "Text.h"
+
+#include <sstream>
 
 SpriteSheet::SpriteSheet()
 {
@@ -51,7 +52,19 @@ std::shared_ptr<SpriteSheet> SpriteSheet::load(const std::string & fname)
 	auto sheet = std::make_shared<SpriteSheet>();
 	std::thread t([sheet, fname]()
 		{
+			auto meta = Text::get(fname + ".meta");
+
 			sheet->surface = IMG_Load(fname.c_str());
+
+			while (!meta->loaded)
+				SDL_Delay(0);
+
+			if (meta->size())
+			{
+				std::istringstream is(*meta);
+				is >> sheet->columns >> sheet->rows;
+			}
+
 			sheet->loaded = true;
 		});
 	t.detach();
