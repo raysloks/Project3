@@ -3,11 +3,10 @@
 #include <thread>
 #include <fstream>
 
-Text::Text(const std::string & fname)
+std::shared_ptr<Text> Text::load(const std::string & fname)
 {
-	loaded = false;
-
-	std::thread t([this, fname]()
+	auto text = std::make_shared<Text>();
+	std::thread t([text, fname]()
 		{
 			std::ifstream in(fname, std::ios::in | std::ios::binary);
 			if (in)
@@ -18,9 +17,12 @@ Text::Text(const std::string & fname)
 				in.seekg(0, std::ios::beg);
 				in.read(&buffer[0], buffer.size());
 				in.close();
-				swap(buffer);
+				text->swap(buffer);
 			}
-			loaded = true;
+
+			text->loaded = true;
 		});
 	t.detach();
+
+	return text;
 }

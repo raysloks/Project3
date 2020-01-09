@@ -10,10 +10,14 @@ class SpriteSheet :
 	public Resource<SpriteSheet>
 {
 public:
+	SpriteSheet();
 	SpriteSheet(size_t w, size_t h);
-	SpriteSheet(const std::string & fname);
-	SpriteSheet(const SpriteSheet &sheet);
 	~SpriteSheet();
+
+	SpriteSheet(const SpriteSheet &) = delete;
+	SpriteSheet(SpriteSheet &&) = delete;
+
+	static std::shared_ptr<SpriteSheet> load(const std::string& fname);
 
 	SDL_Texture * getTexture(SDL_Renderer * render);
 
@@ -24,7 +28,11 @@ public:
 
 	int offset_x, offset_y;
 
-	std::shared_ptr<SpriteSheet> makeIsometricFloorLossy(bool blur);
-	std::shared_ptr<SpriteSheet> makeIsometricFloorLossless(float rotation = 0.0f);
+	std::shared_ptr<SpriteSheet> makeCopy() const;
+
+	std::shared_ptr<SpriteSheet> makeIsometricFloorLossy(bool blur) const;
+	std::shared_ptr<SpriteSheet> makeIsometricFloorLossless(float rotation = 0.0f) const;
+
+	std::shared_ptr<SpriteSheet> makeScaled(intmax_t scale) const;
 };
 

@@ -12,6 +12,8 @@ public:
 
 	virtual void onCollision(const Collision & collision);
 
+	virtual void onDamaged(int64_t damage);
+
 	int64_t hp, hp_max;
 
 	Vec2 v, n, move;

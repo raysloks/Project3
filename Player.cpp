@@ -162,8 +162,6 @@ void Player::splatter()
 		else
 			blood += 1;
 	}
-
-	blood += 15;
 }
 
 #include "Projectile.h"
@@ -184,6 +182,7 @@ void Player::onAction(size_t action)
 	}
 	break;
 	case 2:
+		v += (srs->screenToWorld(input->getCursor()) - entity->p).Normalized() * 200.0f;
 		splatter();
 		break;
 	case 3:

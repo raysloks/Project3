@@ -56,6 +56,10 @@ Engine::Engine()
 			SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 	};
 	input->addKeyDownCallback(SDLK_F11, fullscreen_toggle_func);
+
+
+	//cursor_sheet = SpriteSheet::get("cursor.png")->makeScaled(4);
+	//cursor = nullptr;
 }
 
 Engine::~Engine()
@@ -83,6 +87,21 @@ void Engine::run()
 
 	while (!stopped)
 	{
+		if (cursor == nullptr)
+		{
+			if (cursor_sheet)
+			{
+				if (cursor_sheet->loaded)
+				{
+					if (cursor_sheet->surface)
+					{
+						cursor = SDL_CreateColorCursor(cursor_sheet->surface, 4, 4);
+						SDL_SetCursor(cursor);
+					}
+				}
+			}
+		}
+
 		SDL_Event e;
 
 		while (SDL_PollEvent(&e))

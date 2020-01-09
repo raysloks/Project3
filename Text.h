@@ -6,6 +6,6 @@ class Text :
 	public std::string, Resource<Text>
 {
 public:
-	Text(const std::string& fname);
+	static std::shared_ptr<Text> load(const std::string& fname);
 };
 

@@ -7,7 +7,8 @@
 #include <functional>
 
 template <class T>
-class Resource
+class Resource :
+	public std::enable_shared_from_this<T>
 {
 public:
 
@@ -21,7 +22,7 @@ public:
 			resource = i->second.lock();
 		if (resource)
 			return resource;
-		resource = std::make_shared<T>(fname);
+		resource = T::load(fname);
 		resources[fname] = resource;
 		return resource;
 	}

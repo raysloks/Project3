@@ -22,13 +22,22 @@ void Mob::tick(float dt)
 	float l = move.Len();
 	if (l != 0.0f)
 	{
-		move /= l;
+		if (l > 1.0f)
+			move /= l;
 
 		v += move * (acceleration + deceleration) * dt;
 	}
 
-	v -= v.Truncated(deceleration * dt);
-	v.Truncate(speed);
+	float mag = v.Len();
+	float loss = deceleration * dt;
+	float over = mag - loss - speed;
+	if (over > 0.0f)
+		loss += fminf(over, loss);
+
+	if (loss < mag)
+		v -= v / mag * loss;
+	else
+		v = Vec2();
 
 	Vec2 at = v - v_prev;
 	entity->p += at * 0.5f * dt;
@@ -42,4 +51,12 @@ void Mob::onCollision(const Collision & collision)
 		v -= collision.n * v_dot_n;
 
 	n = collision.n;
+}
+
+void Mob::onDamaged(int64_t damage)
+{
+	hp -= damage;
+
+	if (hp <= 0)
+		engine->remove_entity(entity);
 }

@@ -28,8 +28,8 @@ void Enemy::tick(float dt)
 			{
 				if (rand() % 30 == 0)
 				{
-					player->hp -= rand() % 10 + 1;
 					player->splatter();
+					player->onDamaged(rand() % 10 + 1);
 				}
 			}
 		}

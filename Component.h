@@ -10,6 +10,12 @@ public:
 
 	Component & operator=(Component && component) noexcept;
 
+	template <class T>
+	T * getComponent() const
+	{
+		return entity->getComponent<T>();
+	}
+
 	Entity * entity;
 };
 

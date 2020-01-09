@@ -156,6 +156,12 @@
     <ClCompile Include="HealthDisplay.cpp">
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
+    <ClCompile Include="FollowCursor.cpp">
+      <Filter>Source Files\Custom Behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="Body.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -274,6 +280,12 @@
     </ClInclude>
     <ClInclude Include="HealthDisplay.h">
       <Filter>Header Files\Custom Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="FollowCursor.h">
+      <Filter>Header Files\Custom Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="Body.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -2,30 +2,30 @@
 
 #include "Player.h"
 
+void HealthDisplay::start()
+{
+	auto font = SpriteSheet::get("font.png");
+	font->rows = 16;
+	font->columns = 16;
+
+	for (size_t i = 0; i < 32; ++i)
+	{
+		Entity entity;
+		entity.p.x = 50 + i * 8;
+		entity.p.y = 200;
+
+		auto sprite = srs->ui.add(Sprite(font));
+		sprite->color = SDL_Color({ 255, 0, 0, 255 });
+		entity.addComponent(sprite);
+
+		engine->add_entity(std::move(entity));
+
+		sprites.push_back(sprite);
+	}
+}
+
 void HealthDisplay::tick(float dt)
 {
-	if (sprites.empty())
-	{
-		auto font = SpriteSheet::get("font.png");
-		font->rows = 16;
-		font->columns = 16;
-
-		for (size_t i = 0; i < 32; ++i)
-		{
-			Entity entity;
-			entity.p.x = 50 + i * 8;
-			entity.p.y = 200;
-
-			auto sprite = srs->ui.add(Sprite(font));
-			sprite->color = SDL_Color({ 255, 0, 0, 255 });
-			entity.addComponent(sprite);
-
-			engine->add_entity(std::move(entity));
-
-			sprites.push_back(sprite);
-		}
-	}
-
 	std::string text = std::to_string(player->hp) + " / " + std::to_string(player->hp_max);
 	for (size_t i = 0; i < sprites.size(); ++i)
 	{

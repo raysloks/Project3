@@ -1,28 +1,28 @@
 #include "FrameRate.h"
 
+void FrameRate::start()
+{
+	auto font = SpriteSheet::get("font.png");
+	font->rows = 16;
+	font->columns = 16;
+
+	for (size_t i = 0; i < 32; ++i)
+	{
+		Entity entity;
+		entity.p.x = 32 + i * 8;
+		entity.p.y = 32;
+
+		auto sprite = srs->ui.add(Sprite(font));
+		entity.addComponent(sprite);
+
+		engine->add_entity(std::move(entity));
+
+		sprites.push_back(sprite);
+	}
+}
+
 void FrameRate::tick(float dt)
 {
-	if (sprites.empty())
-	{
-		auto font = SpriteSheet::get("font.png");
-		font->rows = 16;
-		font->columns = 16;
-
-		for (size_t i = 0; i < 32; ++i)
-		{
-			Entity entity;
-			entity.p.x = 32 + i * 8;
-			entity.p.y = 32;
-
-			auto sprite = srs->ui.add(Sprite(font));
-			entity.addComponent(sprite);
-
-			engine->add_entity(std::move(entity));
-
-			sprites.push_back(sprite);
-		}
-	}
-
 	double tps = 1.0 / engine->full;
 
 	records.push_back(tps);

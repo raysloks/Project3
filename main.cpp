@@ -7,6 +7,7 @@
 
 #include "FrameRate.h"
 #include "HealthDisplay.h"
+#include "FollowCursor.h"
 
 #include "Tilemap.h"
 #include "TilemapShape.h"
@@ -230,14 +231,15 @@ int main(int argc, char* args[])
 			if (y > h - 2)
 				y = h - 2;
 			tilemap[x][y].tile = 0;
-			if (rand() % 16 == 0)
+
+			/*if (rand() % 16 == 0)
 			{
 				size_t prevalence = rand() % 32 + 1ull;
 				for (size_t i = 0; i < 16 * 16; ++i)
 				{
 					tilemap[x][y].effects.set(i / 16, i % 16, rand() % prevalence);
 				}
-			}
+			}*/
 
 			int dir = rand() % 4;
 			if (dir == (prev_dir + 2) % 4)
@@ -392,6 +394,19 @@ int main(int argc, char* args[])
 
 		auto fps = std::make_shared<FrameRate>();
 		entity.addComponent(engine.cbs->add(fps));
+
+		engine.add_entity(std::move(entity));
+	}
+
+	// cursor highlight
+	{
+		Entity entity;
+
+		Sprite sprite("shadow6_iso.png");
+		sprite.sort = 512;
+		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+		entity.addComponent(engine.cbs->add(std::make_shared<FollowCursor>()));
 
 		engine.add_entity(std::move(entity));
 	}

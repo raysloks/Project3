@@ -14,6 +14,7 @@
 struct SDL_Window;
 struct SDL_Surface;
 struct SDL_Renderer;
+struct SDL_Cursor;
 
 class System;
 
@@ -43,7 +44,7 @@ public:
 
 	double full;
 
-//private:
+private:
 
 	SDL_Window * window;
 	SDL_Renderer * render;
@@ -57,4 +58,7 @@ public:
 	std::vector<System*> systems;
 
 	std::function<void(void)> fullscreen_toggle_func;
+
+	std::shared_ptr<SpriteSheet> cursor_sheet;
+	SDL_Cursor * cursor;
 };

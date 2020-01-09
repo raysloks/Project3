@@ -2,16 +2,14 @@
 
 #include "CustomBehaviour.h"
 
-class FrameRate :
+class Body :
 	public CustomBehaviour
 {
 public:
 	void start();
-
 	void tick(float dt);
 
-private:
-	std::vector<double> records;
-	std::vector<Reference<Sprite>> sprites;
+	Vec2 v;
+	float m;
 };
 
