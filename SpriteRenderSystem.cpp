@@ -13,9 +13,14 @@ SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
 
 	camera_position = Vec2();
 
-	offscreen = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 512, 256 + 32);
+	target_w = 1920 / 6;
+	target_h = target_w;
+
+	offscreen = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, target_w, target_h);
 
 	flicker = false;
+
+	use_offscreen = false;
 }
 
 Vec2 SpriteRenderSystem::screenToWorld(const Vec2 & p)
@@ -35,19 +40,25 @@ void SpriteRenderSystem::tick(float dt)
 
 	SDL_GetRendererOutputSize(render, &screen_w, &screen_h);
 
-	SDL_SetRenderTarget(render, offscreen);
-
-	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
-	SDL_RenderClear(render);
-
-	SDL_GetRendererOutputSize(render, &w, &h);
-
-	int scale_new = (screen_w + w - 1) / w;
+	int scale_new = (screen_w + target_w - 1) / target_w;
 	if (scale_new < 1)
 		scale_new = 1;
 	if (scale_new != scale)
-		CustomBehaviour::engine->setCursor(SpriteSheet::get("cursor.png")->makeScaled(scale_new)); // TODO SUPER HACKY fix asap
+		CustomBehaviour::engine->setCursor(SpriteSheet::get("cursor.png")->makeScaled(scale_new), scale_new, scale_new); // TODO SUPER HACKY fix asap
 	scale = scale_new;
+	
+	if (use_offscreen)
+	{
+		SDL_SetRenderTarget(render, offscreen);
+		raw_scale = 1;
+	}
+	else
+	{
+		SDL_SetRenderTarget(render, nullptr);
+		raw_scale = scale;
+	}
+
+	SDL_GetRendererOutputSize(render, &w, &h);
 
 	std::multimap<float, Sprite*> sorted;
 
@@ -60,6 +71,15 @@ void SpriteRenderSystem::tick(float dt)
 			}
 
 	Vec2 camera_position_iso(camera_position.x - camera_position.y, (camera_position.y + camera_position.x) * 0.5f);
+	camera_position_iso *= raw_scale;
+	camera_position_iso -= Vec2(w / 2, h / 2);
+	Vec2 camera_position_iso_raw = camera_position_iso;
+
+	camera_position_iso.x = roundf(camera_position_iso.x);
+	camera_position_iso.y = roundf(camera_position_iso.y);
+
+	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+	SDL_RenderClear(render);
 
 	for (auto& i : sorted)
 	{
@@ -75,13 +95,27 @@ void SpriteRenderSystem::tick(float dt)
 
 		Vec2 p_iso(p.x - p.y, (p.y + p.x) * 0.5f);
 
+		p_iso *= raw_scale;
+
+		p_iso.x = roundf(p_iso.x);
+		p_iso.y = roundf(p_iso.y);
+
 		Vec2 flip(sprite.flip & SDL_FLIP_HORIZONTAL ? 1.0f : -1.0f, sprite.flip & SDL_FLIP_VERTICAL ? 1.0f : -1.0f);
 
 		SDL_Rect dst = sprite.sheet->surface->clip_rect;
 		dst.w /= sprite.sheet->columns;
 		dst.h /= sprite.sheet->rows;
-		dst.x = (roundf(p_iso.x) - roundf(camera_position_iso.x)) - sprite.sheet->offset_x * flip.x - dst.w / 2 + w / 2;
-		dst.y = (roundf(p_iso.y) - roundf(camera_position_iso.y)) - sprite.sheet->offset_y * flip.y - dst.h / 2 + h / 2;
+
+		dst.x = -sprite.sheet->offset_x * flip.x - dst.w / 2;
+		dst.y = -sprite.sheet->offset_y * flip.y - dst.h / 2;
+
+		dst.x *= raw_scale;
+		dst.y *= raw_scale;
+		dst.w *= raw_scale;
+		dst.h *= raw_scale;
+
+		dst.x += p_iso.x - camera_position_iso.x;
+		dst.y += p_iso.y - camera_position_iso.y;
 
 		auto texture = sprite.sheet->getTexture(render);
 
@@ -91,15 +125,18 @@ void SpriteRenderSystem::tick(float dt)
 		SDL_RenderCopyEx(render, texture, &src, &dst, sprite.rotation, nullptr, sprite.flip);
 	}
 
-	SDL_SetRenderTarget(render, nullptr);
+	if (use_offscreen)
+	{
+		SDL_SetRenderTarget(render, nullptr);
 
-	SDL_Rect rect;
-	rect.w = w * scale;
-	rect.h = h * scale;
-	rect.x = (roundf(camera_position_iso.x) - camera_position_iso.x) * scale - (rect.w - screen_w) / 2;
-	rect.y = (roundf(camera_position_iso.y) - camera_position_iso.y) * scale - (rect.h - screen_h) / 2;
+		SDL_Rect rect;
+		rect.w = w * scale;
+		rect.h = h * scale;
+		rect.x = (camera_position_iso.x - camera_position_iso_raw.x) * scale - (rect.w - screen_w) / 2;
+		rect.y = (camera_position_iso.y - camera_position_iso_raw.y) * scale - (rect.h - screen_h) / 2;
 
-	SDL_RenderCopy(render, offscreen, nullptr, &rect);
+		SDL_RenderCopy(render, offscreen, nullptr, &rect);
+	}
 
 	for (auto& sprite : ui.components)
 	{

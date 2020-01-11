@@ -54,7 +54,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::load(const std::string & fname)
 		{
 			auto meta = Text::get(fname + ".meta");
 
-			sheet->surface = IMG_Load(fname.c_str());
+			sheet->surface = IMG_Load(("data/" + fname).c_str());
 
 			while (!meta->loaded)
 				SDL_Delay(0);
@@ -95,6 +95,10 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeCopy() const
 			auto& surface = shared_this->surface;
 			auto& format = surface->format;
 			sheet->surface = SDL_CreateRGBSurfaceFrom(surface->pixels, surface->w, surface->h, surface->pitch, format->BitsPerPixel, format->Rmask, format->Gmask, format->Bmask, format->Amask);
+			sheet->columns = shared_this->columns;
+			sheet->rows = shared_this->rows;
+			sheet->offset_x = shared_this->offset_x;
+			sheet->offset_y = shared_this->offset_y;
 		}
 
 		sheet->loaded = true;
@@ -184,6 +188,8 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossy(bool blur) con
 			sheet->surface = surface;
 			sheet->columns = shared_this->columns;
 			sheet->rows = shared_this->rows;
+			sheet->offset_x = shared_this->offset_x;
+			sheet->offset_y = shared_this->offset_y;
 		}
 
 		sheet->loaded = true;
@@ -290,6 +296,8 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossless(float rotat
 			sheet->surface = surface;
 			sheet->columns = columns;
 			sheet->rows = rows;
+			sheet->offset_x = shared_this->offset_x;
+			sheet->offset_y = shared_this->offset_y;
 		}
 
 		sheet->loaded = true;
@@ -352,6 +360,117 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeScaled(intmax_t scale) const
 			sheet->surface = surface;
 			sheet->columns = shared_this->columns;
 			sheet->rows = shared_this->rows;
+			sheet->offset_x = shared_this->offset_x;
+			sheet->offset_y = shared_this->offset_y;
+		}
+
+		sheet->loaded = true;
+	};
+
+	if (loaded)
+	{
+		func();
+	}
+	else
+	{
+		std::thread t(func);
+		t.detach();
+	}
+
+	return sheet;
+}
+
+std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline() const
+{
+	auto sheet = std::make_shared<SpriteSheet>();
+	auto shared_this = shared_from_this();
+	auto func = [shared_this, sheet]()
+	{
+		while (!shared_this->loaded)
+			SDL_Delay(0);
+
+		if (shared_this->surface)
+		{
+			SDL_Surface * this_surface = shared_this->surface;
+			intmax_t this_pitch = this_surface->pitch;
+			uint8_t * this_pixels = (uint8_t*)this_surface->pixels;
+
+			intmax_t wf = this_surface->w;
+			intmax_t hf = this_surface->h;
+
+			size_t columns = shared_this->columns;
+			size_t rows = shared_this->rows;
+
+			intmax_t w = wf / columns;
+			intmax_t h = hf / rows;
+			intmax_t nw = w + 2;
+			intmax_t nh = h + 2;
+
+			intmax_t nwf = nw * columns;
+			intmax_t nhf = nh * rows;
+
+			SDL_Surface * surface = SDL_CreateRGBSurface(0, nwf, nhf, 32, 0xff, 0xff << 8, 0xff << 16, 0xff << 24);
+			intmax_t pitch = surface->pitch;
+			uint8_t * pixels = (uint8_t*)surface->pixels;
+
+			for (intmax_t c = 0; c < columns; ++c)
+			{
+				for (intmax_t r = 0; r < rows; ++r)
+				{
+					for (intmax_t x = 0; x < nw; ++x)
+					{
+						for (intmax_t y = 0; y < nh; ++y)
+						{
+							intmax_t x_min = x - 2;
+							if (x_min < 0)
+								x_min = 0;
+							intmax_t y_min = y - 2;
+							if (y_min < 0)
+								y_min = 0;
+
+							intmax_t x_max = x + 1;
+							if (x_max > w)
+								x_max = w;
+							intmax_t y_max = y + 1;
+							if (y_max > h)
+								y_max = h;
+
+							intmax_t opacity = 0;
+							for (intmax_t ox = x_min; ox < x_max; ++ox)
+							{
+								for (intmax_t oy = y_min; oy < y_max; ++oy)
+								{
+									SDL_Color & og = *(SDL_Color*)(this_pixels + (oy + r * h) * this_pitch + (ox + c * w) * 4);
+									opacity += uintmax_t(og.a);
+								}
+							}
+
+							if (opacity > 255)
+								opacity = 255;
+
+							/*if (x != 0 && y != 0 && x != nw - 1 && y != nh - 1)
+							{
+								SDL_Color & og = *(SDL_Color*)(this_pixels + (y - 1 + r * h) * this_pitch + (x - 1 + c * w) * 4);
+
+								opacity -= og.a;
+
+								if (opacity < 0)
+									opacity = 0;
+							}*/
+
+							SDL_Color & pixel = *(SDL_Color*)(pixels + (y + r * nh) * pitch + (x + c * nw) * 4);
+
+							pixel = SDL_Color({ 255, 255, 255, (uint8_t)opacity });
+						}
+					}
+				}
+			}
+
+			sheet->surface = surface;
+			sheet->columns = shared_this->columns;
+			sheet->rows = shared_this->rows;
+			sheet->offset_x = shared_this->offset_x;
+			sheet->offset_y = shared_this->offset_y;
 		}
 
 		sheet->loaded = true;

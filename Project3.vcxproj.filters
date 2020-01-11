@@ -78,9 +78,6 @@
     <ClCompile Include="CustomBehaviourSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
-    <ClCompile Include="Resource.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Collider.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
@@ -179,6 +176,9 @@
     </ClCompile>
     <ClCompile Include="TilemapCollider.cpp">
       <Filter>Source Files\Components\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="FloatingText.cpp">
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -316,6 +316,9 @@
     </ClInclude>
     <ClInclude Include="TilemapCollider.h">
       <Filter>Header Files\Components\Colliders</Filter>
+    </ClInclude>
+    <ClInclude Include="FloatingText.h">
+      <Filter>Header Files\Custom Behaviours</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

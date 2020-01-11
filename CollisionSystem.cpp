@@ -187,25 +187,69 @@ void CollisionSystem::tick(float dt)
 
 #include "Circle.h"
 
-std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r)
+std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r, const std::function<bool(Collider*)>& filter)
 {
 	std::map<float, Collider*> ret;
 
-	Circle circle(r);
+	CircleCollider circle(r);
 
 	std::vector<Collision> collisions;
 	collisions.reserve(256);
 
-	for (size_t i = 0; i < colliders.components.size(); ++i)
+	for (size_t i = 0; i < circles.components.size(); ++i)
 	{
-		auto& a = colliders.components[i];
+		auto& a = circles.components[i];
 		if (a.entity == nullptr)
 			continue;
 
-		Vec2 diff = a.entity->p - p;
-		
+		if (filter)
+			if (!filter(&a))
+				continue;
+
+		Vec2 diff = p - a.entity->p;
+
 		size_t j = collisions.size();
-		circle.check(diff, a.shape.get(), collisions);
+		a.check(diff, circle, collisions);
+		for (; j < collisions.size(); ++j)
+		{
+			ret.insert(std::make_pair(r - collisions[j].pen, &a));
+		}
+	}
+
+	for (size_t i = 0; i < rectangles.components.size(); ++i)
+	{
+		auto& a = rectangles.components[i];
+		if (a.entity == nullptr)
+			continue;
+
+		if (filter)
+			if (!filter(&a))
+				continue;
+
+		Vec2 diff = p - a.entity->p;
+
+		size_t j = collisions.size();
+		a.check(diff, circle, collisions);
+		for (; j < collisions.size(); ++j)
+		{
+			ret.insert(std::make_pair(r - collisions[j].pen, &a));
+		}
+	}
+
+	for (size_t i = 0; i < tilemaps.components.size(); ++i)
+	{
+		auto& a = tilemaps.components[i];
+		if (a.entity == nullptr)
+			continue;
+
+		if (filter)
+			if (!filter(&a))
+				continue;
+
+		Vec2 diff = p - a.entity->p;
+
+		size_t j = collisions.size();
+		a.check(diff, circle, collisions);
 		for (; j < collisions.size(); ++j)
 		{
 			ret.insert(std::make_pair(r - collisions[j].pen, &a));

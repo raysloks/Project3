@@ -105,9 +105,9 @@ void Player::tick(float dt)
 	if (input->isKeyPressed(SDLK_r))
 		entity->p = Vec2(16.0f, 1600.0f);
 
-	speed = 60.0f;
-	acceleration = 120.0f;
-	deceleration = 240.0f;
+	speed = 25.0f;
+	acceleration = 50.0f;
+	deceleration = 200.0f;
 
 	move = Vec2();
 
@@ -124,12 +124,21 @@ void Player::tick(float dt)
 	if (move != Vec2())
 		facing = move.Normalized();
 
-	if (move.x < move.y)
-		sprite->subsprite_y = 1;
 	if (move.x > move.y)
-		sprite->subsprite_y = 0;
+		sprite->flip = SDL_FLIP_NONE;
+	if (move.x < move.y)
+		sprite->flip = SDL_FLIP_HORIZONTAL;
 
-	anim += v.Len() * dt * 0.5f;
+	anim += v.Len() * dt * 0.8f;
+	if (v == Vec2())
+	{
+		anim = 3;
+		sprite->subsprite_y = 0;
+	}
+	else
+	{
+		sprite->subsprite_y = 1;
+	}
 
 	Mob::tick(dt);
 
@@ -165,38 +174,97 @@ void Player::splatter()
 
 #include "Projectile.h"
 
+#include <algorithm>
+
 void Player::onAction(size_t action)
 {
 	switch (action)
 	{
 	case 0:
-		on_attack();
-		break;
-	case 1:
 	{
 		auto target = srs->screenToWorld(input->getCursor());
-		auto in_range = cs->overlapCircle(target, 0.0f);
-		if (in_range.empty())
-			entity->p = target;
+		auto in_range = cs->overlapCircle(target, 8.0f);
+		for (auto i : in_range)
+		{
+			auto enemy = i.second->getComponent<Enemy>();
+			if (enemy)
+			{
+				target = enemy->entity->p + (target - enemy->entity->p).Normalized() * 8.0f;
+				auto in_range = cs->overlapCircle(target, 0.0f, [this](Collider * c) { return c->entity != entity; });
+				if (in_range.empty())
+				{
+					entity->p = target;
+					enemy->onDamaged(10);
+					break;
+				}
+			}
+		}
+	}
+	break;
+	case 1:
+	{
+		on_attack();
 	}
 	break;
 	case 2:
-		v += (srs->screenToWorld(input->getCursor()) - entity->p).Normalized() * 200.0f;
-		splatter();
-		break;
+	{
+		auto diff = srs->screenToWorld(input->getCursor()) - entity->p;
+		diff.Truncate(160.0f);
+		auto target = entity->p + diff;
+		auto in_range = cs->overlapCircle(target, 0.0f);
+		if (in_range.empty())
+		{
+			// create poof
+			{
+				Entity entity;
+				entity.p = this->entity->p;
+
+				Sprite sprite("blink.png");
+				sprite.sort = -8;
+				sprite.sheet->columns = 4;
+				entity.addComponent(srs->sprites.add(std::move(sprite)));
+
+				auto animator = std::make_shared<SpriteAnimator>(30.0f);
+				animator->destroy = true;
+				entity.addComponent(cbs->add(std::move(animator)));
+
+				engine->add_entity(std::move(entity));
+			}
+
+			entity->p = target;
+
+			// create poof
+			{
+				Entity entity;
+				this->entity->addChild(&entity);
+
+				Sprite sprite("blink.png");
+				sprite.sort = -8;
+				sprite.sheet->columns = 4;
+				entity.addComponent(srs->sprites.add(std::move(sprite)));
+
+				auto animator = std::make_shared<SpriteAnimator>(30.0f);
+				animator->destroy = true;
+				entity.addComponent(cbs->add(std::move(animator)));
+
+				engine->add_entity(std::move(entity));
+			}
+		}
+	}
+	break;
 	case 3:
 	{
 		auto entity = engine->add_entity(Entity());
 		entity->p = this->entity->p;
 
-		Sprite sprite("ball.png");
+		Sprite sprite("shadow4_iso.png");
 		entity->addComponent(srs->sprites.add(std::move(sprite)));
 
 		auto projectile = std::make_shared<Projectile>();
 		projectile->v = srs->screenToWorld(input->getCursor()) - entity->p;
 		entity->addComponent(cbs->add(projectile));
 
-		auto collider = cs->circles.add(CircleCollider(3.0f));
+		auto collider = cs->circles.add(CircleCollider(2.0f));
 		entity->addComponent(collider);
 
 		collider->callbacks.push_back([projectile](const Collision& collision)

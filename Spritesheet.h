@@ -34,5 +34,7 @@ public:
 	std::shared_ptr<SpriteSheet> makeIsometricFloorLossless(float rotation = 0.0f) const;
 
 	std::shared_ptr<SpriteSheet> makeScaled(intmax_t scale) const;
+
+	std::shared_ptr<SpriteSheet> makeOutline() const;
 };
 

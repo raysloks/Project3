@@ -6,11 +6,17 @@
 
 #include "Player.h"
 
+Enemy::Enemy()
+{
+	hp = 100;
+	hp_max = 100;
+}
+
 void Enemy::tick(float dt)
 {
-	speed = 24.0f;
-	acceleration = 9001.0f;
-	deceleration = 9001.0f;
+	speed = 15.0f;
+	acceleration = 30.0f;
+	deceleration = 30.0f;
 
 	move = Vec2();
 
@@ -23,14 +29,6 @@ void Enemy::tick(float dt)
 			if (i.first > 10.0f)
 			{
 				move = player->entity->p - entity->p;
-			}
-			else
-			{
-				if (rand() % 30 == 0)
-				{
-					player->splatter();
-					player->onDamaged(rand() % 10 + 1);
-				}
 			}
 		}
 	}

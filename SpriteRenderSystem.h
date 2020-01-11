@@ -26,8 +26,11 @@ private:
 
 	bool flicker;
 
+	bool use_offscreen;
+
+	int target_w, target_h;
 	int w, h;
 	int screen_w, screen_h;
-	int scale;
+	int scale, raw_scale;
 };
 

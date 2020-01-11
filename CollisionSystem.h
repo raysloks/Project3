@@ -22,6 +22,6 @@ public:
 	ComponentContainer<TilemapCollider> tilemaps;
 	ComponentContainer<SpriteCollider> sprites;
 
-	std::map<float, Collider*> overlapCircle(const Vec2& p, float r);
+	std::map<float, Collider*> overlapCircle(const Vec2& p, float r, const std::function<bool(Collider*)>& filter = nullptr);
 };
 

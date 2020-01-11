@@ -44,7 +44,7 @@ public:
 
 	double full;
 
-	void setCursor(const std::shared_ptr<SpriteSheet> & sheet);
+	void setCursor(const std::shared_ptr<SpriteSheet> & sheet, int hotspot_x, int hotspot_y);
 
 private:
 
@@ -62,5 +62,6 @@ private:
 	std::function<void(void)> fullscreen_toggle_func;
 
 	std::shared_ptr<SpriteSheet> cursor_sheet, cursor_sheet_new;
+	int cursor_hotspot_x, cursor_hotspot_y;
 	SDL_Cursor * cursor;
 };

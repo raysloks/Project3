@@ -11,7 +11,6 @@ class Resource :
 	public std::enable_shared_from_this<T>
 {
 public:
-
 	static std::map<std::string, std::weak_ptr<T>> resources;
 
 	static std::shared_ptr<T> get(const std::string& fname)
@@ -29,7 +28,6 @@ public:
 
 	bool loaded;
 	//std::vector<std::function<void(void)>> on_loaded;
-
 };
 
 template <class T>

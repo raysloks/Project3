@@ -53,9 +53,21 @@ void Mob::onCollision(const Collision & collision)
 	n = collision.n;
 }
 
+#include "FloatingText.h"
+
 void Mob::onDamaged(int64_t damage)
 {
 	hp -= damage;
+
+	// create floating text
+	{
+		Entity entity;
+		entity.p = this->entity->p;
+
+		entity.addComponent(cbs->add(std::make_shared<FloatingText>(std::to_string(damage), 32, 1)));
+
+		engine->add_entity(std::move(entity));
+	}
 
 	if (hp <= 0)
 		engine->remove_entity(entity);

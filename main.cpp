@@ -77,7 +77,7 @@ int main(int argc, char* args[])
 
 		Sprite sprite("ghost.png");
 		sprite.sheet->columns = 25;
-		sprite.sort = 100;
+		sprite.sort = 128;
 		sprite.color.a = 200;
 		sprite.sheet->offset_y = -8;
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
@@ -144,24 +144,6 @@ int main(int argc, char* args[])
 			engine.add_entity(std::move(entity));
 		}
 	}*/
-
-	// create key
-	{
-		Entity entity;
-		entity.x = 16 * 2;
-		entity.y = 16 * (100 - 3);
-
-		Sprite sprite("key_glimmer.png");
-		sprite.sheet->columns = 4;
-		sprite.sheet->rows = 4;
-		sprite.sort = -8;
-		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-		auto animator = std::make_shared<SpriteAnimator>(15.0f);
-		entity.addComponent(engine.cbs->add(std::move(animator)));
-
-		engine.add_entity(std::move(entity));
-	}
 
 	auto floor = SpriteSheet::get("floor.png");
 
@@ -332,17 +314,18 @@ int main(int argc, char* args[])
 		entity.x = 16;
 		entity.y = 16 * (100 - 2);
 
-		auto sprite = SpriteSheet::get("dude_one.png");
-		sprite->columns = 4;
+		auto sprite = SpriteSheet::get("bone_boy.png");
+		sprite->columns = 12;
 		sprite->rows = 2;
 		sprite->offset_y = -8;
+
 		entity.addComponent(engine.srs->sprites.add(Sprite(sprite)));
 
 		auto player = std::make_shared<Player>();
 		player->tm = &tilemap;
 		entity.addComponent(engine.cbs->add(player));
 
-		entity.addComponent(engine.cs->circles.add(CircleCollider(5.0f)));
+		entity.addComponent(engine.cs->circles.add(CircleCollider(3.0f)));
 
 		auto player_entity = engine.add_entity(std::move(entity));
 
@@ -351,9 +334,9 @@ int main(int argc, char* args[])
 			Entity entity;
 			player_entity->addChild(&entity);
 
-			Sprite sprite("shadow5_iso.png");
+			Sprite sprite("shadow4_iso.png");
 			sprite.sort = -64;
-			sprite.color = SDL_Color({ 0, 0, 0, 64 });
+			sprite.color = SDL_Color({ 0, 0, 0, 32 });
 			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 			engine.add_entity(std::move(entity));
@@ -386,7 +369,6 @@ int main(int argc, char* args[])
 		Entity entity;
 
 		Sprite sprite("shadow6_iso.png");
-		sprite.sort = 512;
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 		entity.addComponent(engine.cbs->add(std::make_shared<FollowCursor>()));

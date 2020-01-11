@@ -96,7 +96,7 @@ void Engine::run()
 				if (cursor_sheet_new->loaded)
 				{
 					if (cursor_sheet_new->surface)
-						cursor = SDL_CreateColorCursor(cursor_sheet_new->surface, 4, 4);
+						cursor = SDL_CreateColorCursor(cursor_sheet_new->surface, cursor_hotspot_x, cursor_hotspot_y);
 					else
 						cursor = nullptr; // i guess we just default the cursor if we failed to load the requested image
 					cursor_sheet = cursor_sheet_new;
@@ -188,6 +188,8 @@ Entity * Engine::get_entity(size_t index)
 
 void Engine::remove_entity(Entity * entity)
 {
+	for (auto child : entity->getChildren())
+		remove_entity(child);
 	*entity = std::move(Entity());
 	entities.remove(entity);
 }
@@ -197,7 +199,9 @@ void Engine::remove_entity(size_t index)
 	remove_entity(&entities.components[index]);
 }
 
-void Engine::setCursor(const std::shared_ptr<SpriteSheet>& sheet)
+void Engine::setCursor(const std::shared_ptr<SpriteSheet>& sheet, int hotspot_x, int hotspot_y)
 {
 	cursor_sheet_new = sheet;
+	cursor_hotspot_x = hotspot_x;
+	cursor_hotspot_y = hotspot_y;
 }
