@@ -41,46 +41,6 @@ void CollisionSystem::tick(float dt)
 	std::vector<Collision> collisions;
 	collisions.reserve(256);
 
-	// TODO make a component class for each collider shape to avoid virtual function calls and 'flipping'
-	/*for (size_t i = 0; i < colliders.components.size() - 1; ++i)
-	{
-		auto& a = colliders.components[i];
-		if (a.entity == nullptr)
-			continue;
-
-		for (size_t j = i + 1; j < colliders.components.size(); ++j)
-		{
-			auto& b = colliders.components[j];
-			if (b.entity == nullptr)
-				continue;
-
-			if ((a.layers & b.layers) == 0)
-				continue;
-
-			size_t count = 0;
-			do
-			{
-				Vec2 diff = b.entity->getPosition() - a.entity->getPosition();
-
-				collisions.clear();
-
-				a.shape->check(diff, b.shape.get(), collisions);
-
-				if (collisions.empty())
-					break;
-
-				std::sort(collisions.begin(), collisions.end(), [](auto a, auto b) { return a.pen > b.pen; });
-
-				auto& collision = collisions.front();
-
-				collision.p += a.entity->p;
-
-				callCallbacks(a, b, collision);
-				
-			} while (collisions.size() > 1 && ++count < 2);
-		}
-	}*/
-
 	for (size_t i = 0; i < circles.components.size(); ++i)
 	{
 		auto& a = circles.components[i];
@@ -160,6 +120,7 @@ void CollisionSystem::tick(float dt)
 			if ((a.layers & b.layers) == 0)
 				continue;
 			
+			// check twice to prevent clipping into concave corners
 			size_t count = 0;
 			do
 			{
@@ -183,11 +144,43 @@ void CollisionSystem::tick(float dt)
 			} while (collisions.size() > 1 && ++count < 2);
 		}
 	}
+
+	for (size_t i = 0; i < sprites.components.size(); ++i)
+	{
+		auto& a = sprites.components[i];
+		if (a.entity == nullptr)
+			continue;
+
+		for (size_t j = 0; j < circles.components.size(); ++j)
+		{
+			auto& b = circles.components[j];
+			if (b.entity == nullptr)
+				continue;
+
+			if ((a.layers & b.layers) == 0)
+				continue;
+
+			collisions.clear();
+
+			Vec2 diff = b.entity->getPosition() - a.entity->getPosition();
+
+			a.check(diff, b, collisions);
+
+			if (collisions.empty())
+				continue;
+
+			auto& collision = collisions.front();
+
+			collision.p += a.entity->p;
+
+			callCallbacks(a, b, collision);
+		}
+	}
 }
 
 #include "Circle.h"
 
-std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r, const std::function<bool(Collider*)>& filter)
+std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r, uint64_t layers, const std::function<bool(Collider*)>& filter)
 {
 	std::map<float, Collider*> ret;
 
@@ -200,6 +193,9 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 	{
 		auto& a = circles.components[i];
 		if (a.entity == nullptr)
+			continue;
+
+		if ((a.layers & layers) == 0)
 			continue;
 
 		if (filter)
@@ -222,6 +218,9 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 		if (a.entity == nullptr)
 			continue;
 
+		if ((a.layers & layers) == 0)
+			continue;
+
 		if (filter)
 			if (!filter(&a))
 				continue;
@@ -240,6 +239,9 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 	{
 		auto& a = tilemaps.components[i];
 		if (a.entity == nullptr)
+			continue;
+
+		if ((a.layers & layers) == 0)
 			continue;
 
 		if (filter)

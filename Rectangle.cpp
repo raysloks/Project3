@@ -2,7 +2,7 @@
 
 #include "Circle.h"
 
-#include <math.h>
+#include <cmath>
 
 Rectangle::Rectangle(const Vec2 & size) : size(size)
 {

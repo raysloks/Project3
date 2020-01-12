@@ -37,8 +37,6 @@ private:
 
 	Vec2 facing;
 
-	float anim = 0.0f;
-
 	SpriteShape * sword_shape;
 	Reference<Entity> sword;
 

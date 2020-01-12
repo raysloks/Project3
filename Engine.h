@@ -9,6 +9,8 @@
 #include "CustomBehaviourSystem.h"
 #include "CollisionSystem.h"
 
+#include "Level.h"
+
 // forward declarations to avoid unnecessary includes
 
 struct SDL_Window;
@@ -36,6 +38,7 @@ public:
 	InputSystem * input;
 	CustomBehaviourSystem * cbs;
 	CollisionSystem * cs;
+	Level * level;
 
 	Reference<Entity> add_entity(Entity&& entity);
 	Entity * get_entity(size_t index);

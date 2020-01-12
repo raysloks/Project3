@@ -20,6 +20,6 @@ public:
 
 	Tilemap * tilemap;
 
-	RectangleCollider rectangle;
+	RectangleCollider rectangle, rectangle_w, rectangle_h;
 };
 

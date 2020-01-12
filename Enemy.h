@@ -9,5 +9,7 @@ public:
 	Enemy();
 
 	void tick(float dt);
+
+	float cooldown;
 };
 

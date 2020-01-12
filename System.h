@@ -3,6 +3,8 @@
 #include "Entity.h"
 #include "ComponentContainer.h"
 
+class Engine;
+
 class System
 {
 public:
@@ -10,5 +12,7 @@ public:
 	virtual ~System();
 
 	virtual void tick(float dt);
+
+	Engine * engine;
 };
 

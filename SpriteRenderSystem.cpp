@@ -23,15 +23,19 @@ SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
 	use_offscreen = false;
 }
 
-Vec2 SpriteRenderSystem::screenToWorld(const Vec2 & p)
+Vec2 SpriteRenderSystem::screenToWorld(const Vec2 & screen_position) const
 {
-	Vec2 eye = (p - Vec2(screen_w, screen_h) * 0.5f) / scale;
+	Vec2 eye = (screen_position - Vec2(screen_w, screen_h) * 0.5f) / scale;
 	return Vec2(eye.x * 0.5f + eye.y, eye.y - eye.x * 0.5f) + camera_position;
+	// TODO swap around operations to make 'eye' actually contain eye coordinates
 }
 
-Vec2 SpriteRenderSystem::worldToScreen(const Vec2 & world_position)
+Vec2 SpriteRenderSystem::worldToScreen(const Vec2 & world_position) const
 {
-	return Vec2();
+	Vec2 relative_world_position = world_position - camera_position;
+	Vec2 eye = relative_world_position * scale + Vec2(screen_w, screen_h) * 0.5f;
+	return Vec2(eye.x - eye.y, (eye.x + eye.y) * 0.5f);
+	// TODO swap around operations to make 'eye' actually contain eye coordinates
 }
 
 void SpriteRenderSystem::tick(float dt)
@@ -44,7 +48,7 @@ void SpriteRenderSystem::tick(float dt)
 	if (scale_new < 1)
 		scale_new = 1;
 	if (scale_new != scale)
-		CustomBehaviour::engine->setCursor(SpriteSheet::get("cursor.png")->makeScaled(scale_new), scale_new, scale_new); // TODO SUPER HACKY fix asap
+		engine->setCursor(SpriteSheet::get("cursor.png")->makeScaled(scale_new), scale_new, scale_new);
 	scale = scale_new;
 	
 	if (use_offscreen)
@@ -58,7 +62,7 @@ void SpriteRenderSystem::tick(float dt)
 		raw_scale = scale;
 	}
 
-	SDL_GetRendererOutputSize(render, &w, &h);
+	SDL_GetRendererOutputSize(render, &render_w, &render_h);
 
 	std::multimap<float, Sprite*> sorted;
 
@@ -72,7 +76,7 @@ void SpriteRenderSystem::tick(float dt)
 
 	Vec2 camera_position_iso(camera_position.x - camera_position.y, (camera_position.y + camera_position.x) * 0.5f);
 	camera_position_iso *= raw_scale;
-	camera_position_iso -= Vec2(w / 2, h / 2);
+	camera_position_iso -= Vec2(render_w / 2, render_h / 2);
 	Vec2 camera_position_iso_raw = camera_position_iso;
 
 	camera_position_iso.x = roundf(camera_position_iso.x);
@@ -114,6 +118,11 @@ void SpriteRenderSystem::tick(float dt)
 		dst.w *= raw_scale;
 		dst.h *= raw_scale;
 
+		dst.x *= sprite.scale.x;
+		dst.y *= sprite.scale.y;
+		dst.w *= sprite.scale.x;
+		dst.h *= sprite.scale.y;
+
 		dst.x += p_iso.x - camera_position_iso.x;
 		dst.y += p_iso.y - camera_position_iso.y;
 
@@ -130,13 +139,16 @@ void SpriteRenderSystem::tick(float dt)
 		SDL_SetRenderTarget(render, nullptr);
 
 		SDL_Rect rect;
-		rect.w = w * scale;
-		rect.h = h * scale;
+		rect.w = render_w * scale;
+		rect.h = render_h * scale;
 		rect.x = (camera_position_iso.x - camera_position_iso_raw.x) * scale - (rect.w - screen_w) / 2;
 		rect.y = (camera_position_iso.y - camera_position_iso_raw.y) * scale - (rect.h - screen_h) / 2;
 
 		SDL_RenderCopy(render, offscreen, nullptr, &rect);
 	}
+
+	effective_w = screen_w / scale;
+	effective_h = screen_h / scale;
 
 	for (auto& sprite : ui.components)
 	{
@@ -173,4 +185,14 @@ void SpriteRenderSystem::tick(float dt)
 			}
 		}
 	}
+}
+
+int SpriteRenderSystem::getWidth() const
+{
+	return effective_w;
+}
+
+int SpriteRenderSystem::getHeight() const
+{
+	return effective_h;
 }

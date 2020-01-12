@@ -9,8 +9,8 @@ void FrameRate::start()
 	for (size_t i = 0; i < 32; ++i)
 	{
 		Entity entity;
-		entity.p.x = 32 + i * 8;
-		entity.p.y = 32;
+		entity.p.x = 8 + i * 8;
+		entity.p.y = 8;
 
 		auto sprite = srs->ui.add(Sprite(font));
 		entity.addComponent(sprite);
@@ -38,7 +38,7 @@ void FrameRate::tick(float dt)
 			min = record;
 	}
 
-	std::string text = std::to_string(lround(sum / records.size())) + " " + std::to_string(lround(min)) + " " + std::to_string(lround(tps));
+	std::string text = std::to_string(lround(sum / records.size())) + " " + std::to_string(lround(min));
 	for (size_t i = 0; i < sprites.size(); ++i)
 	{
 		auto sprite = sprites[i];

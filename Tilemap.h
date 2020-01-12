@@ -6,6 +6,8 @@
 
 #include "Tile.h"
 
+#include <set>
+
 class Tilemap
 {
 public:
@@ -21,5 +23,9 @@ public:
 	size_t w, h;
 
 	Vec2 tile_size;
+
+	std::set<std::pair<size_t, size_t>> updated_tiles;
+
+	void refreshUpdatedEffects();
 };
 

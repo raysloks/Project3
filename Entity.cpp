@@ -36,7 +36,7 @@ Entity::Entity(Entity && entity) noexcept
 
 	// update roots
 	root = entity.root;
-	if (root = &entity)
+	if (root == &entity)
 		setRoot(this);
 	entity.root = &entity;
 
@@ -67,10 +67,6 @@ Entity & Entity::operator=(Entity && entity) noexcept
 	for (auto component : components)
 		component.second->entity = nullptr;
 
-	// disconnect from current parent
-	if (parent)
-		parent->removeChild(this);
-
 	// disconnect current children
 	for (auto child : children)
 	{
@@ -78,10 +74,19 @@ Entity & Entity::operator=(Entity && entity) noexcept
 		child->setRoot(child);
 	}
 
+	// disconnect from current parent
+	if (parent)
+		parent->removeChild(this);
+
 	// reconnect new components
 	components = std::move(entity.components);
 	for (auto component : components)
 		component.second->entity = this;
+
+	// reconnect new children
+	children = std::move(entity.children);
+	for (auto child : children)
+		child->parent = this;
 
 	// reconnect new parent
 	parent = entity.parent;
@@ -89,14 +94,9 @@ Entity & Entity::operator=(Entity && entity) noexcept
 	if (parent)
 		parent->childMoved(&entity, this);
 
-	// reconnect new children
-	children = std::move(entity.children);
-	for (auto child : children)
-		child->parent = this;
-
 	// update roots
 	root = entity.root;
-	if (root = &entity)
+	if (root == &entity)
 		setRoot(this);
 	entity.root = &entity;
 

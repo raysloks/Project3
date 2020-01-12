@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Ability.cpp" />
     <ClCompile Include="Body.cpp" />
     <ClCompile Include="BouncingBall.cpp" />
     <ClCompile Include="Circle.cpp" />
@@ -187,6 +188,7 @@
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ability.h" />
     <ClInclude Include="Body.h" />
     <ClInclude Include="BouncingBall.h" />
     <ClInclude Include="Circle.h" />

@@ -37,7 +37,7 @@ int main(int argc, char* args[])
 	engine.input->keyBindings.set(KB_ACTION_9, SDLK_0);
 
 	// TODO remove after a better option to keep a resource loaded is added
-	auto swoop = SpriteSheet::get("swoop.png");
+	auto swoop = SpriteSheet::get("swoop_small.png");
 
 	// create bouncing ball
 	{
@@ -47,7 +47,7 @@ int main(int argc, char* args[])
 
 		Sprite sprite("shadow5_iso.png");
 		sprite.sort = -64;
-		sprite.color = SDL_Color({ 0, 0, 0, 64 });
+		sprite.color = SDL_Color({ 0, 0, 0, 32 });
 		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 		auto bouncing_ball = std::make_shared<BouncingBall>();
@@ -64,62 +64,6 @@ int main(int argc, char* args[])
 
 			bouncing_ball->visual = engine.srs->sprites.add(Sprite("ball.png"));
 			entity.addComponent(bouncing_ball->visual);
-
-			engine.add_entity(std::move(entity));
-		}
-	}
-
-	// create enemy
-	{
-		Entity entity;
-		entity.x = 100;
-		entity.y = 1000;
-
-		Sprite sprite("ghost.png");
-		sprite.sheet->columns = 25;
-		sprite.sort = 128;
-		sprite.color.a = 200;
-		sprite.sheet->offset_y = -8;
-		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-		auto animator = std::make_shared<SpriteAnimator>(10.0f);
-		entity.addComponent(engine.cbs->add(std::move(animator)));
-
-		auto enemy = std::make_shared<Enemy>();
-		entity.addComponent(engine.cbs->add(enemy));
-
-		CircleCollider collider(6.0f);
-		collider.layers = 2;
-		entity.addComponent(engine.cs->circles.add(std::move(collider)));
-
-		auto enemy_entity = engine.add_entity(std::move(entity));
-
-		{
-			Entity entity;
-			enemy_entity->addChild(&entity);
-
-			Sprite sprite("ghost_hands.png");
-			sprite.sheet->columns = 3;
-			sprite.sheet->offset_x = 2;
-			sprite.sheet->offset_y = -8;
-			sprite.sort = 110;
-			sprite.color.a = 200;
-			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-			auto animator = std::make_shared<SpriteAnimator>(1.0f);
-			entity.addComponent(engine.cbs->add(std::move(animator)));
-
-			engine.add_entity(std::move(entity));
-		}
-
-		{
-			Entity entity;
-			enemy_entity->addChild(&entity);
-
-			Sprite sprite("shadow6_iso.png");
-			sprite.sort = -64;
-			sprite.color = SDL_Color({ 0, 0, 0, 64 });
-			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 			engine.add_entity(std::move(entity));
 		}
@@ -155,8 +99,8 @@ int main(int argc, char* args[])
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy_blur", floor_iso_gen_lossy_blur));
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossless", floor_iso_gen_lossless));
 
-	const int w = 100;
-	const int h = 100;
+	const int w = 200;
+	const int h = 200;
 
 	Tilemap tilemap(w, h);
 	tilemap.tile_size = Vec2(16.0f, 16.0f);
@@ -165,7 +109,7 @@ int main(int argc, char* args[])
 	{
 		for (int y = 0; y < h; ++y)
 		{
-			tilemap[x][y].tile = (rand() % 4 << 1) | 1;
+			tilemap[x][y].tile = (rand() % 18 << 1) | 1;
 		}
 	}
 
@@ -233,9 +177,9 @@ int main(int argc, char* args[])
 	}
 
 	auto tileset = SpriteSheet::get("tile_iso.png");
-	tileset->offset_y = -4;
+	tileset->offset_y = -8;
 	tileset->columns = 4;
-	tileset->rows = 4;
+	tileset->rows = 8;
 
 	// create a sprite for each tile
 	// should probably be replaced by some sort of tile rendering system
@@ -270,7 +214,7 @@ int main(int argc, char* args[])
 					entity.p = Vec2(x, y) * tilemap.tile_size;
 
 					Sprite sprite("tile_iso.png");
-					size_t tile_index = (tile.tile >> 1) % 4;
+					size_t tile_index = (tile.tile >> 1);
 					sprite.subsprite_x = tile_index % sprite.sheet->columns;
 					sprite.subsprite_y = tile_index / sprite.sheet->columns;
 					entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
@@ -303,7 +247,9 @@ int main(int argc, char* args[])
 	{
 		Entity entity;
 		
-		entity.addComponent(engine.cs->tilemaps.add(TilemapCollider(&tilemap)));
+		auto collider = engine.cs->tilemaps.add(TilemapCollider(&tilemap));
+		collider->layers = 1 | 4;
+		entity.addComponent(collider);
 
 		engine.add_entity(std::move(entity));
 	}
@@ -312,7 +258,7 @@ int main(int argc, char* args[])
 	{
 		Entity entity;
 		entity.x = 16;
-		entity.y = 16 * (100 - 2);
+		entity.y = 16 * (h - 2);
 
 		auto sprite = SpriteSheet::get("bone_boy.png");
 		sprite->columns = 12;
@@ -334,7 +280,8 @@ int main(int argc, char* args[])
 			Entity entity;
 			player_entity->addChild(&entity);
 
-			Sprite sprite("shadow4_iso.png");
+			Sprite sprite("circle66.png");
+			sprite.scale = Vec2(1.0f / 32.0f, 0.5f / 32.0f) * 3.0f * sqrtf(2.0f);
 			sprite.sort = -64;
 			sprite.color = SDL_Color({ 0, 0, 0, 32 });
 			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
@@ -374,6 +321,98 @@ int main(int argc, char* args[])
 		entity.addComponent(engine.cbs->add(std::make_shared<FollowCursor>()));
 
 		engine.add_entity(std::move(entity));
+	}
+
+	// create ghost
+	if (false)
+	{
+		Entity entity;
+		entity.x = 16;
+		entity.y = 16 * (h - 20);
+
+		Sprite sprite("ghost.png");
+		sprite.sheet->columns = 25;
+		sprite.sort = 128;
+		sprite.color.a = 200;
+		sprite.sheet->offset_y = -8;
+		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+		auto animator = std::make_shared<SpriteAnimator>(10.0f);
+		entity.addComponent(engine.cbs->add(std::move(animator)));
+
+		auto enemy = std::make_shared<Enemy>();
+		entity.addComponent(engine.cbs->add(enemy));
+
+		CircleCollider collider(6.0f);
+		collider.layers = 2;
+		entity.addComponent(engine.cs->circles.add(std::move(collider)));
+
+		auto enemy_entity = engine.add_entity(std::move(entity));
+
+		{
+			Entity entity;
+			enemy_entity->addChild(&entity);
+
+			Sprite sprite("ghost_hands.png");
+			sprite.sheet->columns = 3;
+			sprite.sheet->offset_x = 2;
+			sprite.sheet->offset_y = -8;
+			sprite.sort = 110;
+			sprite.color.a = 200;
+			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+			auto animator = std::make_shared<SpriteAnimator>(1.0f);
+			entity.addComponent(engine.cbs->add(std::move(animator)));
+
+			engine.add_entity(std::move(entity));
+		}
+
+		{
+			Entity entity;
+			enemy_entity->addChild(&entity);
+
+			Sprite sprite("shadow6_iso.png");
+			sprite.sort = -64;
+			sprite.color = SDL_Color({ 0, 0, 0, 32 });
+			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+			engine.add_entity(std::move(entity));
+		}
+	}
+
+	// create enemy
+	for (int i = 0; i < 5; ++i)
+	{
+		Entity entity;
+		entity.x = 16 * (5 + i * 2);
+		entity.y = 16 * (h - 10);
+
+		Sprite sprite("imp.png");
+		sprite.sheet->columns = 4;
+		sprite.sheet->rows = 2;
+		sprite.sheet->offset_y = -8;
+		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+		auto enemy = std::make_shared<Enemy>();
+		entity.addComponent(engine.cbs->add(enemy));
+
+		CircleCollider collider(3.0f);
+		entity.addComponent(engine.cs->circles.add(std::move(collider)));
+
+		auto enemy_entity = engine.add_entity(std::move(entity));
+
+		{
+			Entity entity;
+			enemy_entity->addChild(&entity);
+
+			Sprite sprite("circle66.png");
+			sprite.scale = Vec2(1.0f / 32.0f, 0.5f / 32.0f) * 3.0f * sqrtf(2.0f);
+			sprite.sort = -64;
+			sprite.color = SDL_Color({ 0, 0, 0, 32 });
+			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+			engine.add_entity(std::move(entity));
+		}
 	}
 
 	engine.run();

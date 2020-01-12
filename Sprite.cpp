@@ -17,6 +17,8 @@ Sprite::Sprite()
 	color.g = 255;
 	color.b = 255;
 	color.a = 255;
+
+	scale = Vec2(1.0f);
 }
 
 Sprite::Sprite(const std::shared_ptr<SpriteSheet>& sheet) : Sprite()

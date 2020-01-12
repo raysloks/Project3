@@ -26,14 +26,24 @@ Player::Player()
 		Vec2 direction = srs->screenToWorld(input->getCursor()) - entity->p;
 		direction.Normalize();
 
+		{
+			auto sprite = entity->getComponent<Sprite>();
+
+			if (direction.x > direction.y)
+				sprite->flip = SDL_FLIP_NONE;
+			if (direction.x < direction.y)
+				sprite->flip = SDL_FLIP_HORIZONTAL;
+		}
+
 		Entity entity;
 
-		auto swoop = SpriteSheet::get("swoop.png");
+		auto swoop = SpriteSheet::get("swoop_small.png");
 
-		auto swoop_iso = swoop->makeIsometricFloorLossless(atan2f(direction.x, -direction.y) * 180.0f / float(M_PI));
+		float rotation_degs = atan2f(direction.x, -direction.y) * 180.0f / float(M_PI);
+		auto swoop_iso = swoop->makeIsometricFloorLossless(rotation_degs);
 
 		auto sprite = srs->sprites.add(Sprite(swoop_iso));
-		sprite->color = SDL_Color({ 0, 0, 0, 64 });
+		sprite->color = SDL_Color({ 255, 255, 255, 255 });
 		sprite->sort = -64;
 		//sprite->rotation = atan2f(direction.x, -direction.y) * 180.0f / float(M_PI);
 		//sprite->flip = flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
@@ -43,10 +53,10 @@ Player::Player()
 		animator->destroy = true;
 		entity.addComponent(cbs->add(std::move(animator)));
 		
-		auto collider = cs->colliders.add(Collider());
-		//collider->shape = std::make_unique<Circle>(10.0f);
-		collider->shape = std::make_unique<SpriteShape>(sprite);
-		collider->layers = 2;
+		auto collider = cs->sprites.add(SpriteCollider(sprite));
+		collider->rotation = rotation_degs;
+		collider->non_iso = swoop;
+		collider->layers = 3;
 
 		auto hit = std::make_shared<std::set<Enemy*>>();
 		on_hit = [=](const Collision& collision)
@@ -56,8 +66,9 @@ Player::Player()
 				if (hit->find(enemy) == hit->end())
 				{
 					sword->getComponent<SpriteAnimator>()->freeze = fmaxf(sword->getComponent<SpriteAnimator>()->freeze, 2.0f / 30.0f);
-					enemy->entity->getComponent<SpriteAnimator>()->freeze = fmaxf(sword->getComponent<SpriteAnimator>()->freeze, 4.0f / 30.0f);
-					enemy->entity->p += direction * 20.0f;
+					//enemy->entity->getComponent<SpriteAnimator>()->freeze = fmaxf(sword->getComponent<SpriteAnimator>()->freeze, 4.0f / 30.0f);
+					//enemy->entity->p += direction * 20.0f;
+					enemy->onDamaged(12);
 					hit->insert(enemy);
 				}
 			}
@@ -77,6 +88,12 @@ Player::Player()
 	input->addKeyDownCallback(KB_ACTION_1, std::bind(&Player::onAction, this, 1));
 	input->addKeyDownCallback(KB_ACTION_2, std::bind(&Player::onAction, this, 2));
 	input->addKeyDownCallback(KB_ACTION_3, std::bind(&Player::onAction, this, 3));
+	input->addKeyDownCallback(KB_ACTION_4, std::bind(&Player::onAction, this, 4));
+	input->addKeyDownCallback(KB_ACTION_5, std::bind(&Player::onAction, this, 5));
+	input->addKeyDownCallback(KB_ACTION_6, std::bind(&Player::onAction, this, 6));
+	input->addKeyDownCallback(KB_ACTION_7, std::bind(&Player::onAction, this, 7));
+	input->addKeyDownCallback(KB_ACTION_8, std::bind(&Player::onAction, this, 8));
+	input->addKeyDownCallback(KB_ACTION_9, std::bind(&Player::onAction, this, 9));
 
 	blood = 0;
 }
@@ -98,6 +115,7 @@ void Player::tick(float dt)
 				--blood;
 			}
 		}
+		tm->refreshUpdatedEffects();
 	}
 
 	auto sprite = entity->getComponent<Sprite>();
@@ -140,9 +158,9 @@ void Player::tick(float dt)
 		sprite->subsprite_y = 1;
 	}
 
-	Mob::tick(dt);
-
 	sprite->subsprite_x = (int(anim) % sprite->sheet->columns);
+
+	Mob::tick(dt);
 
 	update_camera();
 }
@@ -190,13 +208,13 @@ void Player::onAction(size_t action)
 			if (enemy)
 			{
 				target = enemy->entity->p + (target - enemy->entity->p).Normalized() * 8.0f;
-				auto in_range = cs->overlapCircle(target, 0.0f, [this](Collider * c) { return c->entity != entity; });
+				auto in_range = cs->overlapCircle(target, 0.0f, 1, [this](Collider * c) { return c->entity != entity; });
 				if (in_range.empty())
 				{
 					entity->p = target;
 					enemy->onDamaged(10);
-					break;
 				}
+				break;
 			}
 		}
 	}
@@ -209,9 +227,9 @@ void Player::onAction(size_t action)
 	case 2:
 	{
 		auto diff = srs->screenToWorld(input->getCursor()) - entity->p;
-		diff.Truncate(160.0f);
+		diff.Truncate(80.0f);
 		auto target = entity->p + diff;
-		auto in_range = cs->overlapCircle(target, 0.0f);
+		auto in_range = cs->overlapCircle(target, 0.0f, 1);
 		if (in_range.empty())
 		{
 			// create poof
@@ -254,26 +272,26 @@ void Player::onAction(size_t action)
 	break;
 	case 3:
 	{
-		auto entity = engine->add_entity(Entity());
-		entity->p = this->entity->p;
-
-		Sprite sprite("shadow4_iso.png");
-		entity->addComponent(srs->sprites.add(std::move(sprite)));
-
-		auto projectile = std::make_shared<Projectile>();
-		projectile->v = srs->screenToWorld(input->getCursor()) - entity->p;
-		entity->addComponent(cbs->add(projectile));
-
-		auto collider = cs->circles.add(CircleCollider(2.0f));
-		entity->addComponent(collider);
-
-		collider->callbacks.push_back([projectile](const Collision& collision)
+		auto diff = srs->screenToWorld(input->getCursor()) - entity->p;
+		auto dir = diff.Normalized();
+		for (intmax_t i = -20; i <= 20; ++i)
+		{
+			for (intmax_t j = 0; j < 24 - llabs(i); ++j)
 			{
-				projectile->entity->p -= collision.n * collision.pen;
-				float v_dot_n = projectile->v.Dot(collision.n);
-				if (v_dot_n > 0.0f)
-					projectile->v -= collision.n * v_dot_n * 2.0f;
-			});
+				auto launch = dir * (j + rand() % 32 + rand() % 32);
+				launch.Rotate(i);
+
+				auto p = entity->p + launch;
+
+				uintmax_t current = tm->getEffect(p);
+				if (current < 255)
+					tm->setEffect(p, current + 1);
+				else
+					blood += 1;
+			}
+		}
+
+		tm->refreshUpdatedEffects();
 	}
 	break;
 	default:

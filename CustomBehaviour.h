@@ -24,5 +24,6 @@ public:
 	static InputSystem * input;
 	static CustomBehaviourSystem * cbs;
 	static CollisionSystem * cs;
+	static Level * level;
 	// may need to make thread_local or something if multiple engines are running off the same process
 };

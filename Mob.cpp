@@ -45,6 +45,9 @@ void Mob::tick(float dt)
 
 void Mob::onCollision(const Collision & collision)
 {
+	if (collision.other->entity->getRoot() == entity->getRoot())
+		return;
+
 	entity->p -= collision.n * collision.pen;
 	float v_dot_n = v.Dot(collision.n);
 	if (v_dot_n > 0.0f)
@@ -68,7 +71,4 @@ void Mob::onDamaged(int64_t damage)
 
 		engine->add_entity(std::move(entity));
 	}
-
-	if (hp <= 0)
-		engine->remove_entity(entity);
 }

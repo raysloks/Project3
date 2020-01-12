@@ -27,16 +27,22 @@ Engine::Engine()
 	// initialize systems
 
 	cbs = new CustomBehaviourSystem();
+	cbs->engine = this;
 	systems.push_back(cbs);
 
 	cs = new CollisionSystem();
+	cs->engine = this;
 	systems.push_back(cs);
 
 	srs = new SpriteRenderSystem(render);
+	srs->engine = this;
 	systems.push_back(srs);
 
 	input = new InputSystem();
+	input->engine = this;
 	systems.push_back(input);
+
+	level = new Level();
 
 
 	// allow custom behaviours easy access to systems
@@ -45,6 +51,7 @@ Engine::Engine()
 	CustomBehaviour::input = input;
 	CustomBehaviour::cbs = cbs;
 	CustomBehaviour::srs = srs;
+	CustomBehaviour::level = level;
 
 
 	// add fullscreen toggle

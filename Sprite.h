@@ -21,6 +21,7 @@ public:
 	float sort;
 
 	float rotation;
+	Vec2 scale;
 
 	SDL_RendererFlip flip;
 

@@ -5,6 +5,7 @@ SpriteRenderSystem * CustomBehaviour::srs;
 InputSystem * CustomBehaviour::input;
 CustomBehaviourSystem * CustomBehaviour::cbs;
 CollisionSystem * CustomBehaviour::cs;
+Level * CustomBehaviour::level;
 
 CustomBehaviour::~CustomBehaviour()
 {

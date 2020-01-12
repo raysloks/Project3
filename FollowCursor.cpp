@@ -12,12 +12,15 @@ void FollowCursor::tick(float dt)
 	if (sprite)
 	{
 		sprite->color = SDL_Color();
-		auto in_range = cs->overlapCircle(entity->p, 8.0f);
+		auto in_range = cs->overlapCircle(entity->p + Vec2(4.0f), 8.0f);
 		for (auto i : in_range)
 		{
 			auto enemy = i.second->getComponent<Enemy>();
 			if (enemy)
+			{
 				hover = enemy;
+				break;
+			}
 		}
 	}
 

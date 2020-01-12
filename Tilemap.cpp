@@ -35,6 +35,18 @@ void Tilemap::setEffect(const Vec2 & p, uint8_t effect)
 	auto& tile = at(x, y);
 	tile.effects.set(p - (Vec2(x, y) - Vec2(0.5f, 0.5f)) * tile_size, effect);
 
-	// TODO only refresh sprite once per frame
-	tile.refreshEffectSprite(Vec2(x, y) * tile_size);
+	updated_tiles.insert(std::make_pair(x, y));
+}
+
+void Tilemap::refreshUpdatedEffects()
+{
+	for (auto i : updated_tiles)
+	{
+		auto x = i.first;
+		auto y = i.second;
+		auto& tile = at(x, y);
+		tile.refreshEffectSprite(Vec2(x, y) * tile_size);
+	}
+
+	updated_tiles.clear();
 }

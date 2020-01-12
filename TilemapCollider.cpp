@@ -2,7 +2,11 @@
 
 #include "Tilemap.h"
 
-TilemapCollider::TilemapCollider(Tilemap * tilemap) : tilemap(tilemap), rectangle(tilemap->tile_size * 0.5f)
+TilemapCollider::TilemapCollider(Tilemap * tilemap) :
+	tilemap(tilemap),
+	rectangle(tilemap->tile_size * 0.5f),
+	rectangle_w(tilemap->tile_size * Vec2(0.5f, 0.25f)),
+	rectangle_h(tilemap->tile_size * Vec2(0.5f, 0.25f))
 {
 }
 
@@ -10,7 +14,12 @@ void TilemapCollider::checkTile(intmax_t x, intmax_t y, const Vec2 & diff, const
 {
 	//if (x >= 0 && x < tilemap->w && y >= 0 && y < tilemap->h && (*tilemap)[x][y].tile & 1)
 	if (tilemap->at(x, y).tile & 1)
+	{
+		//if (tilemap->at(x, y).tile & 32)
+		//	rectangle_w.check(diff - Vec2(x, y - 0.25f) * tilemap->tile_size, circle, collisions);
+		//else
 		rectangle.check(diff - Vec2(x, y) * tilemap->tile_size, circle, collisions);
+	}
 }
 
 void TilemapCollider::check(const Vec2 & diff, const CircleCollider & circle, std::vector<Collision>& collisions) const

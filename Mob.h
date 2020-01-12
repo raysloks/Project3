@@ -19,5 +19,7 @@ public:
 	Vec2 v, n, move;
 
 	float speed, acceleration, deceleration;
+
+	float anim;
 };
 
