@@ -10,8 +10,11 @@ Enemy::Enemy()
 {
 	hp = 100;
 	hp_max = 100;
+}
 
-	cooldown = 0.0f;
+void Enemy::start()
+{
+	Mob::start();
 }
 
 void Enemy::tick(float dt)
@@ -22,9 +25,7 @@ void Enemy::tick(float dt)
 
 	move = Vec2();
 
-	cooldown -= dt;
-
-	auto in_range = cs->overlapCircle(entity->p, 64.0f);
+	auto in_range = cs->overlapCircle(entity->xy, 64.0f);
 	for (auto i : in_range)
 	{
 		auto player = i.second->entity->getComponent<Player>();
@@ -32,7 +33,7 @@ void Enemy::tick(float dt)
 		{
 			if (i.first > 8.0f)
 			{
-				move = player->entity->p - entity->p;
+				move = player->entity->xy - entity->xy;
 			}
 			else if (cooldown <= 0.0f)
 			{
@@ -72,7 +73,4 @@ void Enemy::tick(float dt)
 		if (child_sprite)
 			child_sprite->flip = sprite->flip;
 	}
-
-	if (hp <= 0)
-		engine->remove_entity(entity);
 }

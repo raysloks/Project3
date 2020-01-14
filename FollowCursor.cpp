@@ -4,7 +4,7 @@
 
 void FollowCursor::tick(float dt)
 {
-	entity->p = srs->screenToWorld(input->getCursor());
+	entity->xy = srs->screenToWorld(input->getCursor());
 
 	Enemy * hover = nullptr;
 
@@ -12,7 +12,7 @@ void FollowCursor::tick(float dt)
 	if (sprite)
 	{
 		sprite->color = SDL_Color();
-		auto in_range = cs->overlapCircle(entity->p + Vec2(4.0f), 8.0f);
+		auto in_range = cs->overlapCircle(entity->xy + Vec2(4.0f), 8.0f);
 		for (auto i : in_range)
 		{
 			auto enemy = i.second->getComponent<Enemy>();
@@ -44,7 +44,7 @@ void FollowCursor::tick(float dt)
 
 			uint8_t a = cosf(t * 6) * 50 + 200;
 
-			entity->p = enemy_sprite->entity->p;
+			entity->xy = enemy_sprite->entity->xy;
 			sprite->color = SDL_Color({ 255, 0, 0, a });
 			sprite->sort = enemy_sprite->sort - 1;
 			sprite->flip = enemy_sprite->flip;

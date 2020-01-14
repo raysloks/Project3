@@ -67,7 +67,7 @@ void CollisionSystem::tick(float dt)
 
 			auto& collision = collisions.front();
 
-			collision.p += a.entity->p;
+			collision.p += a.entity->xy;
 
 			callCallbacks(a, b, collision);
 		}
@@ -99,7 +99,7 @@ void CollisionSystem::tick(float dt)
 
 			auto& collision = collisions.front();
 
-			collision.p += a.entity->p;
+			collision.p += a.entity->xy;
 
 			callCallbacks(a, b, collision);
 		}
@@ -137,7 +137,7 @@ void CollisionSystem::tick(float dt)
 
 				auto& collision = collisions.front();
 
-				collision.p += a.entity->p;
+				collision.p += a.entity->xy;
 
 				callCallbacks(a, b, collision);
 				
@@ -171,7 +171,7 @@ void CollisionSystem::tick(float dt)
 
 			auto& collision = collisions.front();
 
-			collision.p += a.entity->p;
+			collision.p += a.entity->xy;
 
 			callCallbacks(a, b, collision);
 		}
@@ -202,7 +202,7 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 			if (!filter(&a))
 				continue;
 
-		Vec2 diff = p - a.entity->p;
+		Vec2 diff = p - a.entity->xy;
 
 		size_t j = collisions.size();
 		a.check(diff, circle, collisions);
@@ -225,7 +225,7 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 			if (!filter(&a))
 				continue;
 
-		Vec2 diff = p - a.entity->p;
+		Vec2 diff = p - a.entity->xy;
 
 		size_t j = collisions.size();
 		a.check(diff, circle, collisions);
@@ -248,7 +248,7 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 			if (!filter(&a))
 				continue;
 
-		Vec2 diff = p - a.entity->p;
+		Vec2 diff = p - a.entity->xy;
 
 		size_t j = collisions.size();
 		a.check(diff, circle, collisions);

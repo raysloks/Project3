@@ -13,6 +13,8 @@ public:
 	void tick(float dt);
 
 	std::string text;
-	float time, speed, duration;
+	float time, duration;
+
+	Vec3 v;
 };
 

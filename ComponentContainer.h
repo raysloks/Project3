@@ -6,6 +6,12 @@
 template <class T>
 class Reference;
 
+// BIG TODO delay reallocation to a controlled moment
+// we could loop through components via index i guess
+// what is the performance impact of that?
+// apparently we are already doing that for colliders, which explains why this wasn't a problem before
+// for now, we just loop via index to prevent crashes
+
 template <class T>
 class ComponentContainer
 {

@@ -4,7 +4,7 @@
 
 uint64_t global_counter = 0;
 
-Entity::Entity() : p()
+Entity::Entity() : xyz()
 {
 	guid = ++global_counter;
 	parent = nullptr;
@@ -16,7 +16,7 @@ Entity::Entity(Entity && entity) noexcept
 	guid = entity.guid;
 	entity.guid = 0;
 
-	p = entity.p;
+	xyz = entity.xyz;
 
 	// reconnect new components
 	components = std::move(entity.components);
@@ -61,7 +61,7 @@ Entity & Entity::operator=(Entity && entity) noexcept
 	guid = entity.guid;
 	entity.guid = 0;
 
-	p = entity.p;
+	xyz = entity.xyz;
 
 	// disconnect current components
 	for (auto component : components)
@@ -149,11 +149,11 @@ void Entity::removeComponent(Component * component)
 	}
 }
 
-Vec2 Entity::getPosition() const
+Vec3 Entity::getPosition() const
 {
 	if (parent)
-		return p + parent->getPosition();
-	return p;
+		return xyz + parent->getPosition();
+	return xyz;
 }
 
 Entity * Entity::getParent() const

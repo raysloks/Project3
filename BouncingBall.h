@@ -10,15 +10,13 @@ public:
 
 	void tick(float dt);
 
-	float z;
-	Vec2 v;
-	float vz;
+	Vec3 v;
 
-	Reference<Sprite> visual;
+	Reference<Sprite> shadow;
 	
 	void onCollision(const Collision & collision);
 
 private:
-	void update_visual();
+	void update_shadow();
 };
 

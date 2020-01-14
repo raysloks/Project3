@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <functional>
+#include <list>
 
 class Collision;
 
@@ -17,6 +18,8 @@ class Player :
 public:
 	Player();
 
+	void start();
+
 	void tick(float dt);
 
 	Tilemap * tm;
@@ -27,7 +30,9 @@ public:
 
 private:
 
-	void onAction(size_t action);
+	void onKey(size_t action);
+
+	bool onAction(size_t action);
 
 	void update_camera();
 
@@ -43,5 +48,7 @@ private:
 	bool flip;
 
 	size_t blood;
+
+	std::list<std::pair<float, size_t>> key_buffer;
 };
 

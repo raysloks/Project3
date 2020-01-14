@@ -1,13 +1,13 @@
 #include "FloatingText.h"
 
-FloatingText::FloatingText(const std::string & text, float speed, float duration) : text(text), speed(speed), duration(duration)
+FloatingText::FloatingText(const std::string & text, float speed, float duration) : text(text), v(0.0f, 0.0f, speed), duration(duration)
 {
 	time = 0.0f;
 }
 
 void FloatingText::start()
 {
-	auto font = SpriteSheet::get("font.png");
+	auto font = SpriteSheet::get("font.png")->makeOutline({ 0, 0, 0, 255 }, { 255, 255, 255, 255 });
 	font->rows = 16;
 	font->columns = 16;
 
@@ -15,14 +15,15 @@ void FloatingText::start()
 	{
 		Entity entity;
 		this->entity->addChild(&entity);
-		entity.p.x -= text.size() * 0.5f;
-		entity.p.x += i + 0.5f;
-		entity.p.x *= 4;
-		entity.p.y = -entity.p.x;
+		entity.x -= text.size() * 0.5f;
+		entity.x += i + 0.5f;
+		entity.x *= 4;
+		entity.y = -entity.x;
 
 		auto sprite = srs->sprites.add(Sprite(font));
 
 		sprite->sort = 512;
+		//sprite->scale = 0.5f;
 
 		size_t c = text[i];
 		sprite->subsprite_x = c % 16;
@@ -36,8 +37,10 @@ void FloatingText::start()
 
 void FloatingText::tick(float dt)
 {
-	entity->p.x -= dt * speed;
-	entity->p.y -= dt * speed;
+	entity->xyz += v * dt;
+
+	for (auto child : entity->getChildren())
+		child->getComponent<Sprite>()->color.a = 255 - 255 * time / duration;
 
 	time += dt;
 	if (time > duration)

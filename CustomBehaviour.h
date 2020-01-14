@@ -8,8 +8,10 @@
 #include "CustomBehaviourSystem.h"
 #include "CollisionSystem.h"
 
+#include "shared_from.h"
+
 class CustomBehaviour :
-	public Component
+	public Component, public std::enable_shared_from_this<CustomBehaviour>
 {
 public:
 	virtual ~CustomBehaviour();

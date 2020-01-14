@@ -8,8 +8,8 @@ class Enemy :
 public:
 	Enemy();
 
-	void tick(float dt);
+	void start();
 
-	float cooldown;
+	void tick(float dt);
 };
 

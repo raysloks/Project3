@@ -1,5 +1,7 @@
 #include "Vec2.h"
 
+#include "Vec3.h"
+
 #define _USE_MATH_DEFINES
 
 #include <cmath>
@@ -8,11 +10,15 @@ Vec2::Vec2(void) : x(0.0f), y(0.0f)
 {
 }
 
-Vec2::Vec2(float a) : x(a), y(a)
+Vec2::Vec2(float xy) : x(xy), y(xy)
 {
 }
 
-Vec2::Vec2(float a, float b) : x(a), y(b)
+Vec2::Vec2(float x, float y) : x(x), y(y)
+{
+}
+
+Vec2::Vec2(const Vec3 & xy) : x(xy.x), y(xy.y)
 {
 }
 
@@ -55,7 +61,7 @@ Vec2& Vec2::Truncate(float lim)
 {
 	float l = LenPwr();
 	if (l > lim * lim)
-		*this = *this / sqrt(l) * lim;
+		*this *= lim / sqrtf(l);
 	return *this;
 }
 
@@ -63,7 +69,7 @@ Vec2 Vec2::Truncated(float lim) const
 {
 	float l = LenPwr();
 	if (l > lim * lim)
-		return Vec2(*this) / sqrt(l) * lim;
+		return Vec2(*this) * lim / sqrtf(l);
 	return Vec2(*this);
 }
 

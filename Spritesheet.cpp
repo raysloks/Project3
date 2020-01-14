@@ -380,11 +380,13 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeScaled(intmax_t scale) const
 	return sheet;
 }
 
-std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline() const
+#include <iostream>
+
+std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_color, const SDL_Color & fill_color) const
 {
 	auto sheet = std::make_shared<SpriteSheet>();
 	auto shared_this = shared_from_this();
-	auto func = [shared_this, sheet]()
+	auto func = [shared_this, sheet, outline_color, fill_color]()
 	{
 		while (!shared_this->loaded)
 			SDL_Delay(0);
@@ -441,12 +443,28 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline() const
 								for (intmax_t oy = y_min; oy < y_max; ++oy)
 								{
 									SDL_Color & og = *(SDL_Color*)(this_pixels + (oy + r * h) * this_pitch + (ox + c * w) * 4);
-									opacity += uintmax_t(og.a);
+									opacity += og.a;
 								}
 							}
 
-							if (opacity > 255)
-								opacity = 255;
+							SDL_Color & pixel = *(SDL_Color*)(pixels + (y + r * nh) * pitch + (x + c * nw) * 4);
+
+							SDL_Color color = { 0, 0, 0, 0 };
+
+							if (opacity > 0)
+							{
+								color = outline_color;
+							}
+
+							// hoping the compiler can optimize this into first/last loops
+							if (x != 0 && x != nw - 1 && y != 0 && y != nh - 1)
+							{
+								SDL_Color & og = *(SDL_Color*)(this_pixels + (y - 1 + r * h) * this_pitch + (x - 1 + c * w) * 4);
+								if (og.a > 0)
+									color = fill_color;
+							}
+
+							pixel = color;
 
 							/*if (x != 0 && y != 0 && x != nw - 1 && y != nh - 1)
 							{
@@ -457,10 +475,6 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline() const
 								if (opacity < 0)
 									opacity = 0;
 							}*/
-
-							SDL_Color & pixel = *(SDL_Color*)(pixels + (y + r * nh) * pitch + (x + c * nw) * 4);
-
-							pixel = SDL_Color({ 255, 255, 255, (uint8_t)opacity });
 						}
 					}
 				}

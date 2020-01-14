@@ -2,9 +2,7 @@
 
 #include "Resource.h"
 
-struct SDL_Renderer;
-struct SDL_Surface;
-struct SDL_Texture;
+#include <SDL.h>
 
 class SpriteSheet :
 	public Resource<SpriteSheet>
@@ -35,6 +33,6 @@ public:
 
 	std::shared_ptr<SpriteSheet> makeScaled(intmax_t scale) const;
 
-	std::shared_ptr<SpriteSheet> makeOutline() const;
+	std::shared_ptr<SpriteSheet> makeOutline(const SDL_Color & outline_color = SDL_Color({ 255, 255, 255, 255 }), const SDL_Color & fill_color = SDL_Color({ 0, 0, 0, 0 })) const;
 };
 

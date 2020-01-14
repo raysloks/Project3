@@ -1,13 +1,16 @@
 #pragma once
 
+class Vec3;
+
 class Vec2
 {
 public:
 	float x, y;
 
 	Vec2(void);
-	Vec2(float a);
-	Vec2(float a, float b);
+	Vec2(float xy);
+	Vec2(float x, float y);
+	Vec2(const Vec3 & xy);
 	~Vec2(void);
 	
 	float Len(void) const;

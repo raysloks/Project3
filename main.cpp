@@ -39,36 +39,6 @@ int main(int argc, char* args[])
 	// TODO remove after a better option to keep a resource loaded is added
 	auto swoop = SpriteSheet::get("swoop_small.png");
 
-	// create bouncing ball
-	{
-		Entity entity;
-		entity.x = 16 * 2;
-		entity.y = 16 * (100 - 2);
-
-		Sprite sprite("shadow5_iso.png");
-		sprite.sort = -64;
-		sprite.color = SDL_Color({ 0, 0, 0, 32 });
-		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-		auto bouncing_ball = std::make_shared<BouncingBall>();
-		bouncing_ball->v = Vec2(25.0f, 25.0f);
-		bouncing_ball->z = 25.0f;
-		entity.addComponent(engine.cbs->add(bouncing_ball));
-
-		entity.addComponent(engine.cs->circles.add(CircleCollider(5.0f)));
-
-		engine.add_entity(std::move(entity));
-
-		{
-			Entity entity;
-
-			bouncing_ball->visual = engine.srs->sprites.add(Sprite("ball.png"));
-			entity.addComponent(bouncing_ball->visual);
-
-			engine.add_entity(std::move(entity));
-		}
-	}
-
 	/*for (int x = 0; x < 40; ++x)
 	{
 		for (int y = 0; y < 40; ++y)
@@ -99,8 +69,8 @@ int main(int argc, char* args[])
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy_blur", floor_iso_gen_lossy_blur));
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossless", floor_iso_gen_lossless));
 
-	const int w = 200;
-	const int h = 200;
+	const int w = 64;
+	const int h = 64;
 
 	Tilemap tilemap(w, h);
 	tilemap.tile_size = Vec2(16.0f, 16.0f);
@@ -109,7 +79,7 @@ int main(int argc, char* args[])
 	{
 		for (int y = 0; y < h; ++y)
 		{
-			tilemap[x][y].tile = (rand() % 18 << 1) | 1;
+			tilemap[x][y].tile = (rand() % 16 << 1) | 1;
 		}
 	}
 
@@ -152,7 +122,7 @@ int main(int argc, char* args[])
 				x = w - 2;
 			if (y > h - 2)
 				y = h - 2;
-			tilemap[x][y].tile = 0;
+			tilemap[x][y].tile &= ~1;
 
 			int dir = rand() % 4;
 			if (dir == (prev_dir + 2) % 4)
@@ -188,30 +158,36 @@ int main(int argc, char* args[])
 		for (size_t y = 0; y < h; ++y)
 		{
 			auto& tile = tilemap[x][y];
-			if (tile.tile)
+			bool show_floor = true;
+			if (tile.tile & 1)
 			{
+				show_floor = false;
+
 				int walls = 0;
-				if (tilemap.at(x + 1, y + 1).tile)
+				if (tilemap.at(x + 1, y + 1).tile & 1)
 					walls += 1;
-				if (tilemap.at(x, y + 1).tile)
+				if (tilemap.at(x, y + 1).tile & 1)
 					walls += 1;
-				if (tilemap.at(x - 1, y + 1).tile)
+				if (tilemap.at(x - 1, y + 1).tile & 1)
 					walls += 1;
-				if (tilemap.at(x - 1, y).tile)
+				if (tilemap.at(x - 1, y).tile & 1)
 					walls += 1;
-				if (tilemap.at(x - 1, y - 1).tile)
+				if (tilemap.at(x - 1, y - 1).tile & 1)
 					walls += 1;
-				if (tilemap.at(x, y - 1).tile)
+				if (tilemap.at(x, y - 1).tile & 1)
 					walls += 1;
-				if (tilemap.at(x + 1, y - 1).tile)
+				if (tilemap.at(x + 1, y - 1).tile & 1)
 					walls += 1;
-				if (tilemap.at(x + 1, y).tile)
+				if (tilemap.at(x + 1, y).tile & 1)
 					walls += 1;
 
 				if (walls < 8)
 				{
+					if (tile.tile & 32)
+						show_floor = true;
+
 					Entity entity;
-					entity.p = Vec2(x, y) * tilemap.tile_size;
+					entity.xy = Vec2(x, y) * tilemap.tile_size;
 
 					Sprite sprite("tile_iso.png");
 					size_t tile_index = (tile.tile >> 1);
@@ -222,10 +198,10 @@ int main(int argc, char* args[])
 					engine.add_entity(std::move(entity));
 				}
 			}
-			else
+			if (show_floor)
 			{
 				Entity entity;
-				entity.p = Vec2(x, y) * tilemap.tile_size;
+				entity.xy = Vec2(x, y) * tilemap.tile_size;
 
 				auto sheet = SpriteSheet::get("floor_iso_gen_lossless");
 
@@ -280,8 +256,7 @@ int main(int argc, char* args[])
 			Entity entity;
 			player_entity->addChild(&entity);
 
-			Sprite sprite("circle66.png");
-			sprite.scale = Vec2(1.0f / 32.0f, 0.5f / 32.0f) * 3.0f * sqrtf(2.0f);
+			Sprite sprite("shadow4_iso.png");
 			sprite.sort = -64;
 			sprite.color = SDL_Color({ 0, 0, 0, 32 });
 			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
@@ -405,14 +380,89 @@ int main(int argc, char* args[])
 			Entity entity;
 			enemy_entity->addChild(&entity);
 
-			Sprite sprite("circle66.png");
-			sprite.scale = Vec2(1.0f / 32.0f, 0.5f / 32.0f) * 3.0f * sqrtf(2.0f);
+			Sprite sprite("shadow4_iso.png");
 			sprite.sort = -64;
 			sprite.color = SDL_Color({ 0, 0, 0, 32 });
 			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
 
 			engine.add_entity(std::move(entity));
 		}
+	}
+
+	// create bouncing ball
+	{
+		Entity entity;
+		entity.x = 16 * 16;
+		entity.y = 16 * (h - 16);
+		entity.z = 25;
+
+		Sprite sprite("ball.png");
+		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+		auto bouncing_ball = std::make_shared<BouncingBall>();
+		bouncing_ball->v = Vec2(25.0f, 25.0f);
+		entity.addComponent(engine.cbs->add(bouncing_ball));
+
+		entity.addComponent(engine.cs->circles.add(CircleCollider(5.0f)));
+
+		engine.add_entity(std::move(entity));
+
+		{
+			Entity entity;
+
+			bouncing_ball->shadow = engine.srs->sprites.add(Sprite("shadow6_iso.png"));
+			bouncing_ball->shadow->color = SDL_Color({ 0, 0, 0, 32 });
+			bouncing_ball->shadow->sort = -64;
+			entity.addComponent(bouncing_ball->shadow);
+
+			engine.add_entity(std::move(entity));
+		}
+	}
+
+	// create stairs
+	{
+		Entity entity;
+		entity.x = 16 * 4;
+		entity.y = 16 * (h - 4);
+
+		Sprite sprite("stairs.png");
+		sprite.sheet->offset_y = -8;
+		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+
+		{
+			Entity child;
+			child.x = 8.0f;
+
+			child.addComponent(engine.cs->rectangles.add(RectangleCollider(Vec2(0.0f, 8.0f))));
+
+			entity.addChild(&child);
+
+			engine.add_entity(std::move(child));
+		}
+
+		{
+			Entity child;
+			child.x = -8.0f;
+
+			child.addComponent(engine.cs->rectangles.add(RectangleCollider(Vec2(0.0f, 8.0f))));
+
+			entity.addChild(&child);
+
+			engine.add_entity(std::move(child));
+		}
+
+		{
+			Entity child;
+			child.y = -8.0f;
+
+			child.addComponent(engine.cs->rectangles.add(RectangleCollider(Vec2(8.0f, 0.0f))));
+
+			entity.addChild(&child);
+
+			engine.add_entity(std::move(child));
+		}
+
+		engine.add_entity(std::move(entity));
 	}
 
 	engine.run();

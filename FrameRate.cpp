@@ -9,8 +9,8 @@ void FrameRate::start()
 	for (size_t i = 0; i < 32; ++i)
 	{
 		Entity entity;
-		entity.p.x = 8 + i * 8;
-		entity.p.y = 8;
+		entity.xy.x = 8 + i * 8;
+		entity.xy.y = 8;
 
 		auto sprite = srs->ui.add(Sprite(font));
 		entity.addComponent(sprite);

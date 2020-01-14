@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "Vec2.h"
+#include "Vec3.h"
 
 #include "Reference.h"
 
@@ -55,7 +56,7 @@ public:
 		return nullptr;
 	}
 
-	Vec2 getPosition() const;
+	Vec3 getPosition() const;
 
 	Entity * getParent() const;
 	Entity * getRoot() const;
@@ -67,10 +68,11 @@ public:
 
 	union
 	{
-		Vec2 p;
+		Vec2 xy;
+		Vec3 xyz;
 		struct
 		{
-			float x, y;
+			float x, y, z;
 		};
 	};
 

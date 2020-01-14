@@ -6,6 +6,8 @@ class Mob :
 	public CustomBehaviour
 {
 public:
+	Mob();
+
 	void start();
 
 	void tick(float dt);
@@ -21,5 +23,7 @@ public:
 	float speed, acceleration, deceleration;
 
 	float anim;
+
+	float cooldown;
 };
 

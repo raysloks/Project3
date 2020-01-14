@@ -9,38 +9,35 @@ void BouncingBall::start()
 
 void BouncingBall::tick(float dt)
 {
-	entity->p += v * dt;
+	entity->xyz += v * dt;
 
 	float az = -500;
 
-	z += az * 0.5f * dt * dt;
-	z += vz * dt;
+	entity->z += az * 0.5f * dt * dt;
 
-	vz += az * dt;
+	v.z += az * dt;
 
-	if (z <= 0.0f)
+	if (entity->z <= 4.0f)
 	{
 		//z = 0.0f; caused bounces to get bigger sometimes
-		if (vz < 0.0f)
-			vz = -vz;
+		if (v.z < 0.0f)
+			v.z = -v.z;
 	}
 
-	update_visual();
+	update_shadow();
 }
 
 void BouncingBall::onCollision(const Collision & collision)
 {
-	entity->p -= collision.n * collision.pen;
+	entity->xy -= collision.n * collision.pen;
 	float v_dot_n = v.Dot(collision.n);
 	if (v_dot_n > 0.0f)
 		v -= collision.n * v_dot_n * 2.0f;
 
-	update_visual();
+	update_shadow();
 }
 
-void BouncingBall::update_visual()
+void BouncingBall::update_shadow()
 {
-	float h = z + 4;
-	visual->entity->p = entity->p + Vec2(-1.0f, -1.0f) * h;
-	visual->sort = h * 2.0f;
+	shadow->entity->xy = entity->xy;
 }

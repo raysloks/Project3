@@ -12,7 +12,7 @@ void HealthDisplay::start()
 	{
 		Entity entity;
 		this->entity->addChild(&entity);
-		entity.p.x = i * 8;
+		entity.xy.x = i * 8;
 
 		auto sprite = srs->ui.add(Sprite(font));
 		sprite->color = SDL_Color({ 255, 0, 0, 255 });
@@ -26,8 +26,8 @@ void HealthDisplay::start()
 
 void HealthDisplay::tick(float dt)
 {
-	entity->p.x = 16;
-	entity->p.y = srs->getHeight() - 16;
+	entity->xy.x = 16;
+	entity->xy.y = srs->getHeight() - 16;
 
 	std::string text = std::to_string(player->hp) + " / " + std::to_string(player->hp_max);
 	for (size_t i = 0; i < sprites.size(); ++i)

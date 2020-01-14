@@ -186,6 +186,7 @@
     <ClCompile Include="TilemapCollider.cpp" />
     <ClCompile Include="TilemapShape.cpp" />
     <ClCompile Include="Vec2.cpp" />
+    <ClCompile Include="Vec3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ability.h" />
@@ -222,6 +223,7 @@
     <ClInclude Include="Reference.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Shape.h" />
+    <ClInclude Include="shared_from.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteAnimator.h" />
     <ClInclude Include="SpriteCollider.h" />
@@ -235,6 +237,7 @@
     <ClInclude Include="TilemapCollider.h" />
     <ClInclude Include="TilemapShape.h" />
     <ClInclude Include="Vec2.h" />
+    <ClInclude Include="Vec3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

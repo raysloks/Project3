@@ -2,5 +2,5 @@
 
 void Projectile::tick(float dt)
 {
-	entity->p += v * dt;
+	entity->xy += v * dt;
 }

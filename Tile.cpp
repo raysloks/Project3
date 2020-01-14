@@ -35,7 +35,7 @@ void Tile::refreshEffectSprite(const Vec2 & p)
 	else
 	{
 		Entity entity;
-		entity.p = p;
+		entity.xy = p;
 
 		Sprite sprite(makeEffectSheet()->makeIsometricFloorLossless());
 		sprite.sort = -128;

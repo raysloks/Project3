@@ -97,7 +97,7 @@ void SpriteRenderSystem::tick(float dt)
 		src.x += sprite.subsprite_x * src.w;
 		src.y += sprite.subsprite_y * src.h;
 
-		Vec2 p_iso(p.x - p.y, (p.y + p.x) * 0.5f);
+		Vec2 p_iso(p.x - p.y, (p.y + p.x) * 0.5f - p.z);
 
 		p_iso *= raw_scale;
 
