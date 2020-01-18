@@ -6,14 +6,18 @@
 template <class T>
 class Reference;
 
-// BIG TODO delay reallocation to a controlled moment
-// we could loop through components via index i guess
-// what is the performance impact of that?
-// apparently we are already doing that for colliders, which explains why this wasn't a problem before
-// for now, we just loop via index to prevent crashes
+
+// I'm running out of time and need to fix the last memory leak
+class BaseContainer
+{
+public:
+	virtual ~BaseContainer() {}
+};
+
 
 template <class T>
-class ComponentContainer
+class ComponentContainer :
+	public BaseContainer
 {
 public:
 	ComponentContainer();
@@ -21,6 +25,7 @@ public:
 	template <class... Args>
 	Reference<T> add(Args&&... args);
 	void remove(const Reference<T> & ref);
+	void remove(size_t index);
 
 	std::vector<T> components;
 	std::stack<size_t> vacant;
@@ -38,6 +43,12 @@ template<class T>
 inline void ComponentContainer<T>::remove(const Reference<T> & ref)
 {
 	vacant.push(ref.offset / sizeof(T));
+}
+
+template<class T>
+inline void ComponentContainer<T>::remove(size_t index)
+{
+	vacant.push(index);
 }
 
 template<class T>

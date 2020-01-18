@@ -65,13 +65,26 @@ void SpriteRenderSystem::tick(float dt)
 
 	std::multimap<float, Sprite*> sorted;
 
-	for (auto& sprite : sprites)
+	for (size_t i = 0; i < sprites.size(); ++i)
+	{
+		auto & sprite = sprites[i];
 		if (sprite.entity)
+		{
 			if (sprite.sheet->surface)
 			{
 				auto p = sprite.entity->getPosition();
 				sorted.insert(std::make_pair(p.y + p.x + p.z + sprite.sort, &sprite));
 			}
+		}
+		else
+		{
+			if (sprite.entity == nullptr)
+			{
+				sprite.entity = Reference<Entity>(nullptr, 1); // hacky way to keep track of which components have been removed
+				level->sprites.remove(i);
+			}
+		}
+	}
 
 	Vec2 camera_position_iso(camera_position.x - camera_position.y, (camera_position.y + camera_position.x) * 0.5f);
 	camera_position_iso *= raw_scale;
@@ -149,8 +162,9 @@ void SpriteRenderSystem::tick(float dt)
 	effective_w = screen_w / scale;
 	effective_h = screen_h / scale;
 
-	for (auto& sprite : ui)
+	for (size_t i = 0; i < ui.size(); ++i)
 	{
+		auto & sprite = ui[i];
 		if (sprite.entity)
 		{
 			if (sprite.sheet->surface)
@@ -181,6 +195,14 @@ void SpriteRenderSystem::tick(float dt)
 				SDL_SetTextureAlphaMod(texture, sprite.color.a);
 
 				SDL_RenderCopyEx(render, texture, &src, &dst, sprite.rotation, nullptr, sprite.flip);
+			}
+		}
+		else
+		{
+			if (sprite.entity == nullptr)
+			{
+				sprite.entity = Reference<Entity>(nullptr, 1); // hacky way to keep track of which components have been removed
+				level->ui_sprites.remove(i);
 			}
 		}
 	}

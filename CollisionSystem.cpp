@@ -56,13 +56,19 @@ void CollisionSystem::tick(float dt)
 	for (size_t i = 0; i < circles.components.size(); ++i)
 	{
 		auto& a = circles.components[i];
+		if (a.entity == nullptr)
+		{
+			a.entity = Reference<Entity>(nullptr, 1); // hacky way to keep track of which components have been removed
+			circles.remove(i);
+			continue;
+		}
 		if (!a.entity)
 			continue;
 
 		for (size_t j = i + 1; j < circles.components.size(); ++j)
 		{
 			auto& b = circles.components[j];
-			if (b.entity == nullptr)
+			if (!b.entity)
 				continue;
 
 			if ((a.layers & b.layers) == 0)
@@ -89,12 +95,18 @@ void CollisionSystem::tick(float dt)
 	{
 		auto& a = rectangles.components[i];
 		if (a.entity == nullptr)
+		{
+			a.entity = Reference<Entity>(nullptr, 1); // hacky way to keep track of which components have been removed
+			rectangles.remove(i);
+			continue;
+		}
+		if (!a.entity)
 			continue;
 
 		for (size_t j = 0; j < circles.components.size(); ++j)
 		{
 			auto& b = circles.components[j];
-			if (b.entity == nullptr)
+			if (!b.entity)
 				continue;
 
 			if ((a.layers & b.layers) == 0)
@@ -121,12 +133,18 @@ void CollisionSystem::tick(float dt)
 	{
 		auto& a = tilemaps.components[i];
 		if (a.entity == nullptr)
+		{
+			a.entity = Reference<Entity>(nullptr, 1); // hacky way to keep track of which components have been removed
+			tilemaps.remove(i);
+			continue;
+		}
+		if (!a.entity)
 			continue;
 
 		for (size_t j = 0; j < circles.components.size(); ++j)
 		{
 			auto& b = circles.components[j];
-			if (b.entity == nullptr)
+			if (!b.entity)
 				continue;
 
 			if ((a.layers & b.layers) == 0)
@@ -161,12 +179,18 @@ void CollisionSystem::tick(float dt)
 	{
 		auto& a = sprites.components[i];
 		if (a.entity == nullptr)
+		{
+			a.entity = Reference<Entity>(nullptr, 1); // hacky way to keep track of which components have been removed
+			sprites.remove(i);
+			continue;
+		}
+		if (!a.entity)
 			continue;
 
 		for (size_t j = 0; j < circles.components.size(); ++j)
 		{
 			auto& b = circles.components[j];
-			if (b.entity == nullptr)
+			if (!b.entity)
 				continue;
 
 			if ((a.layers & b.layers) == 0)
@@ -207,7 +231,7 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 	for (size_t i = 0; i < circles.size(); ++i)
 	{
 		auto& a = circles[i];
-		if (a.entity == nullptr)
+		if (!a.entity)
 			continue;
 
 		if ((a.layers & layers) == 0)
@@ -230,7 +254,7 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 	for (size_t i = 0; i < rectangles.size(); ++i)
 	{
 		auto& a = rectangles[i];
-		if (a.entity == nullptr)
+		if (!a.entity)
 			continue;
 
 		if ((a.layers & layers) == 0)
@@ -253,7 +277,7 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 	for (size_t i = 0; i < tilemaps.size(); ++i)
 	{
 		auto& a = tilemaps[i];
-		if (a.entity == nullptr)
+		if (!a.entity)
 			continue;
 
 		if ((a.layers & layers) == 0)

@@ -14,9 +14,18 @@ void CustomBehaviourSystem::tick(float dt)
 
 	for (size_t i = 0; i < behaviours.size(); ++i)
 	{
-		auto behaviour = behaviours[i]->components.data();
-		if (behaviour)
+		auto & container = behaviours[i];
+		if (container)
+		{
+			auto behaviour = container->components.data();
 			if (behaviour->entity)
 				behaviour->tick(dt);
+			else
+			{
+				level->custom_behaviours.remove(i);
+				delete container;
+				container = nullptr;
+			}
+		}
 	}
 }
