@@ -13,14 +13,14 @@ void FloatingText::start()
 
 	for (size_t i = 0; i < text.size(); ++i)
 	{
-		Entity entity;
-		this->entity->addChild(&entity);
-		entity.x -= text.size() * 0.5f;
-		entity.x += i + 0.5f;
-		entity.x *= 4;
-		entity.y = -entity.x;
+		auto entity = level->add_entity();
+		Entity::adopt(entity, this->entity);
+		entity->x -= text.size() * 0.5f;
+		entity->x += i + 0.5f;
+		entity->x *= 4;
+		entity->y = -entity->x;
 
-		auto sprite = srs->sprites.add(Sprite(font));
+		auto sprite = level->sprites.add(font);
 
 		sprite->sort = 512;
 		//sprite->scale = 0.5f;
@@ -29,9 +29,7 @@ void FloatingText::start()
 		sprite->subsprite_x = c % 16;
 		sprite->subsprite_y = c / 16;
 
-		entity.addComponent(sprite);
-
-		engine->add_entity(std::move(entity));
+		Component::attach(sprite, entity);
 	}
 }
 
@@ -44,5 +42,5 @@ void FloatingText::tick(float dt)
 
 	time += dt;
 	if (time > duration)
-		engine->remove_entity(entity);
+		level->remove_entity(entity);
 }

@@ -12,7 +12,7 @@ public:
 
 	std::shared_ptr<SpriteSheet> current_enemy_sheet;
 
-	Enemy * current_hover;
+	Reference<Enemy> current_hover;
 
 	float t;
 };

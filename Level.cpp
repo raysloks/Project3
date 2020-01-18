@@ -1,26 +1,30 @@
 #include "Level.h"
 
-Reference<Entity> Level::add_entity(Entity && entity)
+Level::Level() : tilemap(64, 64)
 {
-	return entities.add(std::move(entity));
 }
 
-Entity * Level::get_entity(size_t index)
+Reference<Entity> Level::add_entity()
 {
-	if (index > entities.components.size())
-		return nullptr;
-	return &entities.components[index];
+	auto entity = entities.add();
+	entity->root = entity;
+	return entity;
 }
 
-void Level::remove_entity(Entity * entity)
+void Level::remove_entity(Reference<Entity> entity)
+{
+	remove_entity_rough(entity);
+
+	Entity::orphan(entity);
+}
+
+void Level::remove_entity_rough(const Reference<Entity>& entity)
 {
 	for (auto child : entity->getChildren())
-		remove_entity(child);
-	*entity = std::move(Entity());
-	entities.remove(entity);
-}
+		remove_entity_rough(child);
 
-void Level::remove_entity(size_t index)
-{
-	remove_entity(&entities.components[index]);
+	for (auto component : entity->components)
+		component->entity = nullptr;
+
+	entities.remove(entity);
 }

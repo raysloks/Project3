@@ -4,8 +4,16 @@
 
 #include <algorithm>
 
+#include "CircleCollider.h"
+#include "RectangleCollider.h"
+#include "SpriteCollider.h"
+#include "TilemapCollider.h"
+
+#include "Level.h"
+
 void callCallbacks(Collider& a, Collider& b, Collision& collision)
 {
+	collision.collider = &a;
 	collision.other = &b;
 
 	for (auto i = a.callbacks.begin(); i != a.callbacks.end();)
@@ -21,7 +29,6 @@ void callCallbacks(Collider& a, Collider& b, Collision& collision)
 	}
 
 	collision.flip();
-	collision.other = &a;
 
 	for (auto i = b.callbacks.begin(); i != b.callbacks.end();)
 	{
@@ -41,10 +48,15 @@ void CollisionSystem::tick(float dt)
 	std::vector<Collision> collisions;
 	collisions.reserve(256);
 
+	auto & circles = level->circle_colliders;
+	auto & rectangles = level->rectangle_colliders;
+	auto & tilemaps = level->tilemap_colliders;
+	auto & sprites = level->sprite_colliders;
+
 	for (size_t i = 0; i < circles.components.size(); ++i)
 	{
 		auto& a = circles.components[i];
-		if (a.entity == nullptr)
+		if (!a.entity)
 			continue;
 
 		for (size_t j = i + 1; j < circles.components.size(); ++j)
@@ -178,8 +190,6 @@ void CollisionSystem::tick(float dt)
 	}
 }
 
-#include "Circle.h"
-
 std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r, uint64_t layers, const std::function<bool(Collider*)>& filter)
 {
 	std::map<float, Collider*> ret;
@@ -189,9 +199,14 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 	std::vector<Collision> collisions;
 	collisions.reserve(256);
 
-	for (size_t i = 0; i < circles.components.size(); ++i)
+	auto & circles = level->circle_colliders.components;
+	auto & rectangles = level->rectangle_colliders.components;
+	auto & tilemaps = level->tilemap_colliders.components;
+	auto & sprites = level->sprite_colliders.components;
+
+	for (size_t i = 0; i < circles.size(); ++i)
 	{
-		auto& a = circles.components[i];
+		auto& a = circles[i];
 		if (a.entity == nullptr)
 			continue;
 
@@ -212,9 +227,9 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 		}
 	}
 
-	for (size_t i = 0; i < rectangles.components.size(); ++i)
+	for (size_t i = 0; i < rectangles.size(); ++i)
 	{
-		auto& a = rectangles.components[i];
+		auto& a = rectangles[i];
 		if (a.entity == nullptr)
 			continue;
 
@@ -235,9 +250,9 @@ std::map<float, Collider*> CollisionSystem::overlapCircle(const Vec2& p, float r
 		}
 	}
 
-	for (size_t i = 0; i < tilemaps.components.size(); ++i)
+	for (size_t i = 0; i < tilemaps.size(); ++i)
 	{
-		auto& a = tilemaps.components[i];
+		auto& a = tilemaps[i];
 		if (a.entity == nullptr)
 			continue;
 

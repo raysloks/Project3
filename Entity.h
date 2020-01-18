@@ -16,55 +16,29 @@ class Component;
 class Entity
 {
 public:
-	Entity();
-	Entity(Entity && entity) noexcept;
 	~Entity();
 
-	Entity & operator=(Entity && entity) noexcept;
-
-	void componentMoved(Component * pOld, Component * pNew);
-
 	template <class T>
-	void addComponent(T * component)
+	Reference<T> getComponent() const
 	{
-		component->entity = this;
-		components.insert(std::make_pair(typeid(*component).name(), component));
-	}
-
-	template <class T>
-	void addComponent(Reference<T> component)
-	{
-		component->entity = this;
-		components.insert(std::make_pair(typeid(*component).name(), &*component));
-	}
-
-	void removeComponent(Component * component);
-
-	template <class T>
-	void removeComponent(T * component)
-	{
-		component->entity = nullptr;
-		components.erase(typeid(*component).name());
-	}
-
-	template <class T>
-	T * getComponent() const
-	{
-		auto component = components.find(typeid(T).name());
-		if (component != components.end())
-			return (T*)component->second;
+		for (auto component : components)
+		{
+			auto ref = component.cast<T>();
+			if (ref)
+				return ref;
+		}
 		return nullptr;
 	}
 
 	Vec3 getPosition() const;
 
-	Entity * getParent() const;
-	Entity * getRoot() const;
+	Reference<Entity> getParent() const;
+	Reference<Entity> getRoot() const;
 
-	void addChild(Entity * child);
-	void removeChild(Entity * child);
+	static void adopt(const Reference<Entity> & child, const Reference<Entity> & parent);
+	static void orphan(const Reference<Entity> & child);
 
-	const std::vector<Entity*>& getChildren();
+	const std::vector<Reference<Entity>> & getChildren();
 
 	union
 	{
@@ -76,17 +50,22 @@ public:
 		};
 	};
 
+	uint64_t getGUID() const;
+
 private:
+	friend class ComponentContainer<Entity>;
+	friend class Component;
+	friend class Level;
+
+	Entity();
 
 	uint64_t guid;
 
-	std::map<std::string, Component*> components;
+	std::vector<Reference<Component>> components;
 
-	void childMoved(Entity * pOld, Entity * pNew);
-	void setRoot(Entity * root);
+	void setRoot(const Reference<Entity> & root);
 
-	Entity * parent;
-	Entity * root;
-	std::vector<Entity*> children;
+	Reference<Entity> parent, root;
+	std::vector<Reference<Entity>> children;
 };
 

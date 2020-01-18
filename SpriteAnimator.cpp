@@ -21,7 +21,7 @@ void SpriteAnimator::tick(float dt)
 		if (destroy)
 			if (time >= frame_count_final)
 			{
-				engine->remove_entity(entity);
+				level->remove_entity(entity);
 				return;
 			}
 		time = fmodf(time, frame_count_final);

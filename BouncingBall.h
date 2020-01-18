@@ -12,6 +12,8 @@ public:
 
 	Vec3 v;
 
+	float elasticity;
+
 	Reference<Sprite> shadow;
 	
 	void onCollision(const Collision & collision);

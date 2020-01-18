@@ -12,6 +12,7 @@ public:
 
 	Vec2 p, n;
 	float pen;
+	Collider * collider;
 	Collider * other;
 };
 

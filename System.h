@@ -4,6 +4,7 @@
 #include "ComponentContainer.h"
 
 class Engine;
+class Level;
 
 class System
 {
@@ -14,5 +15,6 @@ public:
 	virtual void tick(float dt);
 
 	Engine * engine;
+	Level * level;
 };
 

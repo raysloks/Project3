@@ -24,25 +24,33 @@ Engine::Engine()
 
 	max_dt = 1.0 / 30.0;
 
+
+	// create level instance
+
+	level = new Level();
+
+
 	// initialize systems
 
 	cbs = new CustomBehaviourSystem();
 	cbs->engine = this;
+	cbs->level = level;
 	systems.push_back(cbs);
 
 	cs = new CollisionSystem();
 	cs->engine = this;
+	cs->level = level;
 	systems.push_back(cs);
 
 	srs = new SpriteRenderSystem(render);
 	srs->engine = this;
+	srs->level = level;
 	systems.push_back(srs);
 
 	input = new InputSystem();
 	input->engine = this;
+	input->level = level;
 	systems.push_back(input);
-
-	level = new Level();
 
 
 	// allow custom behaviours easy access to systems
@@ -52,6 +60,8 @@ Engine::Engine()
 	CustomBehaviour::cbs = cbs;
 	CustomBehaviour::srs = srs;
 	CustomBehaviour::level = level;
+	CustomBehaviour::tm = &level->tilemap;
+	CustomBehaviour::rng = &level->rng;
 
 
 	// add fullscreen toggle
@@ -95,33 +105,9 @@ void Engine::run()
 
 	while (!stopped)
 	{
-		if (cursor_sheet != cursor_sheet_new)
-		{
-			auto cursor_prev = cursor;
-			if (cursor_sheet_new)
-			{
-				if (cursor_sheet_new->loaded)
-				{
-					if (cursor_sheet_new->surface)
-						cursor = SDL_CreateColorCursor(cursor_sheet_new->surface, cursor_hotspot_x, cursor_hotspot_y);
-					else
-						cursor = nullptr; // i guess we just default the cursor if we failed to load the requested image
-					cursor_sheet = cursor_sheet_new;
-				}
-			}
-			else
-			{
-				cursor = nullptr;
-				cursor_sheet = cursor_sheet_new;
-			}
+		updateCursor();
 
-			if (cursor != cursor_prev)
-			{
-				SDL_SetCursor(cursor);
-				if (cursor_prev)
-					SDL_FreeCursor(cursor_prev);
-			}
-		}
+		updateLevel();
 
 		SDL_Event e;
 
@@ -181,34 +167,52 @@ void Engine::stop()
 	stopped = true;
 }
 
-Reference<Entity> Engine::add_entity(Entity && entity)
-{
-	return entities.add(std::move(entity));
-}
-
-Entity * Engine::get_entity(size_t index)
-{
-	if (index > entities.components.size())
-		return nullptr;
-	return &entities.components[index];
-}
-
-void Engine::remove_entity(Entity * entity)
-{
-	for (auto child : entity->getChildren())
-		remove_entity(child);
-	*entity = std::move(Entity());
-	entities.remove(entity);
-}
-
-void Engine::remove_entity(size_t index)
-{
-	remove_entity(&entities.components[index]);
-}
-
 void Engine::setCursor(const std::shared_ptr<SpriteSheet>& sheet, int hotspot_x, int hotspot_y)
 {
 	cursor_sheet_new = sheet;
 	cursor_hotspot_x = hotspot_x;
 	cursor_hotspot_y = hotspot_y;
+}
+
+void Engine::setLevel(const std::string & name)
+{
+	level_new = new Level();
+}
+
+void Engine::updateCursor()
+{
+	if (cursor_sheet != cursor_sheet_new)
+	{
+		auto cursor_prev = cursor;
+		if (cursor_sheet_new)
+		{
+			if (cursor_sheet_new->loaded)
+			{
+				if (cursor_sheet_new->surface)
+					cursor = SDL_CreateColorCursor(cursor_sheet_new->surface, cursor_hotspot_x, cursor_hotspot_y);
+				else
+					cursor = nullptr; // i guess we just default the cursor if we failed to load the requested image
+				cursor_sheet = cursor_sheet_new;
+			}
+		}
+		else
+		{
+			cursor = nullptr;
+			cursor_sheet = cursor_sheet_new;
+		}
+
+		if (cursor != cursor_prev)
+		{
+			SDL_SetCursor(cursor);
+			if (cursor_prev)
+				SDL_FreeCursor(cursor_prev);
+		}
+	}
+}
+
+void Engine::updateLevel()
+{
+	if (level != level_new)
+	{
+	}
 }

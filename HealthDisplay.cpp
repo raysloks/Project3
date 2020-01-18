@@ -10,15 +10,13 @@ void HealthDisplay::start()
 
 	for (size_t i = 0; i < 32; ++i)
 	{
-		Entity entity;
-		this->entity->addChild(&entity);
-		entity.xy.x = i * 8;
+		auto entity = level->add_entity();
+		Entity::adopt(entity, this->entity);
+		entity->x = i * 8;
 
-		auto sprite = srs->ui.add(Sprite(font));
+		auto sprite = level->ui_sprites.add(font);
 		sprite->color = SDL_Color({ 255, 0, 0, 255 });
-		entity.addComponent(sprite);
-
-		engine->add_entity(std::move(entity));
+		Component::attach(sprite, entity);
 
 		sprites.push_back(sprite);
 	}

@@ -3,15 +3,9 @@
 #include "Component.h"
 
 #include "Engine.h"
-#include "SpriteRenderSystem.h"
-#include "InputSystem.h"
-#include "CustomBehaviourSystem.h"
-#include "CollisionSystem.h"
-
-#include "shared_from.h"
 
 class CustomBehaviour :
-	public Component, public std::enable_shared_from_this<CustomBehaviour>
+	public Component
 {
 public:
 	virtual ~CustomBehaviour();
@@ -27,5 +21,7 @@ public:
 	static CustomBehaviourSystem * cbs;
 	static CollisionSystem * cs;
 	static Level * level;
+	static Tilemap * tm;
+	static Xoroshiro128Plus * rng;
 	// may need to make thread_local or something if multiple engines are running off the same process
 };

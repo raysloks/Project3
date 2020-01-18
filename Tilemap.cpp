@@ -1,10 +1,19 @@
 #include "Tilemap.h"
 
-Tilemap::Tilemap(size_t w, size_t h) : w(w), h(h), tiles(w * h)
+Tilemap::Tilemap(size_t w, size_t h) : w(w), h(h), tiles(w * h), tile_size(16.0f)
 {
 }
 
 Tile & Tilemap::at(size_t x, size_t y)
+{
+	if (x >= w)
+		x = (x + w) % w;
+	if (y >= h)
+		y = (y + h) % h;
+	return tiles.at(x * h + y);
+}
+
+const Tile & Tilemap::at(size_t x, size_t y) const
 {
 	if (x >= w)
 		x = (x + w) % w;
@@ -18,7 +27,7 @@ Tile * Tilemap::operator[](size_t x)
 	return &tiles[x * h];
 }
 
-uint8_t Tilemap::getEffect(const Vec2 & p)
+uint8_t Tilemap::getEffect(const Vec2 & p) const
 {
 	auto tile_p = p / tile_size;
 	intmax_t x = llroundf(tile_p.x);
@@ -38,6 +47,19 @@ void Tilemap::setEffect(const Vec2 & p, uint8_t effect)
 	updated_tiles.insert(std::make_pair(x, y));
 }
 
+float Tilemap::getZ(const Vec2 & p) const
+{
+	auto tile_p = p / tile_size;
+	intmax_t x = llroundf(tile_p.x);
+	intmax_t y = llroundf(tile_p.y);
+	auto& tile = at(x, y);
+	if (tile.tile == 980)
+		return (y + 0.5f) * tile_size.y - p.y;
+	if (tile.tile == 990)
+		return (y - 0.5f) * tile_size.y - p.y;
+	return 0.0f;
+}
+
 void Tilemap::refreshUpdatedEffects()
 {
 	for (auto i : updated_tiles)
@@ -49,4 +71,19 @@ void Tilemap::refreshUpdatedEffects()
 	}
 
 	updated_tiles.clear();
+}
+
+size_t Tilemap::getWidth() const
+{
+	return w;
+}
+
+size_t Tilemap::getHeight() const
+{
+	return h;
+}
+
+const Vec2 & Tilemap::getTileSize() const
+{
+	return tile_size;
 }

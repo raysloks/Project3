@@ -38,16 +38,14 @@ public:
 	InputSystem * input;
 	CustomBehaviourSystem * cbs;
 	CollisionSystem * cs;
-	Level * level;
 
-	Reference<Entity> add_entity(Entity&& entity);
-	Entity * get_entity(size_t index);
-	void remove_entity(Entity * entity);
-	void remove_entity(size_t index);
+	Level * level;
 
 	double full;
 
 	void setCursor(const std::shared_ptr<SpriteSheet> & sheet, int hotspot_x, int hotspot_y);
+
+	void setLevel(const std::string & name);
 
 private:
 
@@ -59,12 +57,17 @@ private:
 	double framerate_cap;
 	float max_dt;
 
-	ComponentContainer<Entity> entities;
 	std::vector<System*> systems;
 
 	std::function<void(void)> fullscreen_toggle_func;
 
+	void updateCursor();
+
 	std::shared_ptr<SpriteSheet> cursor_sheet, cursor_sheet_new;
 	int cursor_hotspot_x, cursor_hotspot_y;
 	SDL_Cursor * cursor;
+
+	void updateLevel();
+
+	Level * level_new;
 };

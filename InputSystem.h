@@ -15,8 +15,6 @@
 struct SDL_KeyboardEvent;
 struct SDL_MouseMotionEvent;
 
-class SpriteRenderSystem;
-
 class InputSystem :
 	public System
 {

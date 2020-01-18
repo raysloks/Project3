@@ -21,7 +21,7 @@ void BouncingBall::tick(float dt)
 	{
 		//z = 0.0f; caused bounces to get bigger sometimes
 		if (v.z < 0.0f)
-			v.z = -v.z;
+			v.z = -v.z * elasticity;
 	}
 
 	update_shadow();
@@ -32,7 +32,7 @@ void BouncingBall::onCollision(const Collision & collision)
 	entity->xy -= collision.n * collision.pen;
 	float v_dot_n = v.Dot(collision.n);
 	if (v_dot_n > 0.0f)
-		v -= collision.n * v_dot_n * 2.0f;
+		v -= collision.n * v_dot_n * (1.0f + elasticity);
 
 	update_shadow();
 }

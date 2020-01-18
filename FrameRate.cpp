@@ -8,14 +8,12 @@ void FrameRate::start()
 
 	for (size_t i = 0; i < 32; ++i)
 	{
-		Entity entity;
-		entity.xy.x = 8 + i * 8;
-		entity.xy.y = 8;
+		auto entity = level->add_entity();
+		entity->x = 8 + i * 8;
+		entity->y = 8;
 
-		auto sprite = srs->ui.add(Sprite(font));
-		entity.addComponent(sprite);
-
-		engine->add_entity(std::move(entity));
+		auto sprite = level->ui_sprites.add(font);
+		Component::attach(sprite, entity);
 
 		sprites.push_back(sprite);
 	}

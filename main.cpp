@@ -10,11 +10,16 @@
 #include "FollowCursor.h"
 
 #include "Tilemap.h"
-#include "TilemapShape.h"
 
 #include "GameKeyBinding.h"
 
 #include "Text.h"
+
+#include "Xoroshiro128Plus.h"
+
+#include <chrono>
+
+#include <iostream>
 
 int main(int argc, char* args[])
 {
@@ -38,26 +43,8 @@ int main(int argc, char* args[])
 
 	// TODO remove after a better option to keep a resource loaded is added
 	auto swoop = SpriteSheet::get("swoop_small.png");
-
-	/*for (int x = 0; x < 40; ++x)
-	{
-		for (int y = 0; y < 40; ++y)
-		{
-			Entity entity;
-			entity.p = Vec2(x, y) + Vec2(50, 50);
-
-			Sprite sprite("pixel.png");
-			sprite.color = SDL_Color{ 0, 0, 0, 255 };
-			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-			Collider collider;
-			collider.shape = std::make_unique<Circle>(0.5f);
-			collider.layers = 2;
-			entity.addComponent(engine.cs->colliders.add(std::move(collider)));
-
-			engine.add_entity(std::move(entity));
-		}
-	}*/
+	auto stairs_effect_map = SpriteSheet::get("stairs_effect_map_two.png");
+	stairs_effect_map->offset_y = -8;
 
 	auto floor = SpriteSheet::get("floor.png");
 
@@ -69,17 +56,21 @@ int main(int argc, char* args[])
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy_blur", floor_iso_gen_lossy_blur));
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossless", floor_iso_gen_lossless));
 
-	const int w = 64;
-	const int h = 64;
+	Level & level = *engine.level;
 
-	Tilemap tilemap(w, h);
-	tilemap.tile_size = Vec2(16.0f, 16.0f);
+	level.rng.seed(std::chrono::system_clock::now().time_since_epoch().count());
+
+	auto & tilemap = level.tilemap;
+	intmax_t w = tilemap.getWidth();
+	intmax_t h = tilemap.getHeight();
+
+	Xoroshiro128Plus rng;
 
 	for (int x = 0; x < w; ++x)
 	{
 		for (int y = 0; y < h; ++y)
 		{
-			tilemap[x][y].tile = (rand() % 16 << 1) | 1;
+			tilemap[x][y].tile = (rng.next(16) << 1) | 1;
 		}
 	}
 
@@ -102,15 +93,15 @@ int main(int argc, char* args[])
 			break;
 		}
 
-		int length_category = rand() % 20 + 1;
+		int length_category = rng.next(20) + 1;
 
 		int length = 0;
 		if (length_category > 1)
-			length = rand() % 5;
+			length = rng.next(5);
 		if (length_category == 19)
-			length = rand() % 100 + 50;
+			length = rng.next(100) + 50;
 		if (length_category == 20)
-			length = rand() % 200 + 100;
+			length = rng.next(200) + 100;
 
 		for (size_t i = 0; i <= length; ++i)
 		{
@@ -124,7 +115,7 @@ int main(int argc, char* args[])
 				y = h - 2;
 			tilemap[x][y].tile &= ~1;
 
-			int dir = rand() % 4;
+			int dir = rng.next(4);
 			if (dir == (prev_dir + 2) % 4)
 				dir = prev_dir;
 			prev_dir = dir;
@@ -146,10 +137,37 @@ int main(int argc, char* args[])
 		}
 	}
 
+	tilemap.at(4, h - 4).tile = 980;
+	tilemap.at(2, h - 4).tile = 990;
+
+	// create level change trigger
+	{
+		auto entity = level.add_entity();
+		entity->x = 16 * 4;
+		entity->y = 16 * (h - 4) - 7;
+
+		auto collider = level.rectangle_colliders.add(Vec2(7.0f, 0.0f));
+		collider->callbacks.push_back([](const Collision & collision)
+			{
+				auto player = collision.other->getComponent<Player>();
+				if (player)
+				{
+					player->engine->setLevel("up");
+				}
+			});
+		Component::attach(collider, entity);
+	}
+
 	auto tileset = SpriteSheet::get("tile_iso.png");
 	tileset->offset_y = -8;
 	tileset->columns = 4;
 	tileset->rows = 8;
+
+	/*SpriteSheet::createIsometricFloorLosslessMap(16, 16)->save("test.png");
+
+	SpriteSheet::get("splatter.png")->makeMapped(SpriteSheet::get("stairs_effect_map_two.png"))->save("test_mapped.png");
+
+	SpriteSheet::get("floor.png")->makeIsometricWall()->save("test_wall.png");*/
 
 	// create a sprite for each tile
 	// should probably be replaced by some sort of tile rendering system
@@ -186,34 +204,44 @@ int main(int argc, char* args[])
 					if (tile.tile & 32)
 						show_floor = true;
 
-					Entity entity;
-					entity.xy = Vec2(x, y) * tilemap.tile_size;
+					auto entity = level.add_entity();
+					entity->xy = Vec2(x, y) * tilemap.getTileSize();
 
-					Sprite sprite("tile_iso.png");
+					auto sprite = level.sprites.add("tile_iso.png");
 					size_t tile_index = (tile.tile >> 1);
-					sprite.subsprite_x = tile_index % sprite.sheet->columns;
-					sprite.subsprite_y = tile_index / sprite.sheet->columns;
-					entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-					engine.add_entity(std::move(entity));
+					sprite->subsprite_x = tile_index % sprite->sheet->columns;
+					sprite->subsprite_y = tile_index / sprite->sheet->columns;
+					Component::attach(sprite, entity);
 				}
 			}
+
+			if (tile.tile > 900)
+			{
+				auto entity = level.add_entity();
+				entity->xy = Vec2(x, y) * tilemap.getTileSize();
+				entity->z = tile.tile & 2 ? -16 : 0;
+
+				auto sprite = level.sprites.add("stairs.png");
+				sprite->sheet->offset_y = -8;
+				Component::attach(sprite, entity);
+
+				show_floor = false;
+			}
+
 			if (show_floor)
 			{
-				Entity entity;
-				entity.xy = Vec2(x, y) * tilemap.tile_size;
+				auto entity = level.add_entity();
+				entity->xy = Vec2(x, y) * tilemap.getTileSize();
 
 				auto sheet = SpriteSheet::get("floor_iso_gen_lossless");
 
-				Sprite sprite(sheet);
-				sprite.sort = -256;
-				entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-				engine.add_entity(std::move(entity));
+				auto sprite = level.sprites.add(sheet);
+				sprite->sort = -16;
+				Component::attach(sprite, entity);
 
 				if (!tile.effects.empty())
 				{
-					tile.refreshEffectSprite(Vec2(x, y) * tilemap.tile_size);
+					tile.refreshEffectSprite(Vec2(x, y) * tilemap.getTileSize());
 				}
 			}
 		}
@@ -221,248 +249,128 @@ int main(int argc, char* args[])
 
 	// create tilemap collider
 	{
-		Entity entity;
+		auto entity = level.add_entity();
 		
-		auto collider = engine.cs->tilemaps.add(TilemapCollider(&tilemap));
+		auto collider = level.tilemap_colliders.add(&tilemap);
 		collider->layers = 1 | 4;
-		entity.addComponent(collider);
-
-		engine.add_entity(std::move(entity));
+		Component::attach(collider, entity);
 	}
 
 	// create player
 	{
-		Entity entity;
-		entity.x = 16;
-		entity.y = 16 * (h - 2);
+		auto entity = level.add_entity();
+		entity->x = 16;
+		entity->y = 16 * (h - 2);
 
-		auto sprite = SpriteSheet::get("bone_boy.png");
-		sprite->columns = 12;
-		sprite->rows = 2;
-		sprite->offset_y = -8;
+		auto sheet = SpriteSheet::get("bone_boy.png");
+		sheet->columns = 12;
+		sheet->rows = 2;
+		sheet->offset_y = -8;
 
-		entity.addComponent(engine.srs->sprites.add(Sprite(sprite)));
+		auto player = level.add<Player>();
+		Component::attach(player, entity);
 
-		auto player = std::make_shared<Player>();
-		player->tm = &tilemap;
-		entity.addComponent(engine.cbs->add(player));
+		Component::attach(level.circle_colliders.add(3.0f), entity);
 
-		entity.addComponent(engine.cs->circles.add(CircleCollider(3.0f)));
+		auto sprite = level.sprites.add(sheet);
+		Component::attach(sprite, entity);
 
-		auto player_entity = engine.add_entity(std::move(entity));
+		auto player_entity = entity;
 
 		// create shadow
 		{
-			Entity entity;
-			player_entity->addChild(&entity);
+			auto entity = level.add_entity();
+			Entity::adopt(entity, player_entity);
 
-			Sprite sprite("shadow4_iso.png");
-			sprite.sort = -64;
-			sprite.color = SDL_Color({ 0, 0, 0, 32 });
-			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-			engine.add_entity(std::move(entity));
+			auto sprite = level.sprites.add("shadow4_iso.png");
+			sprite->sort = 0;
+			sprite->color = SDL_Color({ 0, 0, 0, 32 });
+			Component::attach(sprite, entity);
 		}
 
 		// create health display
 		{
-			Entity entity;
+			auto entity = level.add_entity();
 
-			auto display = std::make_shared<HealthDisplay>();
+			auto display = level.add<HealthDisplay>();
 			display->player = player;
-			entity.addComponent(engine.cbs->add(display));
-
-			engine.add_entity(std::move(entity));
+			Component::attach(display, entity);
 		}
 	}
 
 	// create fps counter
 	{
-		Entity entity;
+		auto entity = level.add_entity();
 
-		auto fps = std::make_shared<FrameRate>();
-		entity.addComponent(engine.cbs->add(fps));
-
-		engine.add_entity(std::move(entity));
-	}
-
-	// cursor highlight
-	{
-		Entity entity;
-
-		Sprite sprite("shadow6_iso.png");
-		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-		entity.addComponent(engine.cbs->add(std::make_shared<FollowCursor>()));
-
-		engine.add_entity(std::move(entity));
-	}
-
-	// create ghost
-	if (false)
-	{
-		Entity entity;
-		entity.x = 16;
-		entity.y = 16 * (h - 20);
-
-		Sprite sprite("ghost.png");
-		sprite.sheet->columns = 25;
-		sprite.sort = 128;
-		sprite.color.a = 200;
-		sprite.sheet->offset_y = -8;
-		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-		auto animator = std::make_shared<SpriteAnimator>(10.0f);
-		entity.addComponent(engine.cbs->add(std::move(animator)));
-
-		auto enemy = std::make_shared<Enemy>();
-		entity.addComponent(engine.cbs->add(enemy));
-
-		CircleCollider collider(6.0f);
-		collider.layers = 2;
-		entity.addComponent(engine.cs->circles.add(std::move(collider)));
-
-		auto enemy_entity = engine.add_entity(std::move(entity));
-
-		{
-			Entity entity;
-			enemy_entity->addChild(&entity);
-
-			Sprite sprite("ghost_hands.png");
-			sprite.sheet->columns = 3;
-			sprite.sheet->offset_x = 2;
-			sprite.sheet->offset_y = -8;
-			sprite.sort = 110;
-			sprite.color.a = 200;
-			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-			auto animator = std::make_shared<SpriteAnimator>(1.0f);
-			entity.addComponent(engine.cbs->add(std::move(animator)));
-
-			engine.add_entity(std::move(entity));
-		}
-
-		{
-			Entity entity;
-			enemy_entity->addChild(&entity);
-
-			Sprite sprite("shadow6_iso.png");
-			sprite.sort = -64;
-			sprite.color = SDL_Color({ 0, 0, 0, 32 });
-			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-			engine.add_entity(std::move(entity));
-		}
+		auto fps = level.add<FrameRate>();
+		Component::attach(fps, entity);
 	}
 
 	// create enemy
 	for (int i = 0; i < 5; ++i)
 	{
-		Entity entity;
-		entity.x = 16 * (5 + i * 2);
-		entity.y = 16 * (h - 10);
+		auto entity = level.add_entity();
+		entity->x = 16 * (5 + i * 2);
+		entity->y = 16 * (h - 10);
 
-		Sprite sprite("imp.png");
-		sprite.sheet->columns = 4;
-		sprite.sheet->rows = 2;
-		sprite.sheet->offset_y = -8;
-		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+		auto sprite = level.sprites.add("imp.png");
+		sprite->sheet->columns = 4;
+		sprite->sheet->rows = 2;
+		sprite->sheet->offset_y = -8;
+		Component::attach(sprite, entity);
 
-		auto enemy = std::make_shared<Enemy>();
-		entity.addComponent(engine.cbs->add(enemy));
+		auto enemy = level.add<Enemy>();
+		Component::attach(enemy, entity);
 
-		CircleCollider collider(3.0f);
-		entity.addComponent(engine.cs->circles.add(std::move(collider)));
+		Component::attach(level.circle_colliders.add(3.0f), entity);
 
-		auto enemy_entity = engine.add_entity(std::move(entity));
+		auto enemy_entity = entity;
 
 		{
-			Entity entity;
-			enemy_entity->addChild(&entity);
+			auto entity = level.add_entity();
+			Entity::adopt(entity, enemy_entity);
 
-			Sprite sprite("shadow4_iso.png");
-			sprite.sort = -64;
-			sprite.color = SDL_Color({ 0, 0, 0, 32 });
-			entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
-
-			engine.add_entity(std::move(entity));
+			auto sprite = level.sprites.add("shadow4_iso.png");
+			sprite->sort = 0;
+			sprite->color = SDL_Color({ 0, 0, 0, 32 });
+			Component::attach(sprite, entity);
 		}
 	}
 
 	// create bouncing ball
 	{
-		Entity entity;
-		entity.x = 16 * 16;
-		entity.y = 16 * (h - 16);
-		entity.z = 25;
+		auto entity = level.add_entity();
+		entity->x = 16 * 16;
+		entity->y = 16 * (h - 16);
+		entity->z = 25;
 
-		Sprite sprite("ball.png");
-		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+		Component::attach(level.sprites.add("ball.png"), entity);
 
-		auto bouncing_ball = std::make_shared<BouncingBall>();
+		auto bouncing_ball = level.add<BouncingBall>();
 		bouncing_ball->v = Vec2(25.0f, 25.0f);
-		entity.addComponent(engine.cbs->add(bouncing_ball));
+		bouncing_ball->elasticity = 1.0f;
+		Component::attach(bouncing_ball, entity);
 
-		entity.addComponent(engine.cs->circles.add(CircleCollider(5.0f)));
-
-		engine.add_entity(std::move(entity));
+		Component::attach(level.circle_colliders.add(5.0f), entity);
 
 		{
-			Entity entity;
+			auto entity = level.add_entity();
 
-			bouncing_ball->shadow = engine.srs->sprites.add(Sprite("shadow6_iso.png"));
+			bouncing_ball->shadow = level.sprites.add("shadow6_iso.png");
 			bouncing_ball->shadow->color = SDL_Color({ 0, 0, 0, 32 });
-			bouncing_ball->shadow->sort = -64;
-			entity.addComponent(bouncing_ball->shadow);
-
-			engine.add_entity(std::move(entity));
+			Component::attach(bouncing_ball->shadow, entity);
 		}
 	}
 
-	// create stairs
+	// cursor highlight
 	{
-		Entity entity;
-		entity.x = 16 * 4;
-		entity.y = 16 * (h - 4);
+		auto entity = level.add_entity();
 
-		Sprite sprite("stairs.png");
-		sprite.sheet->offset_y = -8;
-		entity.addComponent(engine.srs->sprites.add(std::move(sprite)));
+		auto sprite = level.sprites.add("shadow6_iso.png");
+		Component::attach(sprite, entity);
 
-		{
-			Entity child;
-			child.x = 8.0f;
-
-			child.addComponent(engine.cs->rectangles.add(RectangleCollider(Vec2(0.0f, 8.0f))));
-
-			entity.addChild(&child);
-
-			engine.add_entity(std::move(child));
-		}
-
-		{
-			Entity child;
-			child.x = -8.0f;
-
-			child.addComponent(engine.cs->rectangles.add(RectangleCollider(Vec2(0.0f, 8.0f))));
-
-			entity.addChild(&child);
-
-			engine.add_entity(std::move(child));
-		}
-
-		{
-			Entity child;
-			child.y = -8.0f;
-
-			child.addComponent(engine.cs->rectangles.add(RectangleCollider(Vec2(8.0f, 0.0f))));
-
-			entity.addChild(&child);
-
-			engine.add_entity(std::move(child));
-		}
-
-		engine.add_entity(std::move(entity));
+		auto highlight = level.add<FollowCursor>();
+		Component::attach(highlight, entity);
 	}
 
 	engine.run();

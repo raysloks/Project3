@@ -15,8 +15,6 @@ public:
 
 	void tick(float dt);
 
-	ComponentContainer<Sprite> sprites, ui;
-
 	Vec2 camera_position;
 
 	SDL_Renderer * render;
@@ -26,8 +24,6 @@ public:
 
 private:
 	SDL_Texture * offscreen;
-
-	bool flicker;
 
 	bool use_offscreen;
 

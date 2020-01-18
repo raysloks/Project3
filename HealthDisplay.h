@@ -12,7 +12,7 @@ public:
 
 	void tick(float dt);
 
-	std::shared_ptr<Player> player;
+	Reference<Player> player;
 
 private:
 	std::vector<Reference<Sprite>> sprites;

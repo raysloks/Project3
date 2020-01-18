@@ -8,8 +8,8 @@
 
 Enemy::Enemy()
 {
-	hp = 100;
-	hp_max = 100;
+	hp = 10;
+	hp_max = 10;
 }
 
 void Enemy::start()

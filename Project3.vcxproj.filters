@@ -31,12 +31,6 @@
     <Filter Include="Source Files\Custom Behaviours">
       <UniqueIdentifier>{75edcae1-7249-406d-b015-63a740f883d0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Shapes">
-      <UniqueIdentifier>{3ac6b068-9af9-477f-8354-384f9c9fc36f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shapes">
-      <UniqueIdentifier>{ca14b0f1-c692-4083-a843-7da30a45dbae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Resources">
       <UniqueIdentifier>{d5feabac-6325-4f9f-a503-d447085a5129}</UniqueIdentifier>
     </Filter>
@@ -108,29 +102,14 @@
     <ClCompile Include="Enemy.cpp">
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
-    <ClCompile Include="Shape.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Circle.cpp">
-      <Filter>Source Files\Shapes</Filter>
-    </ClCompile>
-    <ClCompile Include="Rectangle.cpp">
-      <Filter>Source Files\Shapes</Filter>
-    </ClCompile>
     <ClCompile Include="Tilemap.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TilemapShape.cpp">
-      <Filter>Source Files\Shapes</Filter>
     </ClCompile>
     <ClCompile Include="FrameRate.cpp">
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
     <ClCompile Include="Text.cpp">
       <Filter>Source Files\Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="SpriteShape.cpp">
-      <Filter>Source Files\Shapes</Filter>
     </ClCompile>
     <ClCompile Include="Inventory.cpp">
       <Filter>Source Files\Custom Behaviours</Filter>
@@ -198,6 +177,9 @@
     <ClCompile Include="Vec3.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Xoroshiro128Plus.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -248,15 +230,6 @@
     <ClInclude Include="Enemy.h">
       <Filter>Header Files\Custom Behaviours</Filter>
     </ClInclude>
-    <ClInclude Include="Shape.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Circle.h">
-      <Filter>Header Files\Shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="Rectangle.h">
-      <Filter>Header Files\Shapes</Filter>
-    </ClInclude>
     <ClInclude Include="Tilemap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -268,12 +241,6 @@
     </ClInclude>
     <ClInclude Include="Text.h">
       <Filter>Header Files\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="TilemapShape.h">
-      <Filter>Header Files\Shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteShape.h">
-      <Filter>Header Files\Shapes</Filter>
     </ClInclude>
     <ClInclude Include="Inventory.h">
       <Filter>Header Files\Custom Behaviours</Filter>
@@ -345,6 +312,9 @@
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="shared_from.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Xoroshiro128Plus.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>

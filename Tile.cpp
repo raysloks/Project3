@@ -28,22 +28,28 @@ std::shared_ptr<SpriteSheet> Tile::makeEffectSheet()
 
 void Tile::refreshEffectSprite(const Vec2 & p)
 {
-	if (effect_sprite)
+
+	if (!effect_sprite)
 	{
-		effect_sprite->sheet = makeEffectSheet()->makeIsometricFloorLossless();
+		auto entity = CustomBehaviour::level->add_entity();
+		entity->xy = p;
+
+		effect_sprite = CustomBehaviour::level->sprites.add();
+
+		Component::attach(effect_sprite, entity);
+	}
+
+	auto sheet = makeEffectSheet();
+	if (tile > 900)
+	{
+		effect_sprite->sheet = sheet->makeMapped(SpriteSheet::get("stairs_effect_map_two.png"));
+		effect_sprite->sort = 1;
+		effect_sprite->entity->z = tile & 2 ? -16 : 0;
 	}
 	else
 	{
-		Entity entity;
-		entity.xy = p;
-
-		Sprite sprite(makeEffectSheet()->makeIsometricFloorLossless());
-		sprite.sort = -128;
-
-		effect_sprite = CustomBehaviour::engine->srs->sprites.add(std::move(sprite));
-
-		entity.addComponent(effect_sprite);
-
-		CustomBehaviour::engine->add_entity(std::move(entity));
+		effect_sprite->sheet = sheet->makeIsometricFloorLossless();
+		effect_sprite->sort = -15;
+		effect_sprite->entity->z = 0;
 	}
 }

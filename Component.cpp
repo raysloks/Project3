@@ -5,25 +5,32 @@ Component::Component()
 	entity = nullptr;
 }
 
-Component::Component(Component && component) noexcept
+Component::~Component()
 {
-	entity = component.entity;
-	if (entity)
-	{
-		entity->componentMoved(&component, this);
-		component.entity = nullptr;
-	}
 }
 
-Component & Component::operator=(Component && component) noexcept
+void Component::attach(const Reference<Component> & component, const Reference<Entity>& entity)
 {
-	if (entity)
-		entity->removeComponent(this);
-	entity = component.entity;
-	if (entity)
+	if (component->entity)
+		return;
+
+	component->entity = entity;
+	entity->components.push_back(component);
+}
+
+void Component::detach(const Reference<Component> & component, const Reference<Entity>& entity)
+{
+	if (component->entity != entity)
+		return;
+
+	auto & components = entity->components;
+	for (auto i = components.begin(); i != components.end(); ++i)
 	{
-		entity->componentMoved(&component, this);
-		component.entity = nullptr;
+		if (*i == component)
+		{
+			(*i)->entity = nullptr;
+			components.erase(i);
+			return;
+		}
 	}
-	return *this;
 }

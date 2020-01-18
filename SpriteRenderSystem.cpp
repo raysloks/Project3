@@ -18,8 +18,6 @@ SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
 
 	offscreen = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, target_w, target_h);
 
-	flicker = false;
-
 	use_offscreen = false;
 }
 
@@ -40,7 +38,8 @@ Vec2 SpriteRenderSystem::worldToScreen(const Vec2 & world_position) const
 
 void SpriteRenderSystem::tick(float dt)
 {
-	flicker = !flicker;
+	auto& sprites = level->sprites.components;
+	auto& ui = level->ui_sprites.components;
 
 	SDL_GetRendererOutputSize(render, &screen_w, &screen_h);
 
@@ -66,12 +65,12 @@ void SpriteRenderSystem::tick(float dt)
 
 	std::multimap<float, Sprite*> sorted;
 
-	for (auto& sprite : sprites.components)
+	for (auto& sprite : sprites)
 		if (sprite.entity)
 			if (sprite.sheet->surface)
 			{
 				auto p = sprite.entity->getPosition();
-				sorted.insert(std::make_pair(p.y + p.x + sprite.sort, &sprite));
+				sorted.insert(std::make_pair(p.y + p.x + p.z + sprite.sort, &sprite));
 			}
 
 	Vec2 camera_position_iso(camera_position.x - camera_position.y, (camera_position.y + camera_position.x) * 0.5f);
@@ -150,7 +149,7 @@ void SpriteRenderSystem::tick(float dt)
 	effective_w = screen_w / scale;
 	effective_h = screen_h / scale;
 
-	for (auto& sprite : ui.components)
+	for (auto& sprite : ui)
 	{
 		if (sprite.entity)
 		{

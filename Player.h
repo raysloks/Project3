@@ -22,8 +22,6 @@ public:
 
 	void tick(float dt);
 
-	Tilemap * tm;
-
 	void onCollision(const Collision & collision);
 
 	void splatter();
@@ -42,7 +40,6 @@ private:
 
 	Vec2 facing;
 
-	SpriteShape * sword_shape;
 	Reference<Entity> sword;
 
 	bool flip;

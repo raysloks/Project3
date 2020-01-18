@@ -4,24 +4,19 @@
 
 void CustomBehaviourSystem::tick(float dt)
 {
+	auto & added = level->added;
+
 	for (auto& behaviour : added)
-		behaviour->start();
+		behaviour->components.data()->start();
 	added.clear();
 
-	for (size_t i = 0; i < behaviours.components.size(); ++i)
+	auto & behaviours = level->custom_behaviours.components;
+
+	for (size_t i = 0; i < behaviours.size(); ++i)
 	{
-		auto & behaviour = behaviours.components[i];
+		auto behaviour = behaviours[i]->components.data();
 		if (behaviour)
 			if (behaviour->entity)
 				behaviour->tick(dt);
-			else
-				behaviour.reset();
 	}
-}
-
-CustomBehaviour *  CustomBehaviourSystem::add(const std::shared_ptr<CustomBehaviour> & behaviour)
-{
-	added.push_back(behaviour);
-	behaviours.add(std::shared_ptr<CustomBehaviour>(behaviour));
-	return behaviour.get();
 }

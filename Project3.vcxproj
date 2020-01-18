@@ -145,7 +145,6 @@
     <ClCompile Include="Ability.cpp" />
     <ClCompile Include="Body.cpp" />
     <ClCompile Include="BouncingBall.cpp" />
-    <ClCompile Include="Circle.cpp" />
     <ClCompile Include="CircleCollider.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Collision.cpp" />
@@ -170,29 +169,25 @@
     <ClCompile Include="Mob.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Projectile.cpp" />
-    <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="RectangleCollider.cpp" />
-    <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SpriteAnimator.cpp" />
     <ClCompile Include="SpriteCollider.cpp" />
     <ClCompile Include="SpriteRenderSystem.cpp" />
-    <ClCompile Include="SpriteShape.cpp" />
     <ClCompile Include="SpriteSheet.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="Tilemap.cpp" />
     <ClCompile Include="TilemapCollider.cpp" />
-    <ClCompile Include="TilemapShape.cpp" />
     <ClCompile Include="Vec2.cpp" />
     <ClCompile Include="Vec3.cpp" />
+    <ClCompile Include="Xoroshiro128Plus.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ability.h" />
     <ClInclude Include="Body.h" />
     <ClInclude Include="BouncingBall.h" />
-    <ClInclude Include="Circle.h" />
     <ClInclude Include="CircleCollider.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Collision.h" />
@@ -218,26 +213,23 @@
     <ClInclude Include="Mob.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Projectile.h" />
-    <ClInclude Include="Rectangle.h" />
     <ClInclude Include="RectangleCollider.h" />
     <ClInclude Include="Reference.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="Shape.h" />
     <ClInclude Include="shared_from.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteAnimator.h" />
     <ClInclude Include="SpriteCollider.h" />
     <ClInclude Include="SpriteRenderSystem.h" />
-    <ClInclude Include="SpriteShape.h" />
     <ClInclude Include="SpriteSheet.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="Tilemap.h" />
     <ClInclude Include="TilemapCollider.h" />
-    <ClInclude Include="TilemapShape.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Vec3.h" />
+    <ClInclude Include="Xoroshiro128Plus.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

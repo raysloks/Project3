@@ -12,7 +12,7 @@ void Mob::start()
 {
 	auto collider = getComponent<CircleCollider>();
 	if (collider)
-		collider->callbacks.push_back(std::bind(&Mob::onCollision, shared_from(this), std::placeholders::_1));
+		collider->callbacks.push_back(std::bind(&Mob::onCollision, this, std::placeholders::_1));
 }
 
 void Mob::tick(float dt)
@@ -50,6 +50,8 @@ void Mob::tick(float dt)
 	Vec2 at = v - v_prev;
 	entity->xy += at * 0.5f * dt;
 
+	entity->z = tm->getZ(entity->xy);
+
 	cooldown -= dt;
 }
 
@@ -77,14 +79,13 @@ void Mob::onDamaged(int64_t damage)
 
 	// create floating text
 	{
-		Entity entity;
-		entity.xy = this->entity->xy;
+		auto entity = level->add_entity();
+		entity->xy = this->entity->xy;
 
-		entity.addComponent(cbs->add(std::make_shared<FloatingText>(std::to_string(damage), 32, 1)));
-
-		engine->add_entity(std::move(entity));
+		auto text = level->add<FloatingText>(std::to_string(damage), 32, 1);
+		Component::attach(text, entity);
 	}
 
 	if (hp <= 0)
-		engine->remove_entity(entity);
+		level->remove_entity(entity);
 }

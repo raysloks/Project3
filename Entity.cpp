@@ -4,149 +4,27 @@
 
 uint64_t global_counter = 0;
 
+uint64_t Entity::getGUID() const
+{
+	return guid;
+}
+
 Entity::Entity() : xyz()
 {
 	guid = ++global_counter;
 	parent = nullptr;
-	root = this;
-}
-
-Entity::Entity(Entity && entity) noexcept
-{
-	guid = entity.guid;
-	entity.guid = 0;
-
-	xyz = entity.xyz;
-
-	// reconnect new components
-	components = std::move(entity.components);
-	for (auto component : components)
-		component.second->entity = this;
-
-	// reconnect new parent
-	parent = entity.parent;
-	entity.parent = nullptr;
-	if (parent)
-		parent->childMoved(&entity, this);
-
-	// reconnect new children
-	children = std::move(entity.children);
-	for (auto child : children)
-		child->parent = this;
-
-	// update roots
-	root = entity.root;
-	if (root == &entity)
-		setRoot(this);
-	entity.root = &entity;
-
-	// the order of these operations could be improved in terms of computational efficiency
+	root = nullptr; // set to reference self shortly after construction
 }
 
 Entity::~Entity()
 {
-	for (auto component : components)
-		component.second->entity = nullptr;
-	for (auto child : children)
-	{
-		child->parent = nullptr;
-		child->setRoot(child);
-	}
-	if (parent)
-		parent->removeChild(this);
 }
 
-Entity & Entity::operator=(Entity && entity) noexcept
-{
-	guid = entity.guid;
-	entity.guid = 0;
-
-	xyz = entity.xyz;
-
-	// disconnect current components
-	for (auto component : components)
-		component.second->entity = nullptr;
-
-	// disconnect current children
-	for (auto child : children)
-	{
-		child->parent = nullptr;
-		child->setRoot(child);
-	}
-
-	// disconnect from current parent
-	if (parent)
-		parent->removeChild(this);
-
-	// reconnect new components
-	components = std::move(entity.components);
-	for (auto component : components)
-		component.second->entity = this;
-
-	// reconnect new children
-	children = std::move(entity.children);
-	for (auto child : children)
-		child->parent = this;
-
-	// reconnect new parent
-	parent = entity.parent;
-	entity.parent = nullptr;
-	if (parent)
-		parent->childMoved(&entity, this);
-
-	// update roots
-	root = entity.root;
-	if (root == &entity)
-		setRoot(this);
-	entity.root = &entity;
-
-	// the order of these operations could be improved in terms of computational efficiency
-
-	return *this;
-}
-
-void Entity::componentMoved(Component * pOld, Component * pNew)
-{
-	for (auto& i : components)
-	{
-		if (i.second == pOld)
-		{
-			i.second = pNew;
-			return;
-		}
-	}
-}
-
-void Entity::childMoved(Entity * pOld, Entity * pNew)
-{
-	for (auto& child : children)
-	{
-		if (child == pOld)
-		{
-			child = pNew;
-			return;
-		}
-	}
-}
-
-void Entity::setRoot(Entity * pNew)
+void Entity::setRoot(const Reference<Entity> & pNew)
 {
 	root = pNew;
 	for (auto child : children)
 		child->setRoot(pNew);
-}
-
-void Entity::removeComponent(Component * component)
-{
-	for (auto& i : components)
-	{
-		if (i.second == component)
-		{
-			i.second->entity = nullptr;
-			components.erase(i.first);
-			return;
-		}
-	}
 }
 
 Vec3 Entity::getPosition() const
@@ -156,35 +34,42 @@ Vec3 Entity::getPosition() const
 	return xyz;
 }
 
-Entity * Entity::getParent() const
+Reference<Entity> Entity::getParent() const
 {
 	return parent;
 }
 
-Entity * Entity::getRoot() const
+Reference<Entity> Entity::getRoot() const
 {
 	return root;
 }
 
-void Entity::addChild(Entity * child)
+void Entity::adopt(const Reference<Entity>& child, const Reference<Entity>& parent)
 {
-	if (child->root == root)
+	if (parent->root == child->root)
 		return;
 	if (child->parent)
-		child->parent->removeChild(child);
-	child->parent = this;
+		return;
+	child->parent = parent;
+	auto root = parent->getRoot();
+	if (!root)
+		root = parent;
 	child->setRoot(root);
-	children.push_back(child);
+	parent->children.push_back(child);
 }
 
-void Entity::removeChild(Entity * child)
+void Entity::orphan(const Reference<Entity>& child)
 {
-	children.erase(std::find(children.begin(), children.end(), child));
-	child->parent = nullptr;
-	child->setRoot(child);
+	if (child->parent)
+	{
+		auto & children = child->parent->children;
+		children.erase(std::find(children.begin(), children.end(), child));
+		child->parent = nullptr;
+		child->setRoot(child);
+	}
 }
 
-const std::vector<Entity*>& Entity::getChildren()
+const std::vector<Reference<Entity>> & Entity::getChildren()
 {
 	return children;
 }

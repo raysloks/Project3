@@ -2,20 +2,25 @@
 
 #include "Entity.h"
 
+#include <memory>
+
 class Component
 {
 public:
-	Component();
-	Component(Component && component) noexcept;
+	virtual ~Component();
 
-	Component & operator=(Component && component) noexcept;
+	static void attach(const Reference<Component> & component, const Reference<Entity> & entity);
+	static void detach(const Reference<Component> & component, const Reference<Entity> & entity);
 
 	template <class T>
-	T * getComponent() const
+	Reference<T> getComponent() const
 	{
 		return entity->getComponent<T>();
 	}
 
-	Entity * entity;
+	Reference<Entity> entity;
+
+protected:
+	Component();
 };
 
