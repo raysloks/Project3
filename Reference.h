@@ -12,7 +12,7 @@ class Reference
 {
 public:
 	Reference();
-	Reference(std::vector<T> * container, size_t offset);
+	Reference(ComponentContainer<T> * container, size_t offset);
 	Reference(std::nullptr_t);
 
 	T & operator*() const;
@@ -30,7 +30,7 @@ public:
 	{
 		auto p = dynamic_cast<U*>(get());
 		if (p)
-			return Reference<U>((std::vector<U>*)container, offset);
+			return Reference<U>((ComponentContainer<U>*)container, offset);
 		else
 			return Reference<U>(nullptr);
 	}
@@ -42,10 +42,10 @@ public:
 		return *(Reference<U>*)this;
 	}
 
-private:
-	friend class ComponentContainer<T>;
+//private:
+//	friend class ComponentContainer<T>;
 
-	std::vector<T> * container;
+	ComponentContainer<T> * container;
 	size_t offset;
 };
 
@@ -57,7 +57,7 @@ inline Reference<T>::Reference() : container(nullptr), offset(0)
 }
 
 template<class T>
-inline Reference<T>::Reference(std::vector<T> * container, size_t offset) : container(container), offset(offset)
+inline Reference<T>::Reference(ComponentContainer<T> * container, size_t offset) : container(container), offset(offset)
 {
 }
 
@@ -69,13 +69,13 @@ inline Reference<T>::Reference(std::nullptr_t) : container(nullptr), offset(0)
 template<class T>
 inline T & Reference<T>::operator*() const
 {
-	return *(T*)(((uint8_t*)container->data()) + offset);
+	return *(T*)(((uint8_t*)container->components.data()) + offset);
 }
 
 template<class T>
 inline T * Reference<T>::operator->() const
 {
-	return (T*)(((uint8_t*)container->data()) + offset);
+	return (T*)(((uint8_t*)container->components.data()) + offset);
 }
 
 template<class T>
@@ -99,5 +99,5 @@ inline bool Reference<T>::operator==(const Reference<T>& rhs) const
 template<class T>
 inline T * Reference<T>::get() const
 {
-	return (T*)(((uint8_t*)container->data()) + offset);
+	return (T*)(((uint8_t*)container->components.data()) + offset);
 }

@@ -25,6 +25,8 @@ public:
 	Reference<Entity> add_entity();
 	void remove_entity(Reference<Entity> entity);
 
+	Reference<Entity> move_entity(Reference<Entity> entity, Level * destination);
+
 	Tilemap tilemap;
 
 	Xoroshiro128Plus rng;

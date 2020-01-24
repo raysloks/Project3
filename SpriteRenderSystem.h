@@ -22,6 +22,8 @@ public:
 	int getWidth() const;
 	int getHeight() const;
 
+	int getScale() const;
+
 private:
 	SDL_Texture * offscreen;
 

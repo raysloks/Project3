@@ -45,7 +45,7 @@ public:
 
 	void setCursor(const std::shared_ptr<SpriteSheet> & sheet, int hotspot_x, int hotspot_y);
 
-	void setLevel(const std::string & name);
+	void setLevel(Level * level);
 
 private:
 
@@ -70,4 +70,6 @@ private:
 	void updateLevel();
 
 	Level * level_new;
+
+	void updateConveniencePointers();
 };

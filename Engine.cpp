@@ -28,40 +28,25 @@ Engine::Engine()
 	// create level instance
 
 	level = new Level();
+	level_new = level;
 
 
 	// initialize systems
 
 	cbs = new CustomBehaviourSystem();
-	cbs->engine = this;
-	cbs->level = level;
 	systems.push_back(cbs);
 
 	cs = new CollisionSystem();
-	cs->engine = this;
-	cs->level = level;
 	systems.push_back(cs);
 
 	srs = new SpriteRenderSystem(render);
-	srs->engine = this;
-	srs->level = level;
 	systems.push_back(srs);
 
 	input = new InputSystem();
-	input->engine = this;
-	input->level = level;
 	systems.push_back(input);
 
 
-	// allow custom behaviours easy access to systems
-	CustomBehaviour::engine = this;
-	CustomBehaviour::cs = cs;
-	CustomBehaviour::input = input;
-	CustomBehaviour::cbs = cbs;
-	CustomBehaviour::srs = srs;
-	CustomBehaviour::level = level;
-	CustomBehaviour::tm = &level->tilemap;
-	CustomBehaviour::rng = &level->rng;
+	updateConveniencePointers();
 
 
 	// add fullscreen toggle
@@ -174,9 +159,9 @@ void Engine::setCursor(const std::shared_ptr<SpriteSheet>& sheet, int hotspot_x,
 	cursor_hotspot_y = hotspot_y;
 }
 
-void Engine::setLevel(const std::string & name)
+void Engine::setLevel(Level * level_new_new)
 {
-	level_new = new Level();
+	level_new = level_new_new;
 }
 
 void Engine::updateCursor()
@@ -214,5 +199,29 @@ void Engine::updateLevel()
 {
 	if (level != level_new)
 	{
+		level = level_new;
+
+		updateConveniencePointers();
+	}
+}
+
+void Engine::updateConveniencePointers()
+{
+	// allow custom behaviours easy access to systems
+	CustomBehaviour::engine = this;
+
+	CustomBehaviour::cs = cs;
+	CustomBehaviour::input = input;
+	CustomBehaviour::cbs = cbs;
+	CustomBehaviour::srs = srs;
+
+	CustomBehaviour::level = level;
+	CustomBehaviour::tm = &level->tilemap;
+	CustomBehaviour::rng = &level->rng;
+
+	for (auto system : systems)
+	{
+		system->engine = this;
+		system->level = level;
 	}
 }

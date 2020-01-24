@@ -24,8 +24,8 @@ void HealthDisplay::start()
 
 void HealthDisplay::tick(float dt)
 {
-	entity->xy.x = 16;
-	entity->xy.y = srs->getHeight() - 16;
+	entity->x = 16;
+	entity->y = srs->getHeight() - 16;
 
 	std::string text = std::to_string(player->hp) + " / " + std::to_string(player->hp_max);
 	for (size_t i = 0; i < sprites.size(); ++i)

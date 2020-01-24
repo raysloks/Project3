@@ -8,6 +8,14 @@ class Inventory :
 	public CustomBehaviour
 {
 public:
-	std::vector<Item> item;
+	void start();
+
+	void tick(float dt);
+
+	std::vector<Item> items;
+
+	std::vector<Reference<Sprite>> sprites;
+
+	bool visible;
 };
 

@@ -6,6 +6,8 @@
 #include <functional>
 #include <list>
 
+#include "AbilitySlot.h"
+
 class Collision;
 
 class SpriteShape;
@@ -25,6 +27,8 @@ public:
 	void onCollision(const Collision & collision);
 
 	void splatter();
+	
+	std::vector<AbilitySlot> abilities;
 
 private:
 

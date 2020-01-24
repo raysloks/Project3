@@ -217,3 +217,8 @@ int SpriteRenderSystem::getHeight() const
 {
 	return effective_h;
 }
+
+int SpriteRenderSystem::getScale() const
+{
+	return scale;
+}

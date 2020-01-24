@@ -20,6 +20,14 @@ Player::Player()
 	hp_max = 20;
 
 	blood = 0;
+
+	auto ability = std::make_shared<Ability>();
+	ability->sheet = SpriteSheet::get("floor.png");
+
+	AbilitySlot slot;
+	slot.ability = ability;
+
+	abilities.push_back(slot);
 }
 
 void Player::start()
@@ -117,6 +125,13 @@ void Player::tick(float dt)
 	}
 
 	Mob::tick(dt);
+
+	for (auto& ability : abilities)
+	{
+		ability.charges += dt / ability.ability->cooldown;
+		if (ability.charges > ability.ability->max_charges)
+			ability.charges = ability.ability->max_charges;
+	}
 
 	update_camera();
 }
