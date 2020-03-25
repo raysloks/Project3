@@ -17,6 +17,8 @@ void FrameRate::start()
 
 		sprites.push_back(sprite);
 	}
+
+	max_frame_count = 60;
 }
 
 void FrameRate::tick(float dt)
@@ -24,8 +26,9 @@ void FrameRate::tick(float dt)
 	double tps = 1.0 / engine->full;
 
 	records.push_back(tps);
-	if (records.size() > 60)
-		records.erase(records.begin());
+	intmax_t over = records.size() - max_frame_count;
+	if (over > 0)
+		records.erase(records.begin(), records.begin() + over);
 
 	double sum = 0.0;
 	double min = records.front();

@@ -14,6 +14,7 @@
 
 struct SDL_KeyboardEvent;
 struct SDL_MouseMotionEvent;
+struct SDL_MouseButtonEvent;
 
 class InputSystem :
 	public System
@@ -23,6 +24,9 @@ public:
 	void processKeyUpEvent(SDL_KeyboardEvent& event);
 
 	void processMouseMoveEvent(SDL_MouseMotionEvent& event);
+
+	void processButtonDownEvent(SDL_MouseButtonEvent& event);
+	void processButtonUpEvent(SDL_MouseButtonEvent& event);
 
 	void addKeyDownCallback(uint64_t key, const std::function<void(void)> & callback);
 	void addKeyUpCallback(uint64_t key, const std::function<void(void)> & callback);

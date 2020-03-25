@@ -112,6 +112,12 @@ void Engine::run()
 			case SDL_MOUSEMOTION:
 				input->processMouseMoveEvent(e.motion);
 				break;
+			case SDL_MOUSEBUTTONDOWN:
+				input->processButtonDownEvent(e.button);
+				break;
+			case SDL_MOUSEBUTTONUP:
+				input->processButtonUpEvent(e.button);
+				break;
 			default:
 				break;
 			}

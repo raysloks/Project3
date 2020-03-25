@@ -28,6 +28,10 @@ Player::Player()
 	slot.ability = ability;
 
 	abilities.push_back(slot);
+
+	base_stats.move_speed = 24.0f;
+	base_stats.move_acc = 60.0f;
+	base_stats.move_dec = 240.0f;
 }
 
 void Player::start()
@@ -78,13 +82,6 @@ void Player::tick(float dt)
 		}
 		tm->refreshUpdatedEffects();
 	}
-
-	if (input->isKeyPressed(SDLK_r))
-		entity->xy = Vec2(16.0f, 1600.0f);
-
-	speed = 25.0f;
-	acceleration = 50.0f;
-	deceleration = 200.0f;
 
 	move = Vec2();
 

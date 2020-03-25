@@ -9,10 +9,10 @@ class Level;
 class System
 {
 public:
-	System();
-	virtual ~System();
+	System() {}
+	virtual ~System() {}
 
-	virtual void tick(float dt);
+	virtual void tick(float dt) {}
 
 	Engine * engine;
 	Level * level;

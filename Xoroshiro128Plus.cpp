@@ -27,18 +27,23 @@ uint64_t bitcount(uint64_t number)
 	return i;
 }
 
-uint64_t Xoroshiro128Plus::next(uint64_t max_exclusive)
+uint64_t Xoroshiro128Plus::next(uint64_t max_inclusive)
 {
-	uint64_t shift = 64 - bitcount(max_exclusive);
+	uint64_t shift = 64 - bitcount(max_inclusive);
 
 	uint64_t number;
 	do
 	{
 		number = next() >> shift;
 	}
-	while (number >= max_exclusive);
+	while (number > max_inclusive);
 
 	return number;
+}
+
+uint64_t Xoroshiro128Plus::next(uint64_t min_inclusive, uint64_t max_inclusive)
+{
+	return min_inclusive + next(max_inclusive - min_inclusive);
 }
 
 float Xoroshiro128Plus::next_float()

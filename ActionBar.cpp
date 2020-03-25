@@ -3,6 +3,8 @@
 void ActionBar::start()
 {
 	slot_count = 8;
+
+	player = level->get<Player>();
 }
 
 void ActionBar::tick(float dt)

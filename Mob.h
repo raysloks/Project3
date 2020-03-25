@@ -2,6 +2,8 @@
 
 #include "CustomBehaviour.h"
 
+#include "MobStatBlock.h"
+
 class Mob :
 	public CustomBehaviour
 {
@@ -20,10 +22,12 @@ public:
 
 	Vec2 v, n, move;
 
-	float speed, acceleration, deceleration;
-
 	float anim;
 
 	float cooldown;
+
+	MobStatBlock stats, base_stats;
+
+	void recalculateStats();
 };
 

@@ -36,6 +36,6 @@ private:
 
 	Vec2 tile_size;
 
-	std::set<std::pair<size_t, size_t>> updated_tiles;
+	std::vector<std::pair<size_t, size_t>> updated_tiles;
 };
 

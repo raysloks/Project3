@@ -23,6 +23,18 @@ void InputSystem::processMouseMoveEvent(SDL_MouseMotionEvent & event)
 	cursorPosition.y = event.y;
 }
 
+void InputSystem::processButtonDownEvent(SDL_MouseButtonEvent & event)
+{
+	processKeyDown(-event.button);
+	processKeyDown(keyBindings.getAction(-event.button));
+}
+
+void InputSystem::processButtonUpEvent(SDL_MouseButtonEvent & event)
+{
+	processKeyUp(-event.button);
+	processKeyUp(keyBindings.getAction(-event.button));
+}
+
 void InputSystem::addKeyDownCallback(uint64_t key, const std::function<void(void)> & callback)
 {
 	onKeyDown.insert(std::make_pair(key, callback));

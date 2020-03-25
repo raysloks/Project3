@@ -1,11 +1,23 @@
 #pragma once
 
-class Vec2;
+#include "Vec2.h"
 
 class Vec3
 {
 public:
-	float x, y, z;
+	union
+	{
+		struct
+		{
+			float x, y, z;
+		};
+		Vec2 xy;
+		struct
+		{
+			float x;
+			Vec2 yz;
+		};
+	};
 
 	Vec3(void);
 	Vec3(float xyz);

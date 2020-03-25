@@ -40,7 +40,7 @@ public:
 template<class T>
 inline ComponentContainer<T>::ComponentContainer()
 {
-	//components.reserve(256 * 256);
+	components.reserve(64 * 64); // comment out when testing reallocation
 }
 
 template<class T>

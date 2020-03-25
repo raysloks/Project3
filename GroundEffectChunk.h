@@ -18,6 +18,8 @@ public:
 	bool empty() const;
 	void clear();
 
+	bool dirty;
+
 private:
 	uint8_t & at(size_t x, size_t y);
 	uint8_t & at(const Vec2& p);

@@ -20,6 +20,8 @@ void HealthDisplay::start()
 
 		sprites.push_back(sprite);
 	}
+
+	player = level->get<Player>();
 }
 
 void HealthDisplay::tick(float dt)

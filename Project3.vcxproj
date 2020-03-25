@@ -70,20 +70,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
-    <LibraryPath>M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\lib\x64;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
-    <LibraryPath>M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\lib\x64;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -94,7 +94,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2_net.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -106,7 +106,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2_net.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,7 +122,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2_net.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -138,7 +138,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2_net.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -157,6 +157,7 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Equipment.cpp" />
     <ClCompile Include="FloatingText.cpp" />
     <ClCompile Include="FollowCursor.cpp" />
     <ClCompile Include="FrameRate.cpp" />
@@ -165,10 +166,12 @@
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Item.cpp" />
+    <ClCompile Include="ItemSlot.cpp" />
     <ClCompile Include="KeyBindings.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mob.cpp" />
+    <ClCompile Include="MobStatBlock.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="RectangleCollider.cpp" />
@@ -177,13 +180,13 @@
     <ClCompile Include="SpriteCollider.cpp" />
     <ClCompile Include="SpriteRenderSystem.cpp" />
     <ClCompile Include="SpriteSheet.cpp" />
-    <ClCompile Include="System.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="Tilemap.cpp" />
     <ClCompile Include="TilemapCollider.cpp" />
     <ClCompile Include="Vec2.cpp" />
     <ClCompile Include="Vec3.cpp" />
+    <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="Xoroshiro128Plus.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -203,6 +206,7 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Equipment.h" />
     <ClInclude Include="FloatingText.h" />
     <ClInclude Include="FollowCursor.h" />
     <ClInclude Include="FrameRate.h" />
@@ -212,9 +216,11 @@
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="Item.h" />
+    <ClInclude Include="ItemSlot.h" />
     <ClInclude Include="KeyBindings.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Mob.h" />
+    <ClInclude Include="MobStatBlock.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="RectangleCollider.h" />
@@ -233,6 +239,7 @@
     <ClInclude Include="TilemapCollider.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Vec3.h" />
+    <ClInclude Include="Weapon.h" />
     <ClInclude Include="Xoroshiro128Plus.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -31,7 +31,7 @@ Level * create_level(int floor)
 
 	levels[floor] = level;
 
-	level->rng.seed(std::chrono::system_clock::now().time_since_epoch().count());
+	level->rng.seed(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
 	auto & tilemap = level->tilemap;
 	intmax_t w = tilemap.getWidth();
@@ -44,7 +44,7 @@ Level * create_level(int floor)
 	{
 		for (int y = 0; y < h; ++y)
 		{
-			tilemap[x][y].tile = (rng.next(16) << 1) | 1;
+			tilemap[x][y].tile = (rng.next(15) << 1) | 1;
 		}
 	}
 
@@ -67,7 +67,7 @@ Level * create_level(int floor)
 			break;
 		}
 
-		int length_category = rng.next(20) + 1;
+		int length_category = rng.next(1, 20);
 
 		int length = 0;
 		if (length_category > 1)
@@ -89,7 +89,7 @@ Level * create_level(int floor)
 				y = h - 2;
 			tilemap[x][y].tile &= ~1;
 
-			int dir = rng.next(4);
+			int dir = rng.next(3);
 			if (dir == (prev_dir + 2) % 4)
 				dir = prev_dir;
 			prev_dir = dir;
@@ -278,7 +278,7 @@ Level * create_level(int floor)
 
 		auto sprite = level->sprites.add("imp.png");
 		sprite->sheet->columns = 4;
-		sprite->sheet->rows = 2;
+		sprite->sheet->rows = 4;
 		sprite->sheet->offset_y = -8;
 		Component::attach(sprite, entity);
 
@@ -325,6 +325,21 @@ Level * create_level(int floor)
 		}
 	}
 
+	// create pillar
+	{
+		auto entity = level->add_entity();
+		entity->x = 16 * 16;
+		entity->y = 16 * (h - 16);
+
+		auto sprite = level->sprites.add("pillar.png");
+
+		sprite->scale = Vec2(1.0f / 6.0f);
+
+		Component::attach(sprite, entity);
+
+		Component::attach(level->circle_colliders.add(6.0f), entity);
+	}
+
 	// cursor highlight
 	{
 		auto entity = level->add_entity();
@@ -334,6 +349,38 @@ Level * create_level(int floor)
 
 		auto highlight = level->add<FollowCursor>();
 		Component::attach(highlight, entity);
+	}
+
+	// create ui
+	{
+		auto ui = level->add_entity();
+
+		// create health display
+		{
+			auto entity = level->add_entity();
+			Entity::adopt(entity, ui);
+
+			auto display = level->add<HealthDisplay>();
+			Component::attach(display, entity);
+		}
+
+		// create action bar
+		{
+			auto entity = level->add_entity();
+			Entity::adopt(entity, ui);
+
+			auto bar = level->add<ActionBar>();
+			Component::attach(bar, entity);
+		}
+
+		// create inventory
+		{
+			auto entity = level->add_entity();
+			Entity::adopt(entity, ui);
+
+			auto inventory = level->add<Inventory>();
+			Component::attach(inventory, entity);
+		}
 	}
 
 	return level;
@@ -358,6 +405,8 @@ int main(int argc, char* args[])
 	engine.input->keyBindings.set(KB_ACTION_7, SDLK_8);
 	engine.input->keyBindings.set(KB_ACTION_8, SDLK_9);
 	engine.input->keyBindings.set(KB_ACTION_9, SDLK_0);
+
+	engine.input->keyBindings.set(KB_ACTION_1, -1);
 
 	// TODO remove after a better option to keep a resource loaded is added
 	auto swoop = SpriteSheet::get("swoop_small.png");
@@ -406,32 +455,6 @@ int main(int argc, char* args[])
 			sprite->sort = 0;
 			sprite->color = SDL_Color({ 0, 0, 0, 32 });
 			Component::attach(sprite, entity);
-		}
-
-		// create health display
-		{
-			auto entity = level->add_entity();
-
-			auto display = level->add<HealthDisplay>();
-			display->player = player;
-			Component::attach(display, entity);
-		}
-
-		// create action bar
-		{
-			auto entity = level->add_entity();
-
-			auto bar = level->add<ActionBar>();
-			bar->player = player;
-			Component::attach(bar, entity);
-		}
-
-		// create inventory
-		{
-			auto entity = level->add_entity();
-
-			auto inventory = level->add<Inventory>();
-			Component::attach(inventory, entity);
 		}
 	}
 

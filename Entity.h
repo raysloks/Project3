@@ -16,6 +16,7 @@ class Component;
 class Entity
 {
 public:
+	Entity(const Entity& entity);
 	~Entity();
 
 	template <class T>

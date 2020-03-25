@@ -9,8 +9,8 @@ public:
 
 	void seed(uint64_t seed);
 
-	// max_exclusive must be larger than 0
-	uint64_t next(uint64_t max_exclusive);
+	uint64_t next(uint64_t max_inclusive);
+	uint64_t next(uint64_t min_inclusive, uint64_t max_inclusive);
 
 	// in the range [0, 1)
 	float next_float();

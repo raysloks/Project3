@@ -47,7 +47,7 @@ void Inventory::tick(float dt)
 		}
 		else
 		{
-			sprites[i]->color = SDL_Color({ 200, 200, 200, 200 });
+			sprites[i]->color = SDL_Color({ 200, 200, 200, 255 });
 		}
 	}
 }

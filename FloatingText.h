@@ -15,6 +15,8 @@ public:
 	std::string text;
 	float time, duration;
 
-	Vec3 v;
+	Vec3 color;
+
+	Vec3 v, a;
 };
 

@@ -44,7 +44,9 @@ void Tilemap::setEffect(const Vec2 & p, uint8_t effect)
 	auto& tile = at(x, y);
 	tile.effects.set(p - (Vec2(x, y) - Vec2(0.5f, 0.5f)) * tile_size, effect);
 
-	updated_tiles.insert(std::make_pair(x, y));
+	if (!tile.effects.dirty)
+		updated_tiles.push_back(std::make_pair(x, y));
+	tile.effects.dirty = true;
 }
 
 float Tilemap::getZ(const Vec2 & p) const

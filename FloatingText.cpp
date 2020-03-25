@@ -1,6 +1,6 @@
 #include "FloatingText.h"
 
-FloatingText::FloatingText(const std::string & text, float speed, float duration) : text(text), v(0.0f, 0.0f, speed), duration(duration)
+FloatingText::FloatingText(const std::string & text, float speed, float duration) : text(text), v(0.0f, 0.0f, speed), duration(duration), color(1.0f)
 {
 	time = 0.0f;
 }
@@ -35,10 +35,11 @@ void FloatingText::start()
 
 void FloatingText::tick(float dt)
 {
-	entity->xyz += v * dt;
+	entity->xyz += (v + a * dt * 0.5f) * dt;
+	v += a * dt;
 
 	for (auto child : entity->getChildren())
-		child->getComponent<Sprite>()->color.a = 255 - 255 * time / duration;
+		child->getComponent<Sprite>()->color = SDL_Color({ uint8_t(color.x * 255), uint8_t(color.y * 255), uint8_t(color.z * 255), uint8_t(255 - 255 * time / duration) });
 
 	time += dt;
 	if (time > duration)

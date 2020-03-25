@@ -17,6 +17,8 @@ void Mob::start()
 
 void Mob::tick(float dt)
 {
+	recalculateStats();
+
 	entity->xy += v * dt;
 
 	Vec2 v_prev = v;
@@ -33,12 +35,14 @@ void Mob::tick(float dt)
 		if (l > 1.0f)
 			move /= l;
 
-		v += move * (acceleration + deceleration) * dt;
+		float mag_pre = v.Len();
+		v += move * (stats.move_acc + stats.move_dec) * dt;
+		v.Truncate(fmaxf(mag_pre, stats.move_speed));
 	}
 
 	float mag = v.Len();
-	float loss = deceleration * dt;
-	float over = mag - loss - speed;
+	float loss = stats.move_dec * dt;
+	float over = mag - loss - stats.move_speed;
 	if (over > 0.0f)
 		loss += fminf(over, loss);
 
@@ -81,11 +85,28 @@ void Mob::onDamaged(int64_t damage)
 	{
 		auto entity = level->add_entity();
 		entity->xy = this->entity->xy;
+		entity->z = this->entity->z + 8;
 
 		auto text = level->add<FloatingText>(std::to_string(damage), 32, 1);
+
+		text->v.xy = Vec2(8.0f, 0.0f).Rotate(rng->next_float() * 360.0f);
+		text->v.z = -32.0f;
+
+		text->a.z = 128.0f;
+
 		Component::attach(text, entity);
 	}
 
 	if (hp <= 0)
 		level->remove_entity(entity);
+}
+
+void Mob::recalculateStats()
+{
+	for (size_t i = 0; i < stats.istat.size(); i++)
+		stats.istat[i] = base_stats.istat[i];
+	for (size_t i = 0; i < stats.fstat.size(); i++)
+		stats.fstat[i] = base_stats.fstat[i];
+	for (size_t i = 0; i < stats.mstat.size(); i++)
+		stats.mstat[i] = base_stats.mstat[i];
 }

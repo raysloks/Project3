@@ -16,6 +16,11 @@ Entity::Entity() : xyz()
 	root = nullptr; // set to reference self shortly after construction
 }
 
+Entity::Entity(const Entity & entity)
+{
+	*this = entity;
+}
+
 Entity::~Entity()
 {
 }

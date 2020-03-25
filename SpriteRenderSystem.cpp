@@ -162,6 +162,9 @@ void SpriteRenderSystem::tick(float dt)
 	effective_w = screen_w / scale;
 	effective_h = screen_h / scale;
 
+
+	std::multimap<float, Sprite*> sorted_ui;
+
 	for (size_t i = 0; i < ui.size(); ++i)
 	{
 		auto & sprite = ui[i];
@@ -169,32 +172,7 @@ void SpriteRenderSystem::tick(float dt)
 		{
 			if (sprite.sheet->surface)
 			{
-				auto p = sprite.entity->getPosition();
-
-				SDL_Rect src = sprite.sheet->surface->clip_rect;
-				src.w /= sprite.sheet->columns;
-				src.h /= sprite.sheet->rows;
-				src.x += sprite.subsprite_x * src.w;
-				src.y += sprite.subsprite_y * src.h;
-
-				Vec2 flip(sprite.flip & SDL_FLIP_HORIZONTAL ? 1.0f : -1.0f, sprite.flip & SDL_FLIP_VERTICAL ? 1.0f : -1.0f);
-
-				SDL_Rect dst = sprite.sheet->surface->clip_rect;
-				dst.w /= sprite.sheet->columns;
-				dst.h /= sprite.sheet->rows;
-				dst.x = roundf(p.x) - sprite.sheet->offset_x * flip.x - dst.w / 2;
-				dst.y = roundf(p.y) - sprite.sheet->offset_y * flip.y - dst.h / 2;
-				dst.w *= scale;
-				dst.h *= scale;
-				dst.x *= scale;
-				dst.y *= scale;
-
-				auto texture = sprite.sheet->getTexture(render);
-
-				SDL_SetTextureColorMod(texture, sprite.color.r, sprite.color.g, sprite.color.b);
-				SDL_SetTextureAlphaMod(texture, sprite.color.a);
-
-				SDL_RenderCopyEx(render, texture, &src, &dst, sprite.rotation, nullptr, sprite.flip);
+				sorted_ui.insert(std::make_pair(sprite.sort, &sprite));
 			}
 		}
 		else
@@ -205,6 +183,38 @@ void SpriteRenderSystem::tick(float dt)
 				level->ui_sprites.remove(i);
 			}
 		}
+	}
+
+	for (auto& i : sorted_ui)
+	{
+		auto& sprite = *i.second;
+
+		auto p = sprite.entity->getPosition();
+
+		SDL_Rect src = sprite.sheet->surface->clip_rect;
+		src.w /= sprite.sheet->columns;
+		src.h /= sprite.sheet->rows;
+		src.x += sprite.subsprite_x * src.w;
+		src.y += sprite.subsprite_y * src.h;
+
+		Vec2 flip(sprite.flip & SDL_FLIP_HORIZONTAL ? 1.0f : -1.0f, sprite.flip & SDL_FLIP_VERTICAL ? 1.0f : -1.0f);
+
+		SDL_Rect dst = sprite.sheet->surface->clip_rect;
+		dst.w /= sprite.sheet->columns;
+		dst.h /= sprite.sheet->rows;
+		dst.x = roundf(p.x) - sprite.sheet->offset_x * flip.x - dst.w / 2;
+		dst.y = roundf(p.y) - sprite.sheet->offset_y * flip.y - dst.h / 2;
+		dst.w *= scale;
+		dst.h *= scale;
+		dst.x *= scale;
+		dst.y *= scale;
+
+		auto texture = sprite.sheet->getTexture(render);
+
+		SDL_SetTextureColorMod(texture, sprite.color.r, sprite.color.g, sprite.color.b);
+		SDL_SetTextureAlphaMod(texture, sprite.color.a);
+
+		SDL_RenderCopyEx(render, texture, &src, &dst, sprite.rotation, nullptr, sprite.flip);
 	}
 }
 

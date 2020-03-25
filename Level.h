@@ -50,6 +50,22 @@ public:
 		return component;
 	}
 
+	template <class T>
+	Reference<T> get()
+	{
+		for (size_t i = 0; i < custom_behaviours.components.size(); ++i)
+		{
+			auto & container = custom_behaviours.components[i];
+			if (container)
+			{
+				auto behaviour = dynamic_cast<T*>(container->components.data());
+				if (behaviour)
+					return Reference<T>((ComponentContainer<T>*)container, 0);
+			}
+		}
+		return nullptr;
+	}
+
 private:
 	ComponentContainer<Entity> entities;
 

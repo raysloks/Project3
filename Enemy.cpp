@@ -10,6 +10,10 @@ Enemy::Enemy()
 {
 	hp = 10;
 	hp_max = 10;
+	
+	base_stats.move_speed = 15.0f;
+	base_stats.move_acc = 30.0f;
+	base_stats.move_dec = 30.0f;
 }
 
 void Enemy::start()
@@ -19,10 +23,6 @@ void Enemy::start()
 
 void Enemy::tick(float dt)
 {
-	speed = 15.0f;
-	acceleration = 30.0f;
-	deceleration = 30.0f;
-
 	move = Vec2();
 
 	auto in_range = cs->overlapCircle(entity->xy, 64.0f);
@@ -37,7 +37,6 @@ void Enemy::tick(float dt)
 			}
 			else if (cooldown <= 0.0f)
 			{
-
 				cooldown = 3.0f;
 			}
 		}

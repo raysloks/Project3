@@ -28,6 +28,7 @@ std::shared_ptr<SpriteSheet> Tile::makeEffectSheet()
 
 void Tile::refreshEffectSprite(const Vec2 & p)
 {
+	effects.dirty = false;
 
 	if (!effect_sprite)
 	{
