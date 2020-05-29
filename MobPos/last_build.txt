@@ -1,0 +1,20 @@
+MpChat
+uint64 sender
+string message
+MpGuid
+uint64 low
+uint64 high
+MpMobUpdate
+uint64 id
+MpMobUpdateData data
+MpMobUpdateData
+vec3 position
+vec3 velocity
+vec3 facing
+MpPlayerMobCreated
+uint64 id
+MpSound
+vec3 position
+uint32 sound_id
+MpUpdate
+uint64 tick

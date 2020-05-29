@@ -7,6 +7,8 @@
 
 #include "CustomBehaviour.h"
 
+#include "MobPosHandler.h"
+
 Engine::Engine()
 {
 	SDL_Init(SDL_INIT_VIDEO);
@@ -44,6 +46,9 @@ Engine::Engine()
 
 	input = new InputSystem();
 	systems.push_back(input);
+
+	auto net = new MobPosHandler();
+	systems.push_back(net);
 
 
 	updateConveniencePointers();
@@ -117,6 +122,9 @@ void Engine::run()
 				break;
 			case SDL_MOUSEBUTTONUP:
 				input->processButtonUpEvent(e.button);
+				break;
+			case SDL_TEXTINPUT:
+				input->processTextInputEvent(e.text);
 				break;
 			default:
 				break;

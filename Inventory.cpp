@@ -44,10 +44,12 @@ void Inventory::tick(float dt)
 		if (cursor.x > p.x - 8 && cursor.x < p.x + 8 && cursor.y > p.y - 8 && cursor.y < p.y + 8)
 		{
 			sprites[i]->color = SDL_Color({ 255, 255, 255, 255 });
+			sprites[i]->sort = 1024;
 		}
 		else
 		{
 			sprites[i]->color = SDL_Color({ 200, 200, 200, 255 });
+			sprites[i]->sort = 512;
 		}
 	}
 }

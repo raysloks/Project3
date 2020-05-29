@@ -31,6 +31,8 @@ public:
 		return nullptr;
 	}
 
+	const std::vector<Reference<Component>>& getComponents();
+
 	Vec3 getPosition() const;
 
 	Reference<Entity> getParent() const;
@@ -39,7 +41,7 @@ public:
 	static void adopt(const Reference<Entity> & child, const Reference<Entity> & parent);
 	static void orphan(const Reference<Entity> & child);
 
-	const std::vector<Reference<Entity>> & getChildren();
+	const std::vector<Reference<Entity>>& getChildren();
 
 	union
 	{

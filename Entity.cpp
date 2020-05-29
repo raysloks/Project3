@@ -32,6 +32,11 @@ void Entity::setRoot(const Reference<Entity> & pNew)
 		child->setRoot(pNew);
 }
 
+const std::vector<Reference<Component>>& Entity::getComponents()
+{
+	return components;
+}
+
 Vec3 Entity::getPosition() const
 {
 	if (parent)
@@ -49,7 +54,7 @@ Reference<Entity> Entity::getRoot() const
 	return root;
 }
 
-void Entity::adopt(const Reference<Entity>& child, const Reference<Entity>& parent)
+void Entity::adopt(const Reference<Entity> & child, const Reference<Entity> & parent)
 {
 	if (parent->root == child->root)
 		return;
@@ -63,7 +68,7 @@ void Entity::adopt(const Reference<Entity>& child, const Reference<Entity>& pare
 	parent->children.push_back(child);
 }
 
-void Entity::orphan(const Reference<Entity>& child)
+void Entity::orphan(const Reference<Entity> & child)
 {
 	if (child->parent)
 	{
@@ -74,7 +79,7 @@ void Entity::orphan(const Reference<Entity>& child)
 	}
 }
 
-const std::vector<Reference<Entity>> & Entity::getChildren()
+const std::vector<Reference<Entity>>& Entity::getChildren()
 {
 	return children;
 }

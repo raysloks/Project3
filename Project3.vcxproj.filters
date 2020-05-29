@@ -3,30 +3,17 @@
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx;h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Systems">
-      <UniqueIdentifier>{32b18707-61f3-4394-8233-bb591a513240}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Systems">
       <UniqueIdentifier>{336baa55-fcb4-4cca-8542-c2b9ce58a956}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Components">
-      <UniqueIdentifier>{e89394cb-a94b-4034-ab32-c976e828d288}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{b7299f69-88e1-4815-8201-ccbd13562f63}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Custom Behaviours">
-      <UniqueIdentifier>{32286db1-f186-4d3c-b7f3-d1695e4e327d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Custom Behaviours">
       <UniqueIdentifier>{75edcae1-7249-406d-b015-63a740f883d0}</UniqueIdentifier>
@@ -34,26 +21,17 @@
     <Filter Include="Source Files\Resources">
       <UniqueIdentifier>{d5feabac-6325-4f9f-a503-d447085a5129}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Resources">
-      <UniqueIdentifier>{1121c463-7287-4109-93a6-685da29b765f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Components\Colliders">
       <UniqueIdentifier>{309e1f7a-cc78-4ceb-bbc4-de59998870ae}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Components\Colliders">
-      <UniqueIdentifier>{1d855a31-4ff7-4d5f-8e15-378f8d5baeab}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Game">
       <UniqueIdentifier>{8b03a236-a6ef-41ea-a92d-50e846beeb12}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Game">
-      <UniqueIdentifier>{634bf212-bf61-4545-913b-484ce4be21cb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Utility">
-      <UniqueIdentifier>{9c7db8d5-b719-485d-a24c-d16f215b3560}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Utility">
       <UniqueIdentifier>{ecba1595-0829-4ddf-a708-3516e735cd55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MobPos">
+      <UniqueIdentifier>{09293e87-d17d-4c59-a44a-b5eaa38a7d67}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -195,160 +173,271 @@
     <ClCompile Include="ItemSlot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MobPos\MpUpdate.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpAttachment.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpChat.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpGuid.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpHeartbeat.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpLink.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpMobRemoved.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpMobUpdate.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpSound.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPosHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpMobUpdateData.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkMob.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpPlayerMobCreated.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="Blueprint.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Diamond.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Inspector.cpp">
+      <Filter>Source Files\Custom Behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="TextDisplay.cpp">
+      <Filter>Source Files\Custom Behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="TextBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Entity.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Component.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="System.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Sprite.h">
-      <Filter>Header Files\Components</Filter>
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="ComponentContainer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="SpriteRenderSystem.h">
-      <Filter>Header Files\Systems</Filter>
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="CustomBehaviour.h">
-      <Filter>Header Files\Components</Filter>
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="CustomBehaviourSystem.h">
-      <Filter>Header Files\Systems</Filter>
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Collider.h">
-      <Filter>Header Files\Components</Filter>
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="CollisionSystem.h">
-      <Filter>Header Files\Systems</Filter>
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="Collision.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="InputSystem.h">
-      <Filter>Header Files\Systems</Filter>
+      <Filter>Source Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="Enemy.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="Tilemap.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="GameKeyBinding.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="FrameRate.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="Text.h">
-      <Filter>Header Files\Resources</Filter>
+      <Filter>Source Files\Resources</Filter>
     </ClInclude>
     <ClInclude Include="Inventory.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="SpriteAnimator.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="Reference.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="SpriteSheet.h">
-      <Filter>Header Files\Resources</Filter>
+      <Filter>Source Files\Resources</Filter>
     </ClInclude>
     <ClInclude Include="KeyBindings.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="BouncingBall.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="Mob.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="Tile.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="GroundEffectChunk.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Level.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Projectile.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="HealthDisplay.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="FollowCursor.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="Body.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="CircleCollider.h">
-      <Filter>Header Files\Components\Colliders</Filter>
+      <Filter>Source Files\Components\Colliders</Filter>
     </ClInclude>
     <ClInclude Include="RectangleCollider.h">
-      <Filter>Header Files\Components\Colliders</Filter>
+      <Filter>Source Files\Components\Colliders</Filter>
     </ClInclude>
     <ClInclude Include="SpriteCollider.h">
-      <Filter>Header Files\Components\Colliders</Filter>
+      <Filter>Source Files\Components\Colliders</Filter>
     </ClInclude>
     <ClInclude Include="TilemapCollider.h">
-      <Filter>Header Files\Components\Colliders</Filter>
+      <Filter>Source Files\Components\Colliders</Filter>
     </ClInclude>
     <ClInclude Include="FloatingText.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="Item.h">
-      <Filter>Header Files\Game</Filter>
+      <Filter>Source Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="Vec3.h">
-      <Filter>Header Files\Utility</Filter>
+      <Filter>Source Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Vec2.h">
-      <Filter>Header Files\Utility</Filter>
+      <Filter>Source Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="shared_from.h">
-      <Filter>Header Files\Utility</Filter>
+      <Filter>Source Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Xoroshiro128Plus.h">
-      <Filter>Header Files\Utility</Filter>
+      <Filter>Source Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Ability.h">
-      <Filter>Header Files\Game</Filter>
+      <Filter>Source Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="ActionBar.h">
-      <Filter>Header Files\Custom Behaviours</Filter>
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="AbilitySlot.h">
-      <Filter>Header Files\Game</Filter>
+      <Filter>Source Files\Game</Filter>
     </ClInclude>
     <ClInclude Include="Weapon.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Equipment.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="MobStatBlock.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ItemSlot.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpAttachment.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpChat.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpGuid.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpHandlerPrototypes.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpHeartbeat.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpLink.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpMobRemoved.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpMobUpdate.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpSound.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpUpdate.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPosHandler.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpMobUpdateData.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkMob.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpPlayerMobCreated.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="Blueprint.h">
+      <Filter>Source Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Diamond.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Inspector.h">
+      <Filter>Source Files\Custom Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="TextDisplay.h">
+      <Filter>Source Files\Custom Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="TextBox.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

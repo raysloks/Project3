@@ -10,7 +10,7 @@ void ActionBar::start()
 void ActionBar::tick(float dt)
 {
 	entity->x = srs->getWidth() / 2;
-	entity->y = srs->getHeight() - 16;
+	entity->y = srs->getHeight() - 12;
 
 	for (size_t i = sprites_slot.size(); i < slot_count; ++i)
 	{

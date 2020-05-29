@@ -23,9 +23,12 @@ public:
 	Level();
 
 	Reference<Entity> add_entity();
+	Reference<Entity> get_entity(size_t index);
 	void remove_entity(Reference<Entity> entity);
 
 	Reference<Entity> move_entity(Reference<Entity> entity, Level * destination);
+
+	bool contains_entity(Reference<Entity> entity) const;
 
 	Tilemap tilemap;
 
@@ -59,7 +62,7 @@ public:
 			if (container)
 			{
 				auto behaviour = dynamic_cast<T*>(container->components.data());
-				if (behaviour)
+				if (behaviour && behaviour->entity)
 					return Reference<T>((ComponentContainer<T>*)container, 0);
 			}
 		}

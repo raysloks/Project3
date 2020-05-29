@@ -11,6 +11,13 @@ Reference<Entity> Level::add_entity()
 	return entity;
 }
 
+Reference<Entity> Level::get_entity(size_t index)
+{
+	if (index < entities.components.size())
+		return Reference<Entity>(&entities, sizeof(Entity) * index);
+	return nullptr;
+}
+
 void Level::remove_entity(Reference<Entity> entity)
 {
 	remove_entity_rough(entity);
@@ -20,13 +27,15 @@ void Level::remove_entity(Reference<Entity> entity)
 
 Reference<Entity> Level::move_entity(Reference<Entity> entity, Level * destination)
 {
+	Entity::orphan(entity);
+
 	auto entity_new = destination->entities.add(*entity);
 	for (auto& component : entity_new->components)
 	{
-		auto casted = component.cast<CustomBehaviour>();
-		if (casted)
+		auto behaviour = component.cast<CustomBehaviour>();
+		if (behaviour)
 		{
-			auto i = std::find(custom_behaviours.components.begin(), custom_behaviours.components.end(), casted.container);
+			auto i = std::find(custom_behaviours.components.begin(), custom_behaviours.components.end(), behaviour.container);
 			destination->custom_behaviours.add(*i);
 			custom_behaviours.remove(i - custom_behaviours.components.begin());
 			*i = nullptr;
@@ -45,23 +54,32 @@ Reference<Entity> Level::move_entity(Reference<Entity> entity, Level * destinati
 		component->entity = entity_new;
 	}
 
+	entity->components.clear();
+
 	for (size_t i = 0; i < entity_new->children.size(); ++i)
 	{
-		auto temp = move_entity(entity_new->children[i], destination);
-		entity_new->children[i] = temp;
+		auto child = move_entity(entity_new->children[i], destination);
+		entity_new->children[i] = child;
 		entity_new->children[i]->parent = entity_new;
 	}
 
 	return entity_new;
 }
 
+bool Level::contains_entity(Reference<Entity> entity) const
+{
+	return entity.container == &entities;
+}
+
 void Level::remove_entity_rough(const Reference<Entity>& entity)
 {
-	for (auto child : entity->getChildren())
+	for (auto child : entity->children)
 		remove_entity_rough(child);
+	entity->children.clear();
 
 	for (auto component : entity->components)
 		component->entity = nullptr;
+	entity->components.clear();
 
 	entities.remove(entity);
 }

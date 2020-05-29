@@ -13,7 +13,7 @@ SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
 
 	camera_position = Vec2();
 
-	target_w = 1920 / 6;
+	target_w = 1920 / 4;
 	target_h = target_w;
 
 	offscreen = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, target_w, target_h);
@@ -202,8 +202,10 @@ void SpriteRenderSystem::tick(float dt)
 		SDL_Rect dst = sprite.sheet->surface->clip_rect;
 		dst.w /= sprite.sheet->columns;
 		dst.h /= sprite.sheet->rows;
-		dst.x = roundf(p.x) - sprite.sheet->offset_x * flip.x - dst.w / 2;
-		dst.y = roundf(p.y) - sprite.sheet->offset_y * flip.y - dst.h / 2;
+		dst.w *= sprite.scale.x;
+		dst.h *= sprite.scale.y;
+		dst.x = roundf(p.x) - sprite.sheet->offset_x * flip.x - dst.w / 2.0f;
+		dst.y = roundf(p.y) - sprite.sheet->offset_y * flip.y - dst.h / 2.0f;
 		dst.w *= scale;
 		dst.h *= scale;
 		dst.x *= scale;

@@ -4,6 +4,8 @@
 
 void InputSystem::processKeyDownEvent(SDL_KeyboardEvent & event)
 {
+	processUnfilteredKeyDown(event.keysym.sym);
+	processUnfilteredKeyDown(keyBindings.getAction(event.keysym.sym));
 	// ignore auto-repeated key down events
 	if (event.repeat)
 		return;
@@ -35,6 +37,13 @@ void InputSystem::processButtonUpEvent(SDL_MouseButtonEvent & event)
 	processKeyUp(keyBindings.getAction(-event.button));
 }
 
+void InputSystem::processTextInputEvent(SDL_TextInputEvent & event)
+{
+	std::string text(event.text);
+	for (auto func : onTextInput)
+		func(text);
+}
+
 void InputSystem::addKeyDownCallback(uint64_t key, const std::function<void(void)> & callback)
 {
 	onKeyDown.insert(std::make_pair(key, callback));
@@ -43,6 +52,16 @@ void InputSystem::addKeyDownCallback(uint64_t key, const std::function<void(void
 void InputSystem::addKeyUpCallback(uint64_t key, const std::function<void(void)> & callback)
 {
 	onKeyUp.insert(std::make_pair(key, callback));
+}
+
+void InputSystem::addUnfilteredKeyDownCallback(uint64_t key, const std::function<void(void)>& callback)
+{
+	onUnfilteredKeyDown.insert(std::make_pair(key, callback));
+}
+
+void InputSystem::addTextInputCallback(const std::function<void(const std::string&)> & callback)
+{
+	onTextInput.push_back(callback);
 }
 
 bool InputSystem::isKeyDown(uint64_t key)
@@ -109,4 +128,22 @@ void InputSystem::processKeyUp(uint64_t sym)
 	}
 	keysDown.erase(sym);
 	keysReleased.insert(sym);
+}
+
+void InputSystem::processUnfilteredKeyDown(uint64_t sym)
+{
+	if (sym == -1)
+		return;
+	auto range = onUnfilteredKeyDown.equal_range(sym);
+	for (auto i = range.first; i != range.second;)
+	{
+		auto callback = i->second;
+		if (callback)
+		{
+			callback();
+			++i;
+		}
+		else
+			onUnfilteredKeyDown.erase(i);
+	}
 }

@@ -10,6 +10,8 @@
 #include "FollowCursor.h"
 #include "ActionBar.h"
 #include "Inventory.h"
+#include "Inspector.h"
+#include "TextBox.h"
 
 #include "Tilemap.h"
 
@@ -381,10 +383,31 @@ Level * create_level(int floor)
 			auto inventory = level->add<Inventory>();
 			Component::attach(inventory, entity);
 		}
+
+		// create inspector
+		{
+			auto entity = level->add_entity();
+			Entity::adopt(entity, ui);
+
+			auto inspector = level->add<Inspector>();
+			Component::attach(inspector, entity);
+		}
+
+		// create text box
+		{
+			auto entity = level->add_entity();
+			Entity::adopt(entity, ui);
+			entity->xy = Vec2(32, 128);
+
+			auto textBox = level->add<TextBox>();
+			Component::attach(textBox, entity);
+		}
 	}
 
 	return level;
 }
+
+#include "Diamond.h"
 
 int main(int argc, char* args[])
 {
@@ -407,6 +430,7 @@ int main(int argc, char* args[])
 	engine.input->keyBindings.set(KB_ACTION_9, SDLK_0);
 
 	engine.input->keyBindings.set(KB_ACTION_1, -1);
+	engine.input->keyBindings.set(KB_MOVE_CURSOR, -3);
 
 	// TODO remove after a better option to keep a resource loaded is added
 	auto swoop = SpriteSheet::get("swoop_small.png");
@@ -445,6 +469,8 @@ int main(int argc, char* args[])
 		Component::attach(sprite, entity);
 
 		auto player_entity = entity;
+
+		print(player.get());
 
 		// create shadow
 		{

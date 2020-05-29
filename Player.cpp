@@ -48,6 +48,8 @@ void Player::start()
 	input->addKeyDownCallback(KB_ACTION_7, std::bind(&Player::onKey, this, 7));
 	input->addKeyDownCallback(KB_ACTION_8, std::bind(&Player::onKey, this, 8));
 	input->addKeyDownCallback(KB_ACTION_9, std::bind(&Player::onKey, this, 9));
+
+	input->addKeyDownCallback(KB_MOVE_CURSOR, std::bind(&Player::moveToCursor, this));
 }
 
 void Player::tick(float dt)
@@ -64,6 +66,9 @@ void Player::tick(float dt)
 	/*for (size_t i = 0; i < 10; ++i)
 		if (input->isKeyDown(KB_ACTION_0 + i))
 			onAction(i);*/
+
+	if (entity == nullptr)
+		return;
 
 	{
 		auto current = tm->getEffect(entity->xy);
@@ -94,6 +99,15 @@ void Player::tick(float dt)
 	if (input->isKeyDown(KB_RIGHT))
 		move.x += 1.0f;
 	move = Vec2(move.x + move.y, move.y - move.x);
+
+	{
+		move = move_target - entity->xy;
+		float l = move.Len();
+		if (l < 2.0f)
+			move = Vec2();
+		else
+			move /= l;
+	}
 
 	if (move != Vec2())
 		facing = move.Normalized();
@@ -363,6 +377,11 @@ bool Player::onAction(size_t action)
 		}
 		return false;
 	}
+	case 5:
+	{
+		onDamaged(rng->next(1, 6));
+		return true;
+	}
 	default:
 		return false;
 	}
@@ -374,4 +393,24 @@ void Player::update_camera()
 {
 	srs->camera_position.x = entity->xy.x;
 	srs->camera_position.y = entity->xy.y;
+}
+
+void Player::moveToCursor()
+{
+	move_target = srs->screenToWorld(input->getCursor());
+
+	// create poof
+	{
+		auto entity = level->add_entity();
+		entity->xy = move_target;
+
+		auto sprite = level->sprites.add("blink.png");
+		sprite->sort = -8;
+		sprite->sheet->columns = 4;
+		Component::attach(sprite, entity);
+
+		auto animator = level->add<SpriteAnimator>(15.0f);
+		animator->destroy = true;
+		Component::attach(animator, entity);
+	}
 }

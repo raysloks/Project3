@@ -38,6 +38,8 @@ private:
 
 	void update_camera();
 
+	void moveToCursor();
+
 	std::function<void(const Collision&)> on_hit;
 
 	std::function<void(void)> on_attack;
@@ -51,5 +53,7 @@ private:
 	size_t blood;
 
 	std::list<std::pair<float, size_t>> key_buffer;
+
+	Vec2 move_target;
 };
 

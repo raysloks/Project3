@@ -57,7 +57,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::load(const std::string & fname)
 			sheet->surface = IMG_Load(("data/" + fname).c_str());
 
 			while (!meta->loaded)
-				SDL_Delay(0);
+				std::this_thread::yield();
 
 			if (meta->size())
 			{

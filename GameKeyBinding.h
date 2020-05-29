@@ -18,5 +18,6 @@ enum GameKeyBinding : uint64_t
 	KB_ACTION_6,
 	KB_ACTION_7,
 	KB_ACTION_8,
-	KB_ACTION_9
+	KB_ACTION_9,
+	KB_MOVE_CURSOR
 };
