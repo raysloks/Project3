@@ -8,6 +8,7 @@ class RectangleCollider :
 	public Collider
 {
 public:
+	RectangleCollider();
 	RectangleCollider(const Vec2& half_size);
 
 	Vec2 half_size;

@@ -10,6 +10,7 @@ class SpriteCollider :
 	public Collider
 {
 public:
+	SpriteCollider();
 	SpriteCollider(const Reference<Sprite> & sprite);
 
 	void check(const Vec2 & diff, const CircleCollider & circle, std::vector<Collision> & collisions) const;

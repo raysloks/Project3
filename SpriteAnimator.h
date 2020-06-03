@@ -6,6 +6,7 @@ class SpriteAnimator :
 	public CustomBehaviour
 {
 public:
+	SpriteAnimator();
 	SpriteAnimator(float speed, float time = 0.0f, size_t frame_count = 0);
 
 	void tick(float dt);

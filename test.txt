@@ -1,0 +1,17 @@
+{
+ yo "This is the end"
+ imma "Not go alone. So it shall be."
+ an_array
+ [
+  "Twist"
+  "the"
+  "knife"
+ ]
+ x 134
+ y 124.0
+ z 34f
+ w 990.98f
+ gone true
+ bad false
+ ehh null
+}

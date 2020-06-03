@@ -7,6 +7,10 @@
 
 RectangleCollider rectangle(0.5f);
 
+SpriteCollider::SpriteCollider()
+{
+}
+
 SpriteCollider::SpriteCollider(const Reference<Sprite> & sprite) : sprite(sprite), rotation(0.0f)
 {
 }

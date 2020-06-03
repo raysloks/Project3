@@ -1,5 +1,9 @@
 #include "FloatingText.h"
 
+FloatingText::FloatingText()
+{
+}
+
 FloatingText::FloatingText(const std::string & text, float speed, float duration) : text(text), v(0.0f, 0.0f, speed), duration(duration), color(1.0f)
 {
 	time = 0.0f;

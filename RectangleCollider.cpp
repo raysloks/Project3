@@ -18,6 +18,10 @@ void checkCornerCircle(const Vec2& corner, const Vec2& circle_center, const Circ
 	}
 }
 
+RectangleCollider::RectangleCollider()
+{
+}
+
 RectangleCollider::RectangleCollider(const Vec2 & half_size) : half_size(half_size)
 {
 }

@@ -12,6 +12,7 @@ class TilemapCollider :
 	public Collider
 {
 public:
+	TilemapCollider();
 	TilemapCollider(Tilemap * tilemap);
 
 	void checkTile(intmax_t x, intmax_t y, const Vec2& diff, const CircleCollider& circle, std::vector<Collision>& collisions) const;

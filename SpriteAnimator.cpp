@@ -1,5 +1,9 @@
 #include "SpriteAnimator.h"
 
+SpriteAnimator::SpriteAnimator()
+{
+}
+
 SpriteAnimator::SpriteAnimator(float speed, float time, size_t frame_count) : speed(speed), time(time), frame_count(frame_count), destroy(false), freeze(0.0f)
 {
 }

@@ -1,11 +1,5 @@
 #include "Xoroshiro128Plus.h"
 
-Xoroshiro128Plus::Xoroshiro128Plus()
-{
-	s[0] = 1;
-	s[1] = 0;
-}
-
 uint64_t splitmix64(uint64_t& x) {
 	uint64_t z = (x += UINT64_C(0x9E3779B97F4A7C15));
 	z = (z ^ (z >> 30)) * UINT64_C(0xBF58476D1CE4E5B9);
@@ -13,10 +7,34 @@ uint64_t splitmix64(uint64_t& x) {
 	return z ^ (z >> 31);
 }
 
+Xoroshiro128Plus::Xoroshiro128Plus()
+{
+	s[0] = 1;
+	s[1] = 0;
+}
+
+Xoroshiro128Plus::Xoroshiro128Plus(uint64_t seed)
+{
+	s[0] = splitmix64(seed);
+	s[1] = splitmix64(seed);
+}
+
+Xoroshiro128Plus::Xoroshiro128Plus(uint64_t seed0, uint64_t seed1)
+{
+	s[0] = seed0;
+	s[1] = seed1;
+}
+
 void Xoroshiro128Plus::seed(uint64_t seed)
 {
 	s[0] = splitmix64(seed);
 	s[1] = splitmix64(seed);
+}
+
+void Xoroshiro128Plus::seed(uint64_t seed0, uint64_t seed1)
+{
+	s[0] = seed0;
+	s[1] = seed1;
 }
 
 uint64_t bitcount(uint64_t number)

@@ -6,6 +6,7 @@ class FloatingText :
 	public CustomBehaviour
 {
 public:
+	FloatingText();
 	FloatingText(const std::string& text, float speed, float duration);
 
 	void start();

@@ -407,8 +407,6 @@ Level * create_level(int floor)
 	return level;
 }
 
-#include "Diamond.h"
-
 int main(int argc, char* args[])
 {
 	Engine engine;
@@ -469,8 +467,6 @@ int main(int argc, char* args[])
 		Component::attach(sprite, entity);
 
 		auto player_entity = entity;
-
-		print(player.get());
 
 		// create shadow
 		{

@@ -227,6 +227,9 @@
     <ClCompile Include="TextBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Coal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -437,6 +440,9 @@
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="TextBox.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Coal.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

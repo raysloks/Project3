@@ -1,5 +1,9 @@
 #include "CircleCollider.h"
 
+CircleCollider::CircleCollider()
+{
+}
+
 CircleCollider::CircleCollider(float r) : r(r)
 {
 }

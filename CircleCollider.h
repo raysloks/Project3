@@ -6,6 +6,7 @@ class CircleCollider :
 	public Collider
 {
 public:
+	CircleCollider();
 	CircleCollider(float r);
 
 	float r;

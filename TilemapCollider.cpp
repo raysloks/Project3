@@ -2,6 +2,10 @@
 
 #include "Tilemap.h"
 
+TilemapCollider::TilemapCollider()
+{
+}
+
 TilemapCollider::TilemapCollider(Tilemap * tilemap) :
 	tilemap(tilemap),
 	rectangle(tilemap->getTileSize() * 0.5f),

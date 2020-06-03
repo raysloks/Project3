@@ -69,7 +69,6 @@ public:
 		return nullptr;
 	}
 
-private:
 	ComponentContainer<Entity> entities;
 
 	void remove_entity_rough(const Reference<Entity>& entity);
