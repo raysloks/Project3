@@ -10,8 +10,10 @@ class Coal
 public:
 	Coal() = default;
 	Coal(std::nullptr_t);
+	Coal(const char * string);
 	Coal(const std::string& string);
 	Coal(int64_t integer);
+	Coal(uint64_t integer);
 	Coal(float real);
 	Coal(bool boolean);
 	Coal(const std::map<std::string, Coal>& members);
@@ -42,5 +44,10 @@ public:
 
 	bool operator==(const Coal& rhs) const;
 	bool operator!=(const Coal& rhs) const;
+
+	Coal& operator[](const std::string& key);
+	Coal& operator[](std::string&& key);
+	Coal& operator[](size_t index);
+	const Coal& operator[](size_t index) const;
 };
 

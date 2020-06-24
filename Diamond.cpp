@@ -54,373 +54,209 @@ const std::unordered_map<std::type_index, std::string> names = {
 { std::type_index(typeid(Inspector)), "Inspector" },
 { std::type_index(typeid(TextDisplay)), "TextDisplay" },
 { std::type_index(typeid(TextBox)), "TextBox" } };
-const std::unordered_map<std::type_index, std::function<void(Component*)>> funcs = {
-	{ std::type_index(typeid(CustomBehaviour)), [] (Component * component) {
+const std::unordered_map<std::type_index, std::function<void(std::ostream&, Component*)>> print_funcs = {
+	{ std::type_index(typeid(CustomBehaviour)), [] (std::ostream& os, Component * component) {
 		auto obj = (CustomBehaviour*)component;
+		os << "CustomBehaviour\n";
 	} },
-	{ std::type_index(typeid(Player)), [] (Component * component) {
+	{ std::type_index(typeid(Player)), [] (std::ostream& os, Component * component) {
 		auto obj = (Player*)component;
-		std::cout << "hp " << obj->hp << std::endl;
-		std::cout << "hp_max " << obj->hp_max << std::endl;
-		std::cout << "anim " << obj->anim << std::endl;
-		std::cout << "cooldown " << obj->cooldown << std::endl;
+		os << "Player\n";
+		os << " hp " << obj->hp << "\n";
+		os << " hp_max " << obj->hp_max << "\n";
+		os << " v ";
+		os << obj->v.x << " ";
+		os << obj->v.y << "\n";
+		os << " n ";
+		os << obj->n.x << " ";
+		os << obj->n.y << "\n";
+		os << " move ";
+		os << obj->move.x << " ";
+		os << obj->move.y << "\n";
+		os << " anim " << obj->anim << "\n";
+		os << " cooldown " << obj->cooldown << "\n";
 	} },
-	{ std::type_index(typeid(Mob)), [] (Component * component) {
+	{ std::type_index(typeid(Mob)), [] (std::ostream& os, Component * component) {
 		auto obj = (Mob*)component;
-		std::cout << "hp " << obj->hp << std::endl;
-		std::cout << "hp_max " << obj->hp_max << std::endl;
-		std::cout << "anim " << obj->anim << std::endl;
-		std::cout << "cooldown " << obj->cooldown << std::endl;
+		os << "Mob\n";
+		os << " hp " << obj->hp << "\n";
+		os << " hp_max " << obj->hp_max << "\n";
+		os << " v ";
+		os << obj->v.x << " ";
+		os << obj->v.y << "\n";
+		os << " n ";
+		os << obj->n.x << " ";
+		os << obj->n.y << "\n";
+		os << " move ";
+		os << obj->move.x << " ";
+		os << obj->move.y << "\n";
+		os << " anim " << obj->anim << "\n";
+		os << " cooldown " << obj->cooldown << "\n";
 	} },
-	{ std::type_index(typeid(ActionBar)), [] (Component * component) {
+	{ std::type_index(typeid(ActionBar)), [] (std::ostream& os, Component * component) {
 		auto obj = (ActionBar*)component;
-		std::cout << "slot_count " << obj->slot_count << std::endl;
+		os << "ActionBar\n";
+		os << " slot_count " << obj->slot_count << "\n";
 	} },
-	{ std::type_index(typeid(TilemapCollider)), [] (Component * component) {
+	{ std::type_index(typeid(TilemapCollider)), [] (std::ostream& os, Component * component) {
 		auto obj = (TilemapCollider*)component;
-		std::cout << "layers " << obj->layers << std::endl;
-		std::cout << "tilemap " << obj->tilemap << std::endl;
+		os << "TilemapCollider\n";
+		os << " layers " << obj->layers << "\n";
+		os << " tilemap " << obj->tilemap << "\n";
 	} },
-	{ std::type_index(typeid(Collider)), [] (Component * component) {
+	{ std::type_index(typeid(Collider)), [] (std::ostream& os, Component * component) {
 		auto obj = (Collider*)component;
-		std::cout << "layers " << obj->layers << std::endl;
+		os << "Collider\n";
+		os << " layers " << obj->layers << "\n";
 	} },
-	{ std::type_index(typeid(SpriteCollider)), [] (Component * component) {
+	{ std::type_index(typeid(SpriteCollider)), [] (std::ostream& os, Component * component) {
 		auto obj = (SpriteCollider*)component;
-		std::cout << "layers " << obj->layers << std::endl;
-		std::cout << "rotation " << obj->rotation << std::endl;
+		os << "SpriteCollider\n";
+		os << " layers " << obj->layers << "\n";
+		os << " rotation " << obj->rotation << "\n";
 	} },
-	{ std::type_index(typeid(CircleCollider)), [] (Component * component) {
+	{ std::type_index(typeid(CircleCollider)), [] (std::ostream& os, Component * component) {
 		auto obj = (CircleCollider*)component;
-		std::cout << "layers " << obj->layers << std::endl;
-		std::cout << "r " << obj->r << std::endl;
+		os << "CircleCollider\n";
+		os << " layers " << obj->layers << "\n";
+		os << " r " << obj->r << "\n";
 	} },
-	{ std::type_index(typeid(RectangleCollider)), [] (Component * component) {
+	{ std::type_index(typeid(RectangleCollider)), [] (std::ostream& os, Component * component) {
 		auto obj = (RectangleCollider*)component;
-		std::cout << "layers " << obj->layers << std::endl;
+		os << "RectangleCollider\n";
+		os << " layers " << obj->layers << "\n";
+		os << " half_size ";
+		os << obj->half_size.x << " ";
+		os << obj->half_size.y << "\n";
 	} },
-	{ std::type_index(typeid(Sprite)), [] (Component * component) {
+	{ std::type_index(typeid(Sprite)), [] (std::ostream& os, Component * component) {
 		auto obj = (Sprite*)component;
-		std::cout << "subsprite_x " << obj->subsprite_x << std::endl;
-		std::cout << "subsprite_y " << obj->subsprite_y << std::endl;
-		std::cout << "sort " << obj->sort << std::endl;
-		std::cout << "rotation " << obj->rotation << std::endl;
-		std::cout << "flip " << obj->flip << std::endl;
+		os << "Sprite\n";
+		os << " subsprite_x " << obj->subsprite_x << "\n";
+		os << " subsprite_y " << obj->subsprite_y << "\n";
+		os << " sort " << obj->sort << "\n";
+		os << " rotation " << obj->rotation << "\n";
+		os << " scale ";
+		os << obj->scale.x << " ";
+		os << obj->scale.y << "\n";
+		os << " flip " << obj->flip << "\n";
 	} },
-	{ std::type_index(typeid(Body)), [] (Component * component) {
+	{ std::type_index(typeid(Body)), [] (std::ostream& os, Component * component) {
 		auto obj = (Body*)component;
-		std::cout << "m " << obj->m << std::endl;
+		os << "Body\n";
+		os << " v ";
+		os << obj->v.x << " ";
+		os << obj->v.y << "\n";
+		os << " m " << obj->m << "\n";
 	} },
-	{ std::type_index(typeid(BouncingBall)), [] (Component * component) {
+	{ std::type_index(typeid(BouncingBall)), [] (std::ostream& os, Component * component) {
 		auto obj = (BouncingBall*)component;
-		std::cout << "elasticity " << obj->elasticity << std::endl;
+		os << "BouncingBall\n";
+		os << " v ";
+		os << obj->v.x << " ";
+		os << obj->v.y << " ";
+		os << obj->v.z << "\n";
+		os << " elasticity " << obj->elasticity << "\n";
 	} },
-	{ std::type_index(typeid(Enemy)), [] (Component * component) {
+	{ std::type_index(typeid(Enemy)), [] (std::ostream& os, Component * component) {
 		auto obj = (Enemy*)component;
-		std::cout << "hp " << obj->hp << std::endl;
-		std::cout << "hp_max " << obj->hp_max << std::endl;
-		std::cout << "anim " << obj->anim << std::endl;
-		std::cout << "cooldown " << obj->cooldown << std::endl;
+		os << "Enemy\n";
+		os << " hp " << obj->hp << "\n";
+		os << " hp_max " << obj->hp_max << "\n";
+		os << " v ";
+		os << obj->v.x << " ";
+		os << obj->v.y << "\n";
+		os << " n ";
+		os << obj->n.x << " ";
+		os << obj->n.y << "\n";
+		os << " move ";
+		os << obj->move.x << " ";
+		os << obj->move.y << "\n";
+		os << " anim " << obj->anim << "\n";
+		os << " cooldown " << obj->cooldown << "\n";
 	} },
-	{ std::type_index(typeid(FloatingText)), [] (Component * component) {
+	{ std::type_index(typeid(FloatingText)), [] (std::ostream& os, Component * component) {
 		auto obj = (FloatingText*)component;
-		std::cout << "time " << obj->time << std::endl;
-		std::cout << "duration " << obj->duration << std::endl;
+		os << "FloatingText\n";
+		os << " time " << obj->time << "\n";
+		os << " duration " << obj->duration << "\n";
+		os << " color ";
+		os << obj->color.x << " ";
+		os << obj->color.y << " ";
+		os << obj->color.z << "\n";
+		os << " v ";
+		os << obj->v.x << " ";
+		os << obj->v.y << " ";
+		os << obj->v.z << "\n";
+		os << " a ";
+		os << obj->a.x << " ";
+		os << obj->a.y << " ";
+		os << obj->a.z << "\n";
 	} },
-	{ std::type_index(typeid(FollowCursor)), [] (Component * component) {
+	{ std::type_index(typeid(FollowCursor)), [] (std::ostream& os, Component * component) {
 		auto obj = (FollowCursor*)component;
-		std::cout << "t " << obj->t << std::endl;
+		os << "FollowCursor\n";
+		os << " t " << obj->t << "\n";
 	} },
-	{ std::type_index(typeid(FrameRate)), [] (Component * component) {
+	{ std::type_index(typeid(FrameRate)), [] (std::ostream& os, Component * component) {
 		auto obj = (FrameRate*)component;
-		std::cout << "max_frame_count " << obj->max_frame_count << std::endl;
+		os << "FrameRate\n";
+		os << " max_frame_count " << obj->max_frame_count << "\n";
 	} },
-	{ std::type_index(typeid(HealthDisplay)), [] (Component * component) {
+	{ std::type_index(typeid(HealthDisplay)), [] (std::ostream& os, Component * component) {
 		auto obj = (HealthDisplay*)component;
+		os << "HealthDisplay\n";
 	} },
-	{ std::type_index(typeid(Inventory)), [] (Component * component) {
+	{ std::type_index(typeid(Inventory)), [] (std::ostream& os, Component * component) {
 		auto obj = (Inventory*)component;
-		std::cout << "visible " << obj->visible << std::endl;
+		os << "Inventory\n";
+		os << " visible " << obj->visible << "\n";
 	} },
-	{ std::type_index(typeid(SpriteAnimator)), [] (Component * component) {
+	{ std::type_index(typeid(SpriteAnimator)), [] (std::ostream& os, Component * component) {
 		auto obj = (SpriteAnimator*)component;
-		std::cout << "frame_count " << obj->frame_count << std::endl;
-		std::cout << "speed " << obj->speed << std::endl;
-		std::cout << "time " << obj->time << std::endl;
-		std::cout << "freeze " << obj->freeze << std::endl;
-		std::cout << "destroy " << obj->destroy << std::endl;
+		os << "SpriteAnimator\n";
+		os << " frame_count " << obj->frame_count << "\n";
+		os << " speed " << obj->speed << "\n";
+		os << " time " << obj->time << "\n";
+		os << " freeze " << obj->freeze << "\n";
+		os << " destroy " << obj->destroy << "\n";
 	} },
-	{ std::type_index(typeid(Projectile)), [] (Component * component) {
+	{ std::type_index(typeid(Projectile)), [] (std::ostream& os, Component * component) {
 		auto obj = (Projectile*)component;
+		os << "Projectile\n";
+		os << " v ";
+		os << obj->v.x << " ";
+		os << obj->v.y << "\n";
 	} },
-	{ std::type_index(typeid(NetworkMob)), [] (Component * component) {
+	{ std::type_index(typeid(NetworkMob)), [] (std::ostream& os, Component * component) {
 		auto obj = (NetworkMob*)component;
-		std::cout << "hp " << obj->hp << std::endl;
-		std::cout << "hp_max " << obj->hp_max << std::endl;
-		std::cout << "anim " << obj->anim << std::endl;
-		std::cout << "cooldown " << obj->cooldown << std::endl;
+		os << "NetworkMob\n";
+		os << " hp " << obj->hp << "\n";
+		os << " hp_max " << obj->hp_max << "\n";
+		os << " v ";
+		os << obj->v.x << " ";
+		os << obj->v.y << "\n";
+		os << " n ";
+		os << obj->n.x << " ";
+		os << obj->n.y << "\n";
+		os << " move ";
+		os << obj->move.x << " ";
+		os << obj->move.y << "\n";
+		os << " anim " << obj->anim << "\n";
+		os << " cooldown " << obj->cooldown << "\n";
 	} },
-	{ std::type_index(typeid(Inspector)), [] (Component * component) {
+	{ std::type_index(typeid(Inspector)), [] (std::ostream& os, Component * component) {
 		auto obj = (Inspector*)component;
-		std::cout << "index " << obj->index << std::endl;
+		os << "Inspector\n";
+		os << " index " << obj->index << "\n";
 	} },
-	{ std::type_index(typeid(TextDisplay)), [] (Component * component) {
+	{ std::type_index(typeid(TextDisplay)), [] (std::ostream& os, Component * component) {
 		auto obj = (TextDisplay*)component;
+		os << "TextDisplay\n";
 	} },
-	{ std::type_index(typeid(TextBox)), [] (Component * component) {
+	{ std::type_index(typeid(TextBox)), [] (std::ostream& os, Component * component) {
 		auto obj = (TextBox*)component;
-	} } };
-const std::unordered_map<std::type_index, std::function<std::string(Component*)>> data_funcs = {
-	{ std::type_index(typeid(CustomBehaviour)), [] (Component * component) {
-		auto obj = (CustomBehaviour*)component;
-		std::stringstream ss;
-		ss << "CustomBehaviour\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(Player)), [] (Component * component) {
-		auto obj = (Player*)component;
-		std::stringstream ss;
-		ss << "Player\n";
-		ss << " hp " << obj->hp << "\n";
-		ss << " hp_max " << obj->hp_max << "\n";
-		ss << " v ";
-		ss << obj->v.x << " ";
-		ss << obj->v.y << "\n";
-		ss << " n ";
-		ss << obj->n.x << " ";
-		ss << obj->n.y << "\n";
-		ss << " move ";
-		ss << obj->move.x << " ";
-		ss << obj->move.y << "\n";
-		ss << " anim " << obj->anim << "\n";
-		ss << " cooldown " << obj->cooldown << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(Mob)), [] (Component * component) {
-		auto obj = (Mob*)component;
-		std::stringstream ss;
-		ss << "Mob\n";
-		ss << " hp " << obj->hp << "\n";
-		ss << " hp_max " << obj->hp_max << "\n";
-		ss << " v ";
-		ss << obj->v.x << " ";
-		ss << obj->v.y << "\n";
-		ss << " n ";
-		ss << obj->n.x << " ";
-		ss << obj->n.y << "\n";
-		ss << " move ";
-		ss << obj->move.x << " ";
-		ss << obj->move.y << "\n";
-		ss << " anim " << obj->anim << "\n";
-		ss << " cooldown " << obj->cooldown << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(ActionBar)), [] (Component * component) {
-		auto obj = (ActionBar*)component;
-		std::stringstream ss;
-		ss << "ActionBar\n";
-		ss << " slot_count " << obj->slot_count << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(TilemapCollider)), [] (Component * component) {
-		auto obj = (TilemapCollider*)component;
-		std::stringstream ss;
-		ss << "TilemapCollider\n";
-		ss << " layers " << obj->layers << "\n";
-		ss << " tilemap " << obj->tilemap << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(Collider)), [] (Component * component) {
-		auto obj = (Collider*)component;
-		std::stringstream ss;
-		ss << "Collider\n";
-		ss << " layers " << obj->layers << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(SpriteCollider)), [] (Component * component) {
-		auto obj = (SpriteCollider*)component;
-		std::stringstream ss;
-		ss << "SpriteCollider\n";
-		ss << " layers " << obj->layers << "\n";
-		ss << " rotation " << obj->rotation << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(CircleCollider)), [] (Component * component) {
-		auto obj = (CircleCollider*)component;
-		std::stringstream ss;
-		ss << "CircleCollider\n";
-		ss << " layers " << obj->layers << "\n";
-		ss << " r " << obj->r << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(RectangleCollider)), [] (Component * component) {
-		auto obj = (RectangleCollider*)component;
-		std::stringstream ss;
-		ss << "RectangleCollider\n";
-		ss << " layers " << obj->layers << "\n";
-		ss << " half_size ";
-		ss << obj->half_size.x << " ";
-		ss << obj->half_size.y << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(Sprite)), [] (Component * component) {
-		auto obj = (Sprite*)component;
-		std::stringstream ss;
-		ss << "Sprite\n";
-		ss << " subsprite_x " << obj->subsprite_x << "\n";
-		ss << " subsprite_y " << obj->subsprite_y << "\n";
-		ss << " sort " << obj->sort << "\n";
-		ss << " rotation " << obj->rotation << "\n";
-		ss << " scale ";
-		ss << obj->scale.x << " ";
-		ss << obj->scale.y << "\n";
-		ss << " flip " << obj->flip << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(Body)), [] (Component * component) {
-		auto obj = (Body*)component;
-		std::stringstream ss;
-		ss << "Body\n";
-		ss << " v ";
-		ss << obj->v.x << " ";
-		ss << obj->v.y << "\n";
-		ss << " m " << obj->m << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(BouncingBall)), [] (Component * component) {
-		auto obj = (BouncingBall*)component;
-		std::stringstream ss;
-		ss << "BouncingBall\n";
-		ss << " v ";
-		ss << obj->v.x << " ";
-		ss << obj->v.y << " ";
-		ss << obj->v.z << "\n";
-		ss << " elasticity " << obj->elasticity << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(Enemy)), [] (Component * component) {
-		auto obj = (Enemy*)component;
-		std::stringstream ss;
-		ss << "Enemy\n";
-		ss << " hp " << obj->hp << "\n";
-		ss << " hp_max " << obj->hp_max << "\n";
-		ss << " v ";
-		ss << obj->v.x << " ";
-		ss << obj->v.y << "\n";
-		ss << " n ";
-		ss << obj->n.x << " ";
-		ss << obj->n.y << "\n";
-		ss << " move ";
-		ss << obj->move.x << " ";
-		ss << obj->move.y << "\n";
-		ss << " anim " << obj->anim << "\n";
-		ss << " cooldown " << obj->cooldown << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(FloatingText)), [] (Component * component) {
-		auto obj = (FloatingText*)component;
-		std::stringstream ss;
-		ss << "FloatingText\n";
-		ss << " time " << obj->time << "\n";
-		ss << " duration " << obj->duration << "\n";
-		ss << " color ";
-		ss << obj->color.x << " ";
-		ss << obj->color.y << " ";
-		ss << obj->color.z << "\n";
-		ss << " v ";
-		ss << obj->v.x << " ";
-		ss << obj->v.y << " ";
-		ss << obj->v.z << "\n";
-		ss << " a ";
-		ss << obj->a.x << " ";
-		ss << obj->a.y << " ";
-		ss << obj->a.z << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(FollowCursor)), [] (Component * component) {
-		auto obj = (FollowCursor*)component;
-		std::stringstream ss;
-		ss << "FollowCursor\n";
-		ss << " t " << obj->t << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(FrameRate)), [] (Component * component) {
-		auto obj = (FrameRate*)component;
-		std::stringstream ss;
-		ss << "FrameRate\n";
-		ss << " max_frame_count " << obj->max_frame_count << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(HealthDisplay)), [] (Component * component) {
-		auto obj = (HealthDisplay*)component;
-		std::stringstream ss;
-		ss << "HealthDisplay\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(Inventory)), [] (Component * component) {
-		auto obj = (Inventory*)component;
-		std::stringstream ss;
-		ss << "Inventory\n";
-		ss << " visible " << obj->visible << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(SpriteAnimator)), [] (Component * component) {
-		auto obj = (SpriteAnimator*)component;
-		std::stringstream ss;
-		ss << "SpriteAnimator\n";
-		ss << " frame_count " << obj->frame_count << "\n";
-		ss << " speed " << obj->speed << "\n";
-		ss << " time " << obj->time << "\n";
-		ss << " freeze " << obj->freeze << "\n";
-		ss << " destroy " << obj->destroy << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(Projectile)), [] (Component * component) {
-		auto obj = (Projectile*)component;
-		std::stringstream ss;
-		ss << "Projectile\n";
-		ss << " v ";
-		ss << obj->v.x << " ";
-		ss << obj->v.y << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(NetworkMob)), [] (Component * component) {
-		auto obj = (NetworkMob*)component;
-		std::stringstream ss;
-		ss << "NetworkMob\n";
-		ss << " hp " << obj->hp << "\n";
-		ss << " hp_max " << obj->hp_max << "\n";
-		ss << " v ";
-		ss << obj->v.x << " ";
-		ss << obj->v.y << "\n";
-		ss << " n ";
-		ss << obj->n.x << " ";
-		ss << obj->n.y << "\n";
-		ss << " move ";
-		ss << obj->move.x << " ";
-		ss << obj->move.y << "\n";
-		ss << " anim " << obj->anim << "\n";
-		ss << " cooldown " << obj->cooldown << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(Inspector)), [] (Component * component) {
-		auto obj = (Inspector*)component;
-		std::stringstream ss;
-		ss << "Inspector\n";
-		ss << " index " << obj->index << "\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(TextDisplay)), [] (Component * component) {
-		auto obj = (TextDisplay*)component;
-		std::stringstream ss;
-		ss << "TextDisplay\n";
-		return ss.str();
-	} },
-	{ std::type_index(typeid(TextBox)), [] (Component * component) {
-		auto obj = (TextBox*)component;
-		std::stringstream ss;
-		ss << "TextBox\n";
-		return ss.str();
+		os << "TextBox\n";
 	} } };
 const std::unordered_map<std::string, std::type_index> indices = {
 	{ "CustomBehaviour", std::type_index(typeid(CustomBehaviour)) },
@@ -678,18 +514,245 @@ const std::unordered_map<std::type_index, std::function<void(Component*,const Co
 	{ std::type_index(typeid(TextBox)), [] (Component * component, const Coal& coal) {
 		auto obj = (TextBox*)component;
 	} } };
-void Diamond::print(Component * component)
+const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_funcs = {
+	{ std::type_index(typeid(CustomBehaviour)), [] (Component * component) {
+		auto obj = (CustomBehaviour*)component;
+		Coal coal;
+		return coal;
+	} },
+	{ std::type_index(typeid(Player)), [] (Component * component) {
+		auto obj = (Player*)component;
+		Coal coal;
+		coal.members["hp"] = obj->hp;
+		coal.members["hp_max"] = obj->hp_max;
+		coal.members["v"] = Coal({
+			{"x", obj->v.x},
+			{"y", obj->v.y}});
+		coal.members["n"] = Coal({
+			{"x", obj->n.x},
+			{"y", obj->n.y}});
+		coal.members["move"] = Coal({
+			{"x", obj->move.x},
+			{"y", obj->move.y}});
+		coal.members["anim"] = obj->anim;
+		coal.members["cooldown"] = obj->cooldown;
+		return coal;
+	} },
+	{ std::type_index(typeid(Mob)), [] (Component * component) {
+		auto obj = (Mob*)component;
+		Coal coal;
+		coal.members["hp"] = obj->hp;
+		coal.members["hp_max"] = obj->hp_max;
+		coal.members["v"] = Coal({
+			{"x", obj->v.x},
+			{"y", obj->v.y}});
+		coal.members["n"] = Coal({
+			{"x", obj->n.x},
+			{"y", obj->n.y}});
+		coal.members["move"] = Coal({
+			{"x", obj->move.x},
+			{"y", obj->move.y}});
+		coal.members["anim"] = obj->anim;
+		coal.members["cooldown"] = obj->cooldown;
+		return coal;
+	} },
+	{ std::type_index(typeid(ActionBar)), [] (Component * component) {
+		auto obj = (ActionBar*)component;
+		Coal coal;
+		coal.members["slot_count"] = obj->slot_count;
+		return coal;
+	} },
+	{ std::type_index(typeid(TilemapCollider)), [] (Component * component) {
+		auto obj = (TilemapCollider*)component;
+		Coal coal;
+		coal.members["layers"] = obj->layers;
+		coal.members["tilemap"] = (uint64_t)obj->tilemap;
+		return coal;
+	} },
+	{ std::type_index(typeid(Collider)), [] (Component * component) {
+		auto obj = (Collider*)component;
+		Coal coal;
+		coal.members["layers"] = obj->layers;
+		return coal;
+	} },
+	{ std::type_index(typeid(SpriteCollider)), [] (Component * component) {
+		auto obj = (SpriteCollider*)component;
+		Coal coal;
+		coal.members["layers"] = obj->layers;
+		coal.members["rotation"] = obj->rotation;
+		return coal;
+	} },
+	{ std::type_index(typeid(CircleCollider)), [] (Component * component) {
+		auto obj = (CircleCollider*)component;
+		Coal coal;
+		coal.members["layers"] = obj->layers;
+		coal.members["r"] = obj->r;
+		return coal;
+	} },
+	{ std::type_index(typeid(RectangleCollider)), [] (Component * component) {
+		auto obj = (RectangleCollider*)component;
+		Coal coal;
+		coal.members["layers"] = obj->layers;
+		coal.members["half_size"] = Coal({
+			{"x", obj->half_size.x},
+			{"y", obj->half_size.y}});
+		return coal;
+	} },
+	{ std::type_index(typeid(Sprite)), [] (Component * component) {
+		auto obj = (Sprite*)component;
+		Coal coal;
+		coal.members["subsprite_x"] = obj->subsprite_x;
+		coal.members["subsprite_y"] = obj->subsprite_y;
+		coal.members["sort"] = obj->sort;
+		coal.members["rotation"] = obj->rotation;
+		coal.members["scale"] = Coal({
+			{"x", obj->scale.x},
+			{"y", obj->scale.y}});
+		coal.members["flip"] = (uint64_t)obj->flip;
+		return coal;
+	} },
+	{ std::type_index(typeid(Body)), [] (Component * component) {
+		auto obj = (Body*)component;
+		Coal coal;
+		coal.members["v"] = Coal({
+			{"x", obj->v.x},
+			{"y", obj->v.y}});
+		coal.members["m"] = obj->m;
+		return coal;
+	} },
+	{ std::type_index(typeid(BouncingBall)), [] (Component * component) {
+		auto obj = (BouncingBall*)component;
+		Coal coal;
+		coal.members["v"] = Coal({
+			{"x", obj->v.x},
+			{"y", obj->v.y},
+			{"z", obj->v.z}});
+		coal.members["elasticity"] = obj->elasticity;
+		return coal;
+	} },
+	{ std::type_index(typeid(Enemy)), [] (Component * component) {
+		auto obj = (Enemy*)component;
+		Coal coal;
+		coal.members["hp"] = obj->hp;
+		coal.members["hp_max"] = obj->hp_max;
+		coal.members["v"] = Coal({
+			{"x", obj->v.x},
+			{"y", obj->v.y}});
+		coal.members["n"] = Coal({
+			{"x", obj->n.x},
+			{"y", obj->n.y}});
+		coal.members["move"] = Coal({
+			{"x", obj->move.x},
+			{"y", obj->move.y}});
+		coal.members["anim"] = obj->anim;
+		coal.members["cooldown"] = obj->cooldown;
+		return coal;
+	} },
+	{ std::type_index(typeid(FloatingText)), [] (Component * component) {
+		auto obj = (FloatingText*)component;
+		Coal coal;
+		coal.members["time"] = obj->time;
+		coal.members["duration"] = obj->duration;
+		coal.members["color"] = Coal({
+			{"x", obj->color.x},
+			{"y", obj->color.y},
+			{"z", obj->color.z}});
+		coal.members["v"] = Coal({
+			{"x", obj->v.x},
+			{"y", obj->v.y},
+			{"z", obj->v.z}});
+		coal.members["a"] = Coal({
+			{"x", obj->a.x},
+			{"y", obj->a.y},
+			{"z", obj->a.z}});
+		return coal;
+	} },
+	{ std::type_index(typeid(FollowCursor)), [] (Component * component) {
+		auto obj = (FollowCursor*)component;
+		Coal coal;
+		coal.members["t"] = obj->t;
+		return coal;
+	} },
+	{ std::type_index(typeid(FrameRate)), [] (Component * component) {
+		auto obj = (FrameRate*)component;
+		Coal coal;
+		coal.members["max_frame_count"] = obj->max_frame_count;
+		return coal;
+	} },
+	{ std::type_index(typeid(HealthDisplay)), [] (Component * component) {
+		auto obj = (HealthDisplay*)component;
+		Coal coal;
+		return coal;
+	} },
+	{ std::type_index(typeid(Inventory)), [] (Component * component) {
+		auto obj = (Inventory*)component;
+		Coal coal;
+		coal.members["visible"] = obj->visible;
+		return coal;
+	} },
+	{ std::type_index(typeid(SpriteAnimator)), [] (Component * component) {
+		auto obj = (SpriteAnimator*)component;
+		Coal coal;
+		coal.members["frame_count"] = obj->frame_count;
+		coal.members["speed"] = obj->speed;
+		coal.members["time"] = obj->time;
+		coal.members["freeze"] = obj->freeze;
+		coal.members["destroy"] = obj->destroy;
+		return coal;
+	} },
+	{ std::type_index(typeid(Projectile)), [] (Component * component) {
+		auto obj = (Projectile*)component;
+		Coal coal;
+		coal.members["v"] = Coal({
+			{"x", obj->v.x},
+			{"y", obj->v.y}});
+		return coal;
+	} },
+	{ std::type_index(typeid(NetworkMob)), [] (Component * component) {
+		auto obj = (NetworkMob*)component;
+		Coal coal;
+		coal.members["hp"] = obj->hp;
+		coal.members["hp_max"] = obj->hp_max;
+		coal.members["v"] = Coal({
+			{"x", obj->v.x},
+			{"y", obj->v.y}});
+		coal.members["n"] = Coal({
+			{"x", obj->n.x},
+			{"y", obj->n.y}});
+		coal.members["move"] = Coal({
+			{"x", obj->move.x},
+			{"y", obj->move.y}});
+		coal.members["anim"] = obj->anim;
+		coal.members["cooldown"] = obj->cooldown;
+		return coal;
+	} },
+	{ std::type_index(typeid(Inspector)), [] (Component * component) {
+		auto obj = (Inspector*)component;
+		Coal coal;
+		coal.members["index"] = obj->index;
+		return coal;
+	} },
+	{ std::type_index(typeid(TextDisplay)), [] (Component * component) {
+		auto obj = (TextDisplay*)component;
+		Coal coal;
+		return coal;
+	} },
+	{ std::type_index(typeid(TextBox)), [] (Component * component) {
+		auto obj = (TextBox*)component;
+		Coal coal;
+		return coal;
+	} } };
+void Diamond::print(std::ostream& os, Component * component)
 {
-	std::cout << names.at(std::type_index(typeid(*component))) << std::endl;
-	funcs.at(std::type_index(typeid(*component)))(component);
-}
-std::string Diamond::getDataOf(Component * component)
-{
-	return data_funcs.at(std::type_index(typeid(*component)))(component);
+	print_funcs.at(std::type_index(typeid(*component)))(os, component);
 }
 std::type_index Diamond::index(const std::string& type)
 {
 	return indices.at(type);
+}
+std::string Diamond::name(Component * component)
+{
+	return names.at(std::type_index(typeid(*component)));
 }
 Component * Diamond::create(const std::type_index& type)
 {
@@ -697,5 +760,9 @@ Component * Diamond::create(const std::type_index& type)
 }
 void Diamond::init(Component * component, const Coal& coal)
 {
-	return init_funcs.at(std::type_index(typeid(*component)))(component, coal);
+	init_funcs.at(std::type_index(typeid(*component)))(component, coal);
+}
+Coal Diamond::data(Component * component)
+{
+	return data_funcs.at(std::type_index(typeid(*component)))(component);
 }

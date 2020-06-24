@@ -2,16 +2,8 @@
 
 #include "Component.h"
 
-uint64_t global_counter = 0;
-
-uint64_t Entity::getGUID() const
-{
-	return guid;
-}
-
 Entity::Entity() : xyz()
 {
-	guid = ++global_counter;
 	parent = nullptr;
 	root = nullptr; // set to reference self shortly after construction
 }

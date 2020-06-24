@@ -1,9 +1,18 @@
+MpAttack
+uint64 target
 MpChat
 uint64 sender
 string message
+MpDamage
+uint64 id
+int64 damage
+uint64 source
 MpGuid
 uint64 low
 uint64 high
+MpMobSpriteUpdate
+uint64 id
+uint64 sprite
 MpMobUpdate
 uint64 id
 MpMobUpdateData data

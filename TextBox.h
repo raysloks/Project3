@@ -7,5 +7,7 @@ class TextBox :
 {
 public:
 	void start();
+
+	bool active;
 };
 

@@ -23,15 +23,17 @@ void Mob::tick(float dt)
 
 	Vec2 v_prev = v;
 
-	float n_dot_move = n.Dot(move);
-	if (n_dot_move > 0.0f)
-		move -= n * n_dot_move;
-
-	n = Vec2();
-
 	float l = move.Len();
 	if (l != 0.0f)
 	{
+		float n_dot_move = n.Dot(move);
+		if (n_dot_move > 0.0f)
+		{
+			move -= n * n_dot_move;
+			move /= move.Len();
+			move *= l;
+		}
+
 		if (l > 1.0f)
 			move /= l;
 
@@ -39,6 +41,8 @@ void Mob::tick(float dt)
 		v += move * (stats.move_acc + stats.move_dec) * dt;
 		v.Truncate(fmaxf(mag_pre, stats.move_speed));
 	}
+
+	n = Vec2();
 
 	float mag = v.Len();
 	float loss = stats.move_dec * dt;

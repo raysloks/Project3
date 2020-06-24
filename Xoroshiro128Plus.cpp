@@ -64,6 +64,11 @@ uint64_t Xoroshiro128Plus::next(uint64_t min_inclusive, uint64_t max_inclusive)
 	return min_inclusive + next(max_inclusive - min_inclusive);
 }
 
+bool Xoroshiro128Plus::next_bool()
+{
+	return (int64_t)next() < 0;
+}
+
 float Xoroshiro128Plus::next_float()
 {
 	return (next() >> 40) * (1.0f / (1ull << 24));

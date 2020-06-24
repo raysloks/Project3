@@ -8,6 +8,8 @@ Reference<Entity> Level::add_entity()
 {
 	auto entity = entities.add();
 	entity->root = entity;
+	entity->uid.a = rng.next();
+	entity->uid.b = rng.next();
 	return entity;
 }
 

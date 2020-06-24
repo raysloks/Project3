@@ -1,5 +1,8 @@
+	void MpAttackHandler(const asio::ip::udp::endpoint& endpoint, const MpAttack& message);
 	void MpChatHandler(const asio::ip::udp::endpoint& endpoint, const MpChat& message);
+	void MpDamageHandler(const asio::ip::udp::endpoint& endpoint, const MpDamage& message);
 	void MpGuidHandler(const asio::ip::udp::endpoint& endpoint, const MpGuid& message);
+	void MpMobSpriteUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobSpriteUpdate& message);
 	void MpMobUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobUpdate& message);
 	void MpMobUpdateDataHandler(const asio::ip::udp::endpoint& endpoint, const MpMobUpdateData& message);
 	void MpPlayerMobCreatedHandler(const asio::ip::udp::endpoint& endpoint, const MpPlayerMobCreated& message);

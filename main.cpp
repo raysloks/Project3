@@ -407,8 +407,13 @@ Level * create_level(int floor)
 	return level;
 }
 
+#include "Blueprint.h"
+
 int main(int argc, char* args[])
 {
+	auto bp = Blueprint::load("test.bp");
+	bp->save("data/test_save.bp");
+
 	Engine engine;
 
 	engine.input->keyBindings.set(KB_UP, SDLK_w);

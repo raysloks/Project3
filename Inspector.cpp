@@ -55,7 +55,7 @@ void Inspector::tick(float dt)
 			ss << entity->x << " " << entity->y << " " << entity->z << "\n";
 			for (auto&& component : entity->getComponents())
 			{
-				ss << Diamond::getDataOf(component.get());
+				Diamond::print(ss, component.get());
 			}
 		}
 	}

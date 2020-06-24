@@ -2,6 +2,8 @@
 
 #include <thread>
 #include <sstream>
+#include <fstream>
+#include <iomanip>
 
 #include "Text.h"
 
@@ -29,8 +31,8 @@ std::shared_ptr<Blueprint> Blueprint::load(const std::string & fname)
 
 			if (text->size())
 			{
-				std::map<std::string, std::pair<Reference<Entity>, const Coal&>> entities;
-				std::map<std::string, std::pair<Reference<Component>, const Coal&>> components;
+				std::map<std::string, std::pair<Reference<Entity>, Coal*>> entities;
+				std::map<std::string, std::pair<Reference<Component>, Coal*>> components;
 
 				std::stringstream ss(*text);
 
@@ -49,7 +51,11 @@ std::shared_ptr<Blueprint> Blueprint::load(const std::string & fname)
 									if (type == "Entity")
 									{
 										auto entity = bp->level.add_entity();
-										entities.emplace(std::make_pair(member.first, std::make_pair(entity, member.second.elements[1])));
+
+										std::stringstream ss(member.first.substr(1, std::string::npos));
+										ss >> std::hex >> std::setw(16) >> entity->uid.b >> std::setw(16) >> entity->uid.a;
+
+										entities.emplace(std::make_pair(member.first.substr(1, std::string::npos), std::make_pair(entity, &member.second.elements[1])));
 									}
 									else
 									{
@@ -65,23 +71,23 @@ std::shared_ptr<Blueprint> Blueprint::load(const std::string & fname)
 											component = bp->level.tilemap_colliders.add();
 										if (index == std::type_index(typeid(Sprite)))
 											component = bp->level.sprites.add();
-										components.emplace(std::make_pair(member.first, std::make_pair(component, member.second.elements[1])));
+										components.emplace(std::make_pair(member.first.substr(1, std::string::npos), std::make_pair(component, &member.second.elements[1])));
 									}
 								}
 							}
 						}
 
-						for (auto&& [guid, entity] : entities)
+						for (auto&& [uid, entity] : entities)
 						{
-							entity.first->x = entity.second.members.at("x").real;
-							entity.first->y = entity.second.members.at("y").real;
-							entity.first->z = entity.second.members.at("z").real;
-							auto parent = entity.second.members.find("parent");
-							if (parent != entity.second.members.end())
+							entity.first->x = entity.second->members.at("x").real;
+							entity.first->y = entity.second->members.at("y").real;
+							entity.first->z = entity.second->members.at("z").real;
+							auto parent = entity.second->members.find("parent");
+							if (parent != entity.second->members.end())
 								Entity::adopt(entity.first, entities.at(parent->second.string).first);
 						}
 
-						for (auto&& [guid, component] : components)
+						for (auto&& [uid, component] : components)
 						{
 							Diamond::init(component.first.get(), component.second);
 						}
@@ -105,9 +111,10 @@ void Blueprint::save(const std::string & fname) const
 			std::this_thread::yield();
 
 		Coal coal;
+		coal.type = Coal::Type::Object;
 		for (auto entity : shared_this->level.entities.components)
 		{
-			std::string guid;
+			std::string uid = entity.uid;
 
 			Coal data({
 				{ "x", entity.x },
@@ -116,14 +123,24 @@ void Blueprint::save(const std::string & fname) const
 
 			auto parent = entity.getParent();
 			if (parent)
-				data.members["parent"] = Coal();
+				data.members["parent"] = (std::string)parent->uid;
 
-			coal.members.emplace(std::make_pair(guid, Coal({ "Entity", std::move(data) })));
+			coal.members.emplace(std::make_pair("_" + uid, Coal({ "Entity", std::move(data) })));
 
 			for (auto component : entity.getComponents())
 			{
+				std::string uid;
+
+				Coal data = Diamond::data(component.get());
+				data.members["entity"] = (std::string)entity.uid;
+
+				coal.members.emplace(std::make_pair("_" + uid, Coal({ Diamond::name(component.get()), std::move(data) })));
 			}
 		}
+
+		std::ofstream f(fname);
+		coal.print(f);
+		coal.print(std::cout);
 	};
 
 	if (loaded)

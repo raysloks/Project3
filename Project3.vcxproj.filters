@@ -230,6 +230,18 @@
     <ClCompile Include="Coal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UID.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpDamage.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpMobSpriteUpdate.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpAttack.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -444,6 +456,18 @@
     </ClInclude>
     <ClInclude Include="Coal.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UID.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpDamage.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpMobSpriteUpdate.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpAttack.h">
+      <Filter>Source Files\MobPos</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

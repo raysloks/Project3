@@ -15,6 +15,8 @@ public:
 	uint64_t next(uint64_t max_inclusive);
 	uint64_t next(uint64_t min_inclusive, uint64_t max_inclusive);
 
+	bool next_bool();
+
 	// in the range [0, 1)
 	float next_float();
 

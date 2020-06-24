@@ -254,15 +254,15 @@ bool Player::onAction(size_t action)
 			collider->layers = 3;
 			Component::attach(collider, sword);
 
-			auto hit = std::make_shared<std::set<uint64_t>>();
+			auto hit = std::make_shared<std::set<UID>>();
 			on_hit = [hit, this](const Collision& collision)
 			{
 				if (auto enemy = collision.other->entity->getComponent<Mob>())
 				{
 					if (enemy->entity == entity)
 						return;
-					auto guid = enemy->entity->getGUID();
-					if (hit->find(guid) == hit->end())
+					auto uid = enemy->entity->uid;
+					if (hit->find(uid) == hit->end())
 					{
 						if (entity)
 						{
@@ -271,7 +271,7 @@ bool Player::onAction(size_t action)
 						}
 						//enemy->entity->getComponent<SpriteAnimator>()->freeze = fmaxf(sword->getComponent<SpriteAnimator>()->freeze, 4.0f / 30.0f);
 						//enemy->entity->p += direction * 20.0f;
-						hit->insert(guid);
+						hit->insert(uid);
 						enemy->onDamaged(rng->next(3) + 1);
 					}
 				}

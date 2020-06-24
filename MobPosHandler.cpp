@@ -2,6 +2,8 @@
 
 #include "Player.h"
 
+#include <iostream>
+
 MobPosHandler::MobPosHandler()
 {
 	link.handler = this;
@@ -10,12 +12,36 @@ MobPosHandler::MobPosHandler()
 	link.Receive();
 }
 
+void MobPosHandler::MpAttackHandler(const asio::ip::udp::endpoint & endpoint, const MpAttack & message)
+{
+}
+
 void MobPosHandler::MpChatHandler(const asio::ip::udp::endpoint & endpoint, const MpChat & message)
 {
 }
 
+void MobPosHandler::MpDamageHandler(const asio::ip::udp::endpoint & endpoint, const MpDamage & message)
+{
+	auto mob = mobs.find(message.id);
+	if (mob != mobs.end())
+	{
+		mob->second.mob->onDamaged(message.damage);
+	}
+}
+
 void MobPosHandler::MpGuidHandler(const asio::ip::udp::endpoint & endpoint, const MpGuid & message)
 {
+}
+
+std::vector<std::string> temp = { "bone_boy.png", "imp.png" };
+
+void MobPosHandler::MpMobSpriteUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobSpriteUpdate & message)
+{
+	if (message.id == player_mob_id)
+		return;
+
+	auto mob = getMob(message.id);
+	mob->second.mob->getComponent<Sprite>()->sheet = SpriteSheet::get(temp[message.sprite]);
 }
 
 void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobUpdate & message)
@@ -23,29 +49,8 @@ void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint,
 	if (message.id == player_mob_id)
 		return;
 
-	auto mob = mobs.find(message.id);
-	if (mob != mobs.end())
-	{
-		mob->second.updates.push_back(message.data);
-		//mob->second.mob->entity->xyz = message.position;
-	}
-	else
-	{
-		auto entity = level->add_entity();
-		entity->xyz = message.data.position;
-
-		auto sprite = level->sprites.add("bone_boy.png");
-		Component::attach(sprite, entity);
-
-		auto mob = level->add<NetworkMob>();
-		Component::attach(mob, entity);
-
-		MobPosData data;
-		data.mob = mob;
-		data.updates.push_back(message.data);
-
-		mobs.emplace(std::make_pair(message.id, data));
-	}
+	auto mob = getMob(message.id);
+	mob->second.updates.push_back(message.data);
 }
 
 void MobPosHandler::MpMobUpdateDataHandler(const asio::ip::udp::endpoint & endpoint, const MpMobUpdateData & message)
@@ -83,6 +88,44 @@ void MobPosHandler::tick(float dt)
 	}
 }
 
+std::map<uint64_t, MobPosData>::iterator MobPosHandler::getMob(uint64_t id)
+{
+	auto mob = mobs.find(id);
+	if (mob != mobs.end())
+		return mob;
+	createMob(id);
+	return mobs.find(id);
+}
+
+void MobPosHandler::createMob(uint64_t id)
+{
+	auto entity = level->add_entity();
+
+	auto sprite = level->sprites.add("uu.png");
+	Component::attach(sprite, entity);
+
+	auto mob = level->add<NetworkMob>();
+	Component::attach(mob, entity);
+
+	auto mob_entity = entity;
+
+	// create shadow
+	{
+		auto entity = level->add_entity();
+		Entity::adopt(entity, mob_entity);
+
+		auto sprite = level->sprites.add("shadow4_iso.png");
+		sprite->sort = 0;
+		sprite->color = SDL_Color({ 0, 0, 0, 32 });
+		Component::attach(sprite, entity);
+	}
+
+	MobPosData data;
+	data.mob = mob;
+
+	mobs.emplace(std::make_pair(id, data));
+}
+
 const float lower_margin = -4.0f;
 const float nominal_margin_lower = -2.5f;
 const float upper_margin = -1.0f;
@@ -90,6 +133,9 @@ const float nominal_margin_upper = -2.5f;
 
 void MobPosData::tick(float dt)
 {
+	if (updates.empty())
+		return;
+
 	accumulator += dt * 20.0f;
 
 	if (accumulator > updates.size() + upper_margin)

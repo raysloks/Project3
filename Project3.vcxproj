@@ -97,6 +97,9 @@
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>SDL2_net.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -110,6 +113,9 @@
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>SDL2_net.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -127,6 +133,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>SDL2_net.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -144,6 +153,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>SDL2_net.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ability.cpp" />
@@ -169,6 +181,10 @@
     <ClCompile Include="FollowCursor.cpp" />
     <ClCompile Include="FrameRate.cpp" />
     <ClCompile Include="GroundEffectChunk.cpp" />
+    <ClCompile Include="MobPos\MpAttack.cpp" />
+    <ClCompile Include="MobPos\MpDamage.cpp" />
+    <ClCompile Include="MobPos\MpMobSpriteUpdate.cpp" />
+    <ClCompile Include="UID.cpp" />
     <ClCompile Include="HealthDisplay.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Inspector.cpp" />
@@ -238,6 +254,10 @@
     <ClInclude Include="FrameRate.h" />
     <ClInclude Include="GameKeyBinding.h" />
     <ClInclude Include="GroundEffectChunk.h" />
+    <ClInclude Include="MobPos\MpAttack.h" />
+    <ClInclude Include="MobPos\MpDamage.h" />
+    <ClInclude Include="MobPos\MpMobSpriteUpdate.h" />
+    <ClInclude Include="UID.h" />
     <ClInclude Include="HealthDisplay.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="Inspector.h" />

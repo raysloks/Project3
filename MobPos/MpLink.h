@@ -4,8 +4,11 @@
 
 #include <asio.hpp>
 
+#include "MpAttack.h"
 #include "MpChat.h"
+#include "MpDamage.h"
 #include "MpGuid.h"
+#include "MpMobSpriteUpdate.h"
 #include "MpMobUpdate.h"
 #include "MpMobUpdateData.h"
 #include "MpPlayerMobCreated.h"
@@ -22,8 +25,11 @@ public:
 	void Open(const asio::ip::udp::endpoint& endpoint);
 	void Receive();
 	void Dispatch(asio::streambuf& buffer, const asio::ip::udp::endpoint& endpoint);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpAttack& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpChat& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpDamage& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpGuid& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobSpriteUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobUpdateData& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpPlayerMobCreated& message);

@@ -106,7 +106,7 @@ std::string parseName(std::istream& is)
 		}
 		break;
 	} while (!is.eof());
-	return "";
+	return "<error>";
 }
 
 Coal parseMembers(std::istream& is)
@@ -116,7 +116,7 @@ Coal parseMembers(std::istream& is)
 	do
 	{
 		auto name = parseName(is);
-		if (name.size() > 0)
+		if (name != "<error>")
 		{
 			auto member = Coal::parse(is);
 			if (member)
@@ -159,6 +159,14 @@ Coal::Coal(std::nullptr_t)
 	type = Type::Null;
 }
 
+Coal::Coal(const char * string) : string(string)
+{
+	integer = 0;
+	real = 0.0f;
+	boolean = false;
+	type = Type::String;
+}
+
 Coal::Coal(const std::string& string) : string(string)
 {
 	integer = 0;
@@ -168,6 +176,13 @@ Coal::Coal(const std::string& string) : string(string)
 }
 
 Coal::Coal(int64_t integer) : integer(integer)
+{
+	real = integer;
+	boolean = integer;
+	type = Type::Integer;
+}
+
+Coal::Coal(uint64_t integer) : integer(integer)
 {
 	real = integer;
 	boolean = integer;
@@ -381,4 +396,24 @@ bool Coal::operator!=(const Coal& rhs) const
 	default:
 		return false;
 	}
+}
+
+Coal& Coal::operator[](const std::string& key)
+{
+	return members[key];
+}
+
+Coal& Coal::operator[](std::string&& key)
+{
+	return members[key];
+}
+
+Coal& Coal::operator[](size_t index)
+{
+	return elements[index];
+}
+
+const Coal & Coal::operator[](size_t index) const
+{
+	return elements[index];
 }

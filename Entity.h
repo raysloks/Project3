@@ -7,6 +7,8 @@
 
 #include "Reference.h"
 
+#include "UID.h"
+
 #include <string>
 #include <map>
 #include <vector>
@@ -53,7 +55,7 @@ public:
 		};
 	};
 
-	uint64_t getGUID() const;
+	UID uid;
 
 private:
 	friend class ComponentContainer<Entity>;
@@ -61,8 +63,6 @@ private:
 	friend class Level;
 
 	Entity();
-
-	uint64_t guid;
 
 	std::vector<Reference<Component>> components;
 
