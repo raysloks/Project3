@@ -6,15 +6,24 @@ void TextBox::start()
 	font->rows = 16;
 	font->columns = 16;
 
+	active = false;
+
 	input->addTextInputCallback([this](const std::string& text)
 		{
 			if (level->contains_entity(entity))
-				setText(this->text + text);
+				if (active)
+					setText(this->text + text);
+		});
+	input->addKeyDownCallback(SDLK_RETURN, [this]()
+		{
+			if (level->contains_entity(entity))
+				active = !active;
 		});
 	input->addUnfilteredKeyDownCallback(SDLK_BACKSPACE, [this]()
 		{
 			if (level->contains_entity(entity))
-				setText(text.substr(0, text.size() - 1));
+				if (active)
+					setText(text.substr(0, text.size() - 1));
 		});
 
 	TextDisplay::start();

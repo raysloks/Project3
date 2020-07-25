@@ -5,6 +5,7 @@
 #include "Collider.h"
 
 #include "Enemy.h"
+#include "NetworkMob.h"
 
 #include "GameKeyBinding.h"
 
@@ -32,6 +33,8 @@ Player::Player()
 	base_stats.move_speed = 24.0f;
 	base_stats.move_acc = 60.0f;
 	base_stats.move_dec = 240.0f;
+
+	team = 0;
 }
 
 void Player::start()
@@ -50,6 +53,8 @@ void Player::start()
 	input->addKeyDownCallback(KB_ACTION_9, std::bind(&Player::onKey, this, 9));
 
 	input->addKeyDownCallback(KB_MOVE_CURSOR, std::bind(&Player::moveToCursor, this));
+
+	move_target = entity->xy;
 }
 
 void Player::tick(float dt)
@@ -363,7 +368,7 @@ bool Player::onAction(size_t action)
 		auto in_range = cs->overlapCircle(target, 8.0f);
 		for (auto i : in_range)
 		{
-			auto enemy = i.second->getComponent<Enemy>();
+			auto enemy = i.second->getComponent<NetworkMob>();
 			if (enemy)
 			{
 				auto diff = enemy->entity->xy - entity->xy;
@@ -391,8 +396,8 @@ bool Player::onAction(size_t action)
 
 void Player::update_camera()
 {
-	srs->camera_position.x = entity->xy.x;
-	srs->camera_position.y = entity->xy.y;
+	/*srs->camera_position.x = entity->xy.x;
+	srs->camera_position.y = entity->xy.y;*/
 }
 
 void Player::moveToCursor()

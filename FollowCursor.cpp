@@ -1,12 +1,12 @@
 #include "FollowCursor.h"
 
-#include "Enemy.h"
+#include "Mob.h"
 
 void FollowCursor::tick(float dt)
 {
 	entity->xy = srs->screenToWorld(input->getCursor());
 
-	Reference<Enemy> hover = nullptr;
+	Reference<Mob> hover = nullptr;
 
 	auto sprite = getComponent<Sprite>();
 	if (sprite)
@@ -15,14 +15,16 @@ void FollowCursor::tick(float dt)
 		auto in_range = cs->overlapCircle(entity->xy + Vec2(4.0f), 8.0f);
 		for (auto i : in_range)
 		{
-			auto enemy = i.second->getComponent<Enemy>();
-			if (enemy)
+			auto mob = i.second->getComponent<Mob>();
+			if (mob)
 			{
-				hover = enemy;
+				hover = mob;
 				break;
 			}
 		}
 	}
+
+	srs->setCursor(SpriteSheet::get("cursor.png"), 1);
 
 	if (hover)
 	{
@@ -33,24 +35,33 @@ void FollowCursor::tick(float dt)
 		
 		t += dt;
 
-		auto enemy_sprite = hover->getComponent<Sprite>();
-		if (enemy_sprite)
+		auto hover_sprite = hover->getComponent<Sprite>();
+		if (hover_sprite)
 		{
-			if (current_enemy_sheet != enemy_sprite->sheet)
+			if (current_enemy_sheet != hover_sprite->sheet)
 			{
-				current_enemy_sheet = enemy_sprite->sheet;
+				current_enemy_sheet = hover_sprite->sheet;
 				sprite->sheet = current_enemy_sheet->makeOutline();
 			}
 
 			uint8_t a = cosf(t * 6) * 50 + 200;
 
-			entity->xyz = enemy_sprite->entity->xyz;
-			sprite->color = SDL_Color({ 255, 0, 0, a });
+			entity->xyz = hover_sprite->entity->xyz;
 			sprite->sort = 256;
-			sprite->flip = enemy_sprite->flip;
-			sprite->rotation = enemy_sprite->rotation;
-			sprite->subsprite_x = enemy_sprite->subsprite_x;
-			sprite->subsprite_y = enemy_sprite->subsprite_y;
+			sprite->flip = hover_sprite->flip;
+			sprite->rotation = hover_sprite->rotation;
+			sprite->subsprite_x = hover_sprite->subsprite_x;
+			sprite->subsprite_y = hover_sprite->subsprite_y;
+
+			if (hover->team == 0)
+			{
+				sprite->color = SDL_Color({ 25, 204, 25, a });
+			}
+			else
+			{
+				sprite->color = SDL_Color({ 204, 25, 25, a });
+				srs->setCursor(SpriteSheet::get("cursor_attack.png"), 1);
+			}
 		}
 
 		current_hover = hover;

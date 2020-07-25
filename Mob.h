@@ -18,6 +18,8 @@ public:
 
 	virtual void onDamaged(int64_t damage);
 
+	uint32_t team;
+
 	int64_t hp, hp_max;
 
 	Vec2 v, n, move;

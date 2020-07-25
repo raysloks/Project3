@@ -1,8 +1,9 @@
 #include "MobPosHandler.h"
 
-#include "Player.h"
-
 #include <iostream>
+
+#include "GameKeyBinding.h"
+#include "SpriteAnimator.h"
 
 MobPosHandler::MobPosHandler()
 {
@@ -10,6 +11,12 @@ MobPosHandler::MobPosHandler()
 	link.Open(asio::ip::udp::endpoint(asio::ip::address_v6::any(), 0));
 
 	link.Receive();
+
+	player_mob_id = -1;
+
+	initialized = false;
+
+	heartbeat_timer = 0.0f;
 }
 
 void MobPosHandler::MpAttackHandler(const asio::ip::udp::endpoint & endpoint, const MpAttack & message)
@@ -37,8 +44,8 @@ std::vector<std::string> temp = { "bone_boy.png", "imp.png" };
 
 void MobPosHandler::MpMobSpriteUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobSpriteUpdate & message)
 {
-	if (message.id == player_mob_id)
-		return;
+	/*if (message.id == player_mob_id)
+		return;*/
 
 	auto mob = getMob(message.id);
 	mob->second.mob->getComponent<Sprite>()->sheet = SpriteSheet::get(temp[message.sprite]);
@@ -46,8 +53,8 @@ void MobPosHandler::MpMobSpriteUpdateHandler(const asio::ip::udp::endpoint & end
 
 void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobUpdate & message)
 {
-	if (message.id == player_mob_id)
-		return;
+	/*if (message.id == player_mob_id)
+		return;*/
 
 	auto mob = getMob(message.id);
 	mob->second.updates.push_back(message.data);
@@ -72,20 +79,58 @@ void MobPosHandler::MpUpdateHandler(const asio::ip::udp::endpoint & endpoint, co
 
 void MobPosHandler::tick(float dt)
 {
+	if (!initialized)
+	{
+		initialized = true;
+
+		engine->input->addKeyDownCallback(KB_MOVE_CURSOR, [this]()
+			{
+				Vec2 target = engine->srs->screenToWorld(engine->input->getCursor());
+
+				MpMobUpdate message;
+				message.data.position = target / 16.0f + 0.5f;
+				link.Send(asio::ip::udp::endpoint(asio::ip::address::from_string("2001:2002:51eb:2940:f30b:983c:2892:83c2"), 43857), message);
+
+				// create poof
+				{
+					auto entity = level->add_entity();
+					entity->xy = target;
+
+					auto sprite = level->sprites.add("blink.png");
+					sprite->sort = 256;
+					sprite->sheet->columns = 4;
+					Component::attach(sprite, entity);
+
+					auto animator = level->add<SpriteAnimator>(15.0f);
+					animator->destroy = true;
+					Component::attach(animator, entity);
+				}
+			});
+	}
+
 	for (auto& i : mobs)
 	{
 		i.second.tick(dt);
 	}
 
-	auto player = level->get<Player>();
-	if (player)
+	auto player_mob = mobs.find(player_mob_id);
+	if (player_mob != mobs.end())
 	{
-		MpMobUpdate message;
-		message.data.position = player->entity->xyz;
-		message.data.velocity = player->v;
-		message.data.facing = player->move;
-		link.Send(asio::ip::udp::endpoint(asio::ip::address::from_string("2001:2002:51eb:2940:f30b:983c:2892:83c2"), 43857), message);
+		engine->srs->camera_position = player_mob->second.mob->entity->xy;
 	}
+
+	heartbeat_timer -= dt;
+	if (heartbeat_timer <= 0.0f)
+	{
+		MpUpdate message;
+		link.Send(asio::ip::udp::endpoint(asio::ip::address::from_string("2001:2002:51eb:2940:f30b:983c:2892:83c2"), 43857), message);
+		heartbeat_timer += 0.75f;
+	}
+
+	if (isnan(heartbeat_timer))
+		heartbeat_timer = 0.0f;
+	if (heartbeat_timer > 1.5f || heartbeat_timer < -1.5f)
+		heartbeat_timer = 0.0f;
 }
 
 std::map<uint64_t, MobPosData>::iterator MobPosHandler::getMob(uint64_t id)
@@ -106,6 +151,10 @@ void MobPosHandler::createMob(uint64_t id)
 
 	auto mob = level->add<NetworkMob>();
 	Component::attach(mob, entity);
+
+	auto collider = level->circle_colliders.add(3.0f);
+	collider->layers = 0b10;
+	Component::attach(collider, entity);
 
 	auto mob_entity = entity;
 

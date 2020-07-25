@@ -45,5 +45,10 @@ public:
 	std::map<uint64_t, MobPosData> mobs;
 
 	uint64_t player_mob_id;
+
+private:
+	bool initialized;
+
+	float heartbeat_timer;
 };
 

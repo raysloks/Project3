@@ -62,7 +62,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::load(const std::string & fname)
 			if (meta->size())
 			{
 				std::istringstream is(*meta);
-				is >> sheet->columns >> sheet->rows;
+				is >> sheet->columns >> sheet->rows >> sheet->offset_x >> sheet->offset_y;
 			}
 
 			sheet->loaded = true;

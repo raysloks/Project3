@@ -93,16 +93,16 @@ void Mob::onDamaged(int64_t damage)
 
 		auto text = level->add<FloatingText>(std::to_string(damage), 32, 1);
 
-		text->v.xy = Vec2(8.0f, 0.0f).Rotate(rng->next_float() * 360.0f);
-		text->v.z = -32.0f;
+		text->v.xy = Vec2(16.0f, 0.0f).Rotate(rng->next_float() * 360.0f);
+		text->v.z = -16.0f;
 
 		text->a.z = 128.0f;
 
 		Component::attach(text, entity);
 	}
 
-	if (hp <= 0)
-		level->remove_entity(entity);
+	/*if (hp <= 0)
+		level->remove_entity(entity);*/
 }
 
 void Mob::recalculateStats()

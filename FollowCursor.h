@@ -2,7 +2,7 @@
 
 #include "CustomBehaviour.h"
 
-class Enemy;
+class Mob;
 
 class FollowCursor :
 	public CustomBehaviour
@@ -12,7 +12,7 @@ public:
 
 	std::shared_ptr<SpriteSheet> current_enemy_sheet;
 
-	Reference<Enemy> current_hover;
+	Reference<Mob> current_hover;
 
 	float t;
 };

@@ -272,7 +272,7 @@ Level * create_level(int floor)
 	}
 
 	// create enemy
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 0; ++i)
 	{
 		auto entity = level->add_entity();
 		entity->x = 16 * (5 + i * 2);
@@ -303,6 +303,7 @@ Level * create_level(int floor)
 	}
 
 	// create bouncing ball
+	if (false)
 	{
 		auto entity = level->add_entity();
 		entity->x = 16 * 16;
@@ -328,6 +329,7 @@ Level * create_level(int floor)
 	}
 
 	// create pillar
+	if (false)
 	{
 		auto entity = level->add_entity();
 		entity->x = 16 * 16;
@@ -354,6 +356,7 @@ Level * create_level(int floor)
 	}
 
 	// create ui
+	if (false)
 	{
 		auto ui = level->add_entity();
 
@@ -453,6 +456,7 @@ int main(int argc, char* args[])
 	Level * level = create_level(0);
 
 	// create player
+	if (false)
 	{
 		auto entity = level->add_entity();
 		entity->x = 16;

@@ -10,7 +10,7 @@ void NetworkMob::start()
 
 void NetworkMob::tick(float dt)
 {
-	Mob::tick(dt);
+	//Mob::tick(dt);
 
 	auto sprite = entity->getComponent<Sprite>();
 	if (sprite)

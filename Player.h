@@ -30,6 +30,8 @@ public:
 	
 	std::vector<AbilitySlot> abilities;
 
+	Vec2 move_target;
+
 private:
 
 	void onKey(size_t action);
@@ -53,7 +55,5 @@ private:
 	size_t blood;
 
 	std::list<std::pair<float, size_t>> key_buffer;
-
-	Vec2 move_target;
 };
 

@@ -18,6 +18,8 @@ SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
 
 	offscreen = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, target_w, target_h);
 
+	setCursor(SpriteSheet::get("cursor.png"), 1);
+
 	use_offscreen = false;
 }
 
@@ -46,9 +48,13 @@ void SpriteRenderSystem::tick(float dt)
 	int scale_new = (screen_w + target_w - 1) / target_w;
 	if (scale_new < 1)
 		scale_new = 1;
-	if (scale_new != scale)
-		engine->setCursor(SpriteSheet::get("cursor.png")->makeScaled(scale_new), scale_new, scale_new);
-	scale = scale_new;
+	if (scale_new != scale || cursor_sheet_new != cursor_sheet || cursor_hotspot_new != cursor_hotspot)
+	{
+		scale = scale_new;
+		cursor_sheet = cursor_sheet_new;
+		cursor_hotspot = cursor_hotspot_new;
+		engine->setCursor(cursor_sheet->makeScaled(scale_new), scale_new * cursor_hotspot.x, scale_new * cursor_hotspot.y);
+	}
 	
 	if (use_offscreen)
 	{
@@ -233,4 +239,10 @@ int SpriteRenderSystem::getHeight() const
 int SpriteRenderSystem::getScale() const
 {
 	return scale;
+}
+
+void SpriteRenderSystem::setCursor(const std::shared_ptr<SpriteSheet>& sheet, const Vec2 & hotspot)
+{
+	cursor_sheet_new = sheet;
+	cursor_hotspot_new = hotspot;
 }

@@ -24,6 +24,8 @@ public:
 
 	int getScale() const;
 
+	void setCursor(const std::shared_ptr<SpriteSheet> & sheet, const Vec2 & hotspot);
+
 private:
 	SDL_Texture * offscreen;
 
@@ -34,5 +36,8 @@ private:
 	int screen_w, screen_h;
 	int effective_w, effective_h;
 	int scale, raw_scale;
+
+	std::shared_ptr<SpriteSheet> cursor_sheet, cursor_sheet_new;
+	Vec2 cursor_hotspot, cursor_hotspot_new;
 };
 
