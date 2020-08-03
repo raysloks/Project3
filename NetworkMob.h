@@ -11,5 +11,7 @@ public:
 	void start();
 
 	void tick(float dt);
+
+	uint64_t id;
 };
 

@@ -4,11 +4,14 @@
 
 #include <iostream>
 
-class MpGuid
+#include "MpCommand.h"
+#include "Vec2.h"
+
+class MpMoveCommand
 {
 public:
-	uint64_t low;
-	uint64_t high;
+	MpCommand command;
+	Vec2 target;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

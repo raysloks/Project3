@@ -4,11 +4,12 @@
 
 #include <iostream>
 
-class MpGuid
+#include "MpCommand.h"
+
+class MpStopCommand
 {
 public:
-	uint64_t low;
-	uint64_t high;
+	MpCommand command;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

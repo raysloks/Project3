@@ -4,14 +4,13 @@
 
 #include <iostream>
 
-#include "MpGuid.h"
-#include "../Vec3.h"
+#include "MpCommand.h"
 
-class MpAttachment
+class MpAttackCommand
 {
 public:
-	MpGuid guid;
-	Vec3 offset;
+	MpCommand command;
+	uint64_t target;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

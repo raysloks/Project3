@@ -55,11 +55,11 @@ void FollowCursor::tick(float dt)
 
 			if (hover->team == 0)
 			{
-				sprite->color = SDL_Color({ 25, 204, 25, a });
+				sprite->color = SDL_Color({ 0, 255, 0, a });
 			}
 			else
 			{
-				sprite->color = SDL_Color({ 204, 25, 25, a });
+				sprite->color = SDL_Color({ 255, 0, 0, a });
 				srs->setCursor(SpriteSheet::get("cursor_attack.png"), 1);
 			}
 		}

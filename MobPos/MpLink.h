@@ -4,15 +4,27 @@
 
 #include <asio.hpp>
 
+#include "MpActionCommand.h"
 #include "MpAttack.h"
+#include "MpAttackCommand.h"
+#include "MpAttackMoveCommand.h"
+#include "MpCancelCommand.h"
 #include "MpChat.h"
+#include "MpCommand.h"
 #include "MpDamage.h"
 #include "MpGuid.h"
 #include "MpMobSpriteUpdate.h"
+#include "MpMobStateUpdate.h"
+#include "MpMobTeamUpdate.h"
 #include "MpMobUpdate.h"
 #include "MpMobUpdateData.h"
+#include "MpMoveCommand.h"
+#include "MpPath.h"
 #include "MpPlayerMobCreated.h"
+#include "MpPointTargetActionCommand.h"
 #include "MpSound.h"
+#include "MpStopCommand.h"
+#include "MpUnitTargetActionCommand.h"
 #include "MpUpdate.h"
 
 class MobPosHandler;
@@ -25,15 +37,27 @@ public:
 	void Open(const asio::ip::udp::endpoint& endpoint);
 	void Receive();
 	void Dispatch(asio::streambuf& buffer, const asio::ip::udp::endpoint& endpoint);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpActionCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpAttack& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpAttackCommand& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpAttackMoveCommand& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpCancelCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpChat& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpDamage& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpGuid& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobSpriteUpdate& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobStateUpdate& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobTeamUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobUpdateData& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpMoveCommand& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpPath& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpPlayerMobCreated& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpPointTargetActionCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpSound& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpStopCommand& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpUnitTargetActionCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpUpdate& message);
 	static const uint32_t crc;
 private:

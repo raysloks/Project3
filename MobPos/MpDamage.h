@@ -4,7 +4,6 @@
 
 #include <iostream>
 
-#pragma pack(push, 4)
 class MpDamage
 {
 public:
@@ -15,4 +14,3 @@ public:
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);
 };
-#pragma pack(pop)

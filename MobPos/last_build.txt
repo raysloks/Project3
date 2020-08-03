@@ -1,8 +1,22 @@
+MpActionCommand
+MpCommand command
+uint8 action
 MpAttack
 uint64 target
+MpAttackCommand
+MpCommand command
+uint64 target
+MpAttackMoveCommand
+MpCommand command
+vec2 target
+MpCancelCommand
+MpCommand command
 MpChat
 uint64 sender
 string message
+MpCommand
+uint64 time
+uint8 index
 MpDamage
 uint64 id
 int64 damage
@@ -13,17 +27,41 @@ uint64 high
 MpMobSpriteUpdate
 uint64 id
 uint64 sprite
+MpMobStateUpdate
+uint64 id
+uint64 sprite
+uint32 team
+MpMobTeamUpdate
+uint64 id
+uint32 team
 MpMobUpdate
 uint64 id
 MpMobUpdateData data
 MpMobUpdateData
+uint64 tick
 vec3 position
 vec3 velocity
 vec3 facing
+MpMoveCommand
+MpCommand command
+vec2 target
+MpPath
+uint64 id
+uint64 time
+vec2 points[]
 MpPlayerMobCreated
 uint64 id
+MpPointTargetActionCommand
+MpActionCommand action
+vec2 target
 MpSound
 vec3 position
 uint32 sound_id
+MpStopCommand
+MpCommand command
+MpUnitTargetActionCommand
+MpActionCommand action
+uint64 target
 MpUpdate
-uint64 tick
+uint32 tick
+uint64 time

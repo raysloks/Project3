@@ -55,6 +55,7 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared">
+    <Import Project="..\..\MapGenerator\MapGenerator\MapGenerator.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -181,9 +182,22 @@
     <ClCompile Include="FollowCursor.cpp" />
     <ClCompile Include="FrameRate.cpp" />
     <ClCompile Include="GroundEffectChunk.cpp" />
+    <ClCompile Include="MobPath.cpp" />
+    <ClCompile Include="MobPos\MpActionCommand.cpp" />
     <ClCompile Include="MobPos\MpAttack.cpp" />
+    <ClCompile Include="MobPos\MpAttackCommand.cpp" />
+    <ClCompile Include="MobPos\MpAttackMoveCommand.cpp" />
+    <ClCompile Include="MobPos\MpCancelCommand.cpp" />
+    <ClCompile Include="MobPos\MpCommand.cpp" />
     <ClCompile Include="MobPos\MpDamage.cpp" />
     <ClCompile Include="MobPos\MpMobSpriteUpdate.cpp" />
+    <ClCompile Include="MobPos\MpMobStateUpdate.cpp" />
+    <ClCompile Include="MobPos\MpMobTeamUpdate.cpp" />
+    <ClCompile Include="MobPos\MpMoveCommand.cpp" />
+    <ClCompile Include="MobPos\MpPath.cpp" />
+    <ClCompile Include="MobPos\MpPointTargetActionCommand.cpp" />
+    <ClCompile Include="MobPos\MpStopCommand.cpp" />
+    <ClCompile Include="MobPos\MpUnitTargetActionCommand.cpp" />
     <ClCompile Include="UID.cpp" />
     <ClCompile Include="HealthDisplay.cpp" />
     <ClCompile Include="InputSystem.cpp" />
@@ -196,7 +210,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mob.cpp" />
     <ClCompile Include="MobPosHandler.cpp" />
-    <ClCompile Include="MobPos\MpAttachment.cpp" />
     <ClCompile Include="MobPos\MpChat.cpp" />
     <ClCompile Include="MobPos\MpGuid.cpp" />
     <ClCompile Include="MobPos\MpHeartbeat.cpp" />
@@ -223,10 +236,7 @@
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="Tilemap.cpp" />
     <ClCompile Include="TilemapCollider.cpp" />
-    <ClCompile Include="Vec2.cpp" />
-    <ClCompile Include="Vec3.cpp" />
     <ClCompile Include="Weapon.cpp" />
-    <ClCompile Include="Xoroshiro128Plus.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ability.h" />
@@ -254,9 +264,22 @@
     <ClInclude Include="FrameRate.h" />
     <ClInclude Include="GameKeyBinding.h" />
     <ClInclude Include="GroundEffectChunk.h" />
+    <ClInclude Include="MobPath.h" />
+    <ClInclude Include="MobPos\MpActionCommand.h" />
     <ClInclude Include="MobPos\MpAttack.h" />
+    <ClInclude Include="MobPos\MpAttackCommand.h" />
+    <ClInclude Include="MobPos\MpAttackMoveCommand.h" />
+    <ClInclude Include="MobPos\MpCancelCommand.h" />
+    <ClInclude Include="MobPos\MpCommand.h" />
     <ClInclude Include="MobPos\MpDamage.h" />
     <ClInclude Include="MobPos\MpMobSpriteUpdate.h" />
+    <ClInclude Include="MobPos\MpMobStateUpdate.h" />
+    <ClInclude Include="MobPos\MpMobTeamUpdate.h" />
+    <ClInclude Include="MobPos\MpMoveCommand.h" />
+    <ClInclude Include="MobPos\MpPath.h" />
+    <ClInclude Include="MobPos\MpPointTargetActionCommand.h" />
+    <ClInclude Include="MobPos\MpStopCommand.h" />
+    <ClInclude Include="MobPos\MpUnitTargetActionCommand.h" />
     <ClInclude Include="UID.h" />
     <ClInclude Include="HealthDisplay.h" />
     <ClInclude Include="InputSystem.h" />
@@ -268,7 +291,6 @@
     <ClInclude Include="Level.h" />
     <ClInclude Include="Mob.h" />
     <ClInclude Include="MobPosHandler.h" />
-    <ClInclude Include="MobPos\MpAttachment.h" />
     <ClInclude Include="MobPos\MpChat.h" />
     <ClInclude Include="MobPos\MpGuid.h" />
     <ClInclude Include="MobPos\MpHandlerPrototypes.h" />
@@ -300,10 +322,7 @@
     <ClInclude Include="Tile.h" />
     <ClInclude Include="Tilemap.h" />
     <ClInclude Include="TilemapCollider.h" />
-    <ClInclude Include="Vec2.h" />
-    <ClInclude Include="Vec3.h" />
     <ClInclude Include="Weapon.h" />
-    <ClInclude Include="Xoroshiro128Plus.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

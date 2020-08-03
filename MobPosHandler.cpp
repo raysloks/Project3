@@ -17,13 +17,35 @@ MobPosHandler::MobPosHandler()
 	initialized = false;
 
 	heartbeat_timer = 0.0f;
+
+	endpoint = asio::ip::udp::endpoint(asio::ip::address::from_string("2a01:7e01::f03c:92ff:fe8e:50b4"), 43857);
+}
+
+void MobPosHandler::MpActionCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpActionCommand & message)
+{
 }
 
 void MobPosHandler::MpAttackHandler(const asio::ip::udp::endpoint & endpoint, const MpAttack & message)
 {
 }
 
+void MobPosHandler::MpAttackCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpAttackCommand & message)
+{
+}
+
+void MobPosHandler::MpAttackMoveCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpAttackMoveCommand & message)
+{
+}
+
+void MobPosHandler::MpCancelCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpCancelCommand & message)
+{
+}
+
 void MobPosHandler::MpChatHandler(const asio::ip::udp::endpoint & endpoint, const MpChat & message)
+{
+}
+
+void MobPosHandler::MpCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpCommand & message)
 {
 }
 
@@ -51,17 +73,43 @@ void MobPosHandler::MpMobSpriteUpdateHandler(const asio::ip::udp::endpoint & end
 	mob->second.mob->getComponent<Sprite>()->sheet = SpriteSheet::get(temp[message.sprite]);
 }
 
+void MobPosHandler::MpMobStateUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobStateUpdate & message)
+{
+}
+
+void MobPosHandler::MpMobTeamUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobTeamUpdate & message)
+{
+}
+
 void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobUpdate & message)
 {
-	/*if (message.id == player_mob_id)
-		return;*/
-
-	auto mob = getMob(message.id);
-	mob->second.updates.push_back(message.data);
 }
 
 void MobPosHandler::MpMobUpdateDataHandler(const asio::ip::udp::endpoint & endpoint, const MpMobUpdateData & message)
 {
+}
+
+void MobPosHandler::MpMoveCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpMoveCommand & message)
+{
+}
+
+void MobPosHandler::MpPathHandler(const asio::ip::udp::endpoint & endpoint, const MpPath & message)
+{
+	auto mob = getMob(message.id);
+	auto&& data = mob->second;
+
+	data.path.clear();
+	data.path.points = message.points;
+	if (data.path.points.size() > 0)
+	{
+		data.path.distances.resize(data.path.points.size() - 1);
+		for (size_t i = 0; i < data.path.distances.size(); ++i)
+			data.path.distances[i] = (data.path.points[i + 1] - data.path.points[i]).Len();
+	}
+	int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
+	int64_t diff = message.time - (now + time_offset);
+	float speed = 1.5f;
+	data.path.move(diff * 0.000000001 * speed);
 }
 
 void MobPosHandler::MpPlayerMobCreatedHandler(const asio::ip::udp::endpoint & endpoint, const MpPlayerMobCreated & message)
@@ -69,12 +117,26 @@ void MobPosHandler::MpPlayerMobCreatedHandler(const asio::ip::udp::endpoint & en
 	player_mob_id = message.id;
 }
 
+void MobPosHandler::MpPointTargetActionCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpPointTargetActionCommand & message)
+{
+}
+
 void MobPosHandler::MpSoundHandler(const asio::ip::udp::endpoint & endpoint, const MpSound & message)
+{
+}
+
+void MobPosHandler::MpStopCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpStopCommand & message)
+{
+}
+
+void MobPosHandler::MpUnitTargetActionCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpUnitTargetActionCommand & message)
 {
 }
 
 void MobPosHandler::MpUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpUpdate & message)
 {
+	int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
+	time_offset = message.time - now;
 }
 
 void MobPosHandler::tick(float dt)
@@ -83,29 +145,85 @@ void MobPosHandler::tick(float dt)
 	{
 		initialized = true;
 
-		engine->input->addKeyDownCallback(KB_MOVE_CURSOR, [this]()
+		engine->input->addKeyDownCallback(KB_MOVE_ATTACK_CURSOR, [this]()
 			{
+				int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
+
 				Vec2 target = engine->srs->screenToWorld(engine->input->getCursor());
 
-				MpMobUpdate message;
-				message.data.position = target / 16.0f + 0.5f;
-				link.Send(asio::ip::udp::endpoint(asio::ip::address::from_string("2001:2002:51eb:2940:f30b:983c:2892:83c2"), 43857), message);
-
-				// create poof
+				Reference<NetworkMob> target_mob;
+				auto in_range = engine->cs->overlapCircle(target + Vec2(4.0f), 8.0f);
+				for (auto i : in_range)
 				{
-					auto entity = level->add_entity();
-					entity->xy = target;
+					auto mob = i.second->getComponent<NetworkMob>();
+					if (mob && mob->id != player_mob_id)
+					{
+						target_mob = mob;
+						break;
+					}
+				}
 
-					auto sprite = level->sprites.add("blink.png");
-					sprite->sort = 256;
-					sprite->sheet->columns = 4;
-					Component::attach(sprite, entity);
+				if (target_mob)
+				{
+					MpAttackCommand message;
+					message.command.time = now + time_offset;
+					message.target = target_mob->id;
+					link.Send(endpoint, message);
+				}
+				else
+				{
+					MpMoveCommand message;
+					message.command.time = now + time_offset;
+					message.target = target / 16.0f + 0.5f;
+					link.Send(endpoint, message);
 
-					auto animator = level->add<SpriteAnimator>(15.0f);
-					animator->destroy = true;
-					Component::attach(animator, entity);
+					// create poof
+					{
+						auto entity = level->add_entity();
+						entity->xy = target;
+
+						auto sprite = level->sprites.add("blink.png");
+						sprite->sort = 256;
+						sprite->sheet->columns = 4;
+						Component::attach(sprite, entity);
+
+						auto animator = level->add<SpriteAnimator>(15.0f);
+						animator->destroy = true;
+						Component::attach(animator, entity);
+					}
 				}
 			});
+
+		engine->input->addKeyDownCallback(KB_STOP_MOVE, [this]()
+			{
+				int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
+
+				MpStopCommand message;
+				message.command.time = now + time_offset;
+				link.Send(endpoint, message);
+			});
+
+		engine->input->addKeyDownCallback(KB_CANCEL_ACTION, [this]()
+			{
+				int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
+
+				MpCancelCommand message;
+				message.command.time = now + time_offset;
+				link.Send(endpoint, message);
+			});
+
+		for (size_t i = 0; i < 10; ++i)
+		{
+			engine->input->addKeyDownCallback(KB_ACTION_0 + i, [this, i]()
+				{
+					int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
+
+					MpActionCommand message;
+					message.command.time = now + time_offset;
+					message.action = i;
+					link.Send(endpoint, message);
+				});
+		}
 	}
 
 	for (auto& i : mobs)
@@ -123,13 +241,13 @@ void MobPosHandler::tick(float dt)
 	if (heartbeat_timer <= 0.0f)
 	{
 		MpUpdate message;
-		link.Send(asio::ip::udp::endpoint(asio::ip::address::from_string("2001:2002:51eb:2940:f30b:983c:2892:83c2"), 43857), message);
-		heartbeat_timer += 0.75f;
+		link.Send(endpoint, message);
+		heartbeat_timer += 2.5f;
 	}
 
 	if (isnan(heartbeat_timer))
 		heartbeat_timer = 0.0f;
-	if (heartbeat_timer > 1.5f || heartbeat_timer < -1.5f)
+	if (heartbeat_timer > 4.0f || heartbeat_timer < -4.0f)
 		heartbeat_timer = 0.0f;
 }
 
@@ -150,6 +268,7 @@ void MobPosHandler::createMob(uint64_t id)
 	Component::attach(sprite, entity);
 
 	auto mob = level->add<NetworkMob>();
+	mob->id = id;
 	Component::attach(mob, entity);
 
 	auto collider = level->circle_colliders.add(3.0f);
@@ -175,49 +294,33 @@ void MobPosHandler::createMob(uint64_t id)
 	mobs.emplace(std::make_pair(id, data));
 }
 
+//const float lower_margin = -5.25f;
+//const float nominal_margin_lower = -4.25f;
+//const float upper_margin = -2.25f;
+//const float nominal_margin_upper = -3.25f;
+
 const float lower_margin = -4.0f;
-const float nominal_margin_lower = -2.5f;
-const float upper_margin = -1.0f;
-const float nominal_margin_upper = -2.5f;
+const float nominal_margin_lower = -4.0f;
+const float upper_margin = -2.0f;
+const float nominal_margin_upper = -2.0f;
+
+//const float lower_margin = -10.0f;
+//const float nominal_margin_lower = -10.0f;
+//const float upper_margin = -6.0f;
+//const float nominal_margin_upper = -6.0f;
 
 void MobPosData::tick(float dt)
 {
-	if (updates.empty())
-		return;
+	float speed = 1.5f;
 
-	accumulator += dt * 20.0f;
+	path.move(dt * speed);
 
-	if (accumulator > updates.size() + upper_margin)
-		accumulator = updates.size() + nominal_margin_upper;
-	if (accumulator < updates.size() + lower_margin)
-		accumulator = updates.size() + nominal_margin_lower;
+	mob->entity->xy = path.getPosition() * 16.0f - 8.0f;
 
-	int lower = std::floorf(accumulator);
-	int upper = std::ceilf(accumulator);
-	float frac = accumulator - lower;
-
-	if (lower < 0)
-		lower = 0;
-	if (upper < 0)
-		upper = 0;
-
-	if (lower > updates.size() - 1)
-		lower = updates.size() - 1;
-	if (upper > updates.size() - 1)
-		upper = updates.size() - 1;
-
-	mob->entity->xyz = updates[lower].position * (1.0f - frac) + updates[upper].position * frac;
-	mob->v = updates[lower].velocity * (1.0f - frac) + updates[upper].velocity * frac;
-	mob->move = updates[lower].facing * (1.0f - frac) + updates[upper].facing * frac;
-
-	if (lower == upper)
-		lower -= 1;
-
-	lower -= 2;
-
-	if (lower > 0)
+	mob->v = Vec2();
+	if (!path.finished())
 	{
-		updates.erase(updates.begin(), updates.begin() + lower);
-		accumulator -= lower;
+		mob->move = path.getDirection();
+		mob->v = path.getDirection() * speed * 16.0f;
 	}
 }

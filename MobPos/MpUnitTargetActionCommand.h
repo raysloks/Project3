@@ -4,11 +4,13 @@
 
 #include <iostream>
 
-class MpGuid
+#include "MpActionCommand.h"
+
+class MpUnitTargetActionCommand
 {
 public:
-	uint64_t low;
-	uint64_t high;
+	MpActionCommand action;
+	uint64_t target;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

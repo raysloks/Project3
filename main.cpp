@@ -361,6 +361,7 @@ Level * create_level(int floor)
 		auto ui = level->add_entity();
 
 		// create health display
+		if (false)
 		{
 			auto entity = level->add_entity();
 			Entity::adopt(entity, ui);
@@ -370,6 +371,7 @@ Level * create_level(int floor)
 		}
 
 		// create action bar
+		if (false)
 		{
 			auto entity = level->add_entity();
 			Entity::adopt(entity, ui);
@@ -419,10 +421,10 @@ int main(int argc, char* args[])
 
 	Engine engine;
 
-	engine.input->keyBindings.set(KB_UP, SDLK_w);
+	/*engine.input->keyBindings.set(KB_UP, SDLK_w);
 	engine.input->keyBindings.set(KB_LEFT, SDLK_a);
 	engine.input->keyBindings.set(KB_DOWN, SDLK_s);
-	engine.input->keyBindings.set(KB_RIGHT, SDLK_d);
+	engine.input->keyBindings.set(KB_RIGHT, SDLK_d);*/
 
 	engine.input->keyBindings.set(KB_ACTION_0, SDLK_1);
 	engine.input->keyBindings.set(KB_ACTION_1, SDLK_2);
@@ -436,7 +438,10 @@ int main(int argc, char* args[])
 	engine.input->keyBindings.set(KB_ACTION_9, SDLK_0);
 
 	engine.input->keyBindings.set(KB_ACTION_1, -1);
-	engine.input->keyBindings.set(KB_MOVE_CURSOR, -3);
+	engine.input->keyBindings.set(KB_MOVE_ATTACK_CURSOR, -3);
+	//engine.input->keyBindings.set(KB_ATTACK_CURSOR, -3);
+	engine.input->keyBindings.set(KB_STOP_MOVE, SDLK_s);
+	engine.input->keyBindings.set(KB_CANCEL_ACTION, SDLK_c);
 
 	// TODO remove after a better option to keep a resource loaded is added
 	auto swoop = SpriteSheet::get("swoop_small.png");

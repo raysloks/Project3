@@ -4,11 +4,11 @@
 
 #include <iostream>
 
-class MpGuid
+class MpMobTeamUpdate
 {
 public:
-	uint64_t low;
-	uint64_t high;
+	uint64_t id;
+	uint32_t team;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

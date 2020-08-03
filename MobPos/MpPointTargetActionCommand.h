@@ -4,11 +4,14 @@
 
 #include <iostream>
 
-class MpGuid
+#include "MpActionCommand.h"
+#include "Vec2.h"
+
+class MpPointTargetActionCommand
 {
 public:
-	uint64_t low;
-	uint64_t high;
+	MpActionCommand action;
+	Vec2 target;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

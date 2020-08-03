@@ -143,15 +143,6 @@
     <ClCompile Include="Item.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Vec2.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="Vec3.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="Xoroshiro128Plus.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="Ability.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
@@ -174,9 +165,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MobPos\MpUpdate.cpp">
-      <Filter>Source Files\MobPos</Filter>
-    </ClCompile>
-    <ClCompile Include="MobPos\MpAttachment.cpp">
       <Filter>Source Files\MobPos</Filter>
     </ClCompile>
     <ClCompile Include="MobPos\MpChat.cpp">
@@ -240,6 +228,45 @@
       <Filter>Source Files\MobPos</Filter>
     </ClCompile>
     <ClCompile Include="MobPos\MpAttack.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpMobStateUpdate.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpMobTeamUpdate.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpCancelCommand.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpCommand.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpMoveCommand.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpStopCommand.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpPath.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpActionCommand.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpPointTargetActionCommand.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpUnitTargetActionCommand.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpAttackCommand.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpAttackMoveCommand.cpp">
       <Filter>Source Files\MobPos</Filter>
     </ClCompile>
   </ItemGroup>
@@ -364,16 +391,7 @@
     <ClInclude Include="Item.h">
       <Filter>Source Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Vec3.h">
-      <Filter>Source Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Vec2.h">
-      <Filter>Source Files\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="shared_from.h">
-      <Filter>Source Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="Xoroshiro128Plus.h">
       <Filter>Source Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Ability.h">
@@ -396,9 +414,6 @@
     </ClInclude>
     <ClInclude Include="ItemSlot.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MobPos\MpAttachment.h">
-      <Filter>Source Files\MobPos</Filter>
     </ClInclude>
     <ClInclude Include="MobPos\MpChat.h">
       <Filter>Source Files\MobPos</Filter>
@@ -467,6 +482,45 @@
       <Filter>Source Files\MobPos</Filter>
     </ClInclude>
     <ClInclude Include="MobPos\MpAttack.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpMobStateUpdate.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpMobTeamUpdate.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpCancelCommand.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpCommand.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpMoveCommand.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpStopCommand.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpPath.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPath.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpActionCommand.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpPointTargetActionCommand.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpUnitTargetActionCommand.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpAttackCommand.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpAttackMoveCommand.h">
       <Filter>Source Files\MobPos</Filter>
     </ClInclude>
   </ItemGroup>

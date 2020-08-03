@@ -6,7 +6,6 @@
 
 #include "MpMobUpdateData.h"
 
-#pragma pack(push, 4)
 class MpMobUpdate
 {
 public:
@@ -16,4 +15,3 @@ public:
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);
 };
-#pragma pack(pop)
