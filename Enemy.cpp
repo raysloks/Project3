@@ -9,7 +9,6 @@
 Enemy::Enemy()
 {
 	hp = 10;
-	hp_max = 10;
 	
 	base_stats.move_speed = 15.0f;
 	base_stats.move_acc = 30.0f;

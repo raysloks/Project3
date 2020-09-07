@@ -58,11 +58,29 @@ void MobPosHandler::MpDamageHandler(const asio::ip::udp::endpoint & endpoint, co
 	}
 }
 
+void MobPosHandler::MpDirectionTargetActionCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpDirectionTargetActionCommand & message)
+{
+}
+
 void MobPosHandler::MpGuidHandler(const asio::ip::udp::endpoint & endpoint, const MpGuid & message)
 {
 }
 
+void MobPosHandler::MpLinearResourceChangeHandler(const asio::ip::udp::endpoint & endpoint, const MpLinearResourceChange & message)
+{
+}
+
 std::vector<std::string> temp = { "bone_boy.png", "imp.png" };
+
+void MobPosHandler::MpMobHealthUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobHealthUpdate & message)
+{
+	auto mob = getMob(message.id);
+	auto&& data = mob->second;
+
+	data.mob->hp.current = message.current;
+	data.mob->hp.cap = message.cap;
+	data.mob->hp.changes = message.changes;
+}
 
 void MobPosHandler::MpMobSpriteUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobSpriteUpdate & message)
 {
@@ -141,6 +159,9 @@ void MobPosHandler::MpUpdateHandler(const asio::ip::udp::endpoint & endpoint, co
 
 void MobPosHandler::tick(float dt)
 {
+	int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
+	time = now + time_offset;
+
 	if (!initialized)
 	{
 		initialized = true;
@@ -218,10 +239,35 @@ void MobPosHandler::tick(float dt)
 				{
 					int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
 
-					MpActionCommand message;
-					message.command.time = now + time_offset;
-					message.action = i;
-					link.Send(endpoint, message);
+					Vec2 target = engine->srs->screenToWorld(engine->input->getCursor());
+
+					Reference<NetworkMob> target_mob;
+					auto in_range = engine->cs->overlapCircle(target + Vec2(4.0f), 8.0f);
+					for (auto i : in_range)
+					{
+						auto mob = i.second->getComponent<NetworkMob>();
+						if (mob)
+						{
+							target_mob = mob;
+							break;
+						}
+					}
+
+					if (target_mob)
+					{
+						MpUnitTargetActionCommand message;
+						message.action.command.time = now + time_offset;
+						message.action.action = i;
+						message.target = target_mob->id;
+						link.Send(endpoint, message);
+					}
+					else
+					{
+						MpActionCommand message;
+						message.command.time = now + time_offset;
+						message.action = i;
+						link.Send(endpoint, message);
+					}
 				});
 		}
 	}

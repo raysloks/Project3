@@ -33,7 +33,10 @@ public:
 	void MpChatHandler(const asio::ip::udp::endpoint& endpoint, const MpChat& message);
 	void MpCommandHandler(const asio::ip::udp::endpoint& endpoint, const MpCommand& message);
 	void MpDamageHandler(const asio::ip::udp::endpoint& endpoint, const MpDamage& message);
+	void MpDirectionTargetActionCommandHandler(const asio::ip::udp::endpoint& endpoint, const MpDirectionTargetActionCommand& message);
 	void MpGuidHandler(const asio::ip::udp::endpoint& endpoint, const MpGuid& message);
+	void MpLinearResourceChangeHandler(const asio::ip::udp::endpoint& endpoint, const MpLinearResourceChange& message);
+	void MpMobHealthUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobHealthUpdate& message);
 	void MpMobSpriteUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobSpriteUpdate& message);
 	void MpMobStateUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobStateUpdate& message);
 	void MpMobTeamUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobTeamUpdate& message);
@@ -59,7 +62,7 @@ public:
 
 	uint64_t player_mob_id;
 
-	int64_t time_offset;
+	int64_t time, time_offset;
 
 private:
 

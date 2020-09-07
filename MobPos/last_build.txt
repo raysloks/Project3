@@ -21,9 +21,21 @@ MpDamage
 uint64 id
 int64 damage
 uint64 source
+MpDirectionTargetActionCommand
+MpActionCommand action
+vec2 direction
 MpGuid
 uint64 low
 uint64 high
+MpLinearResourceChange
+int64 start
+int64 duration
+int64 amount
+MpMobHealthUpdate
+uint64 id
+int64 current
+int64 cap
+LinearResourceChange changes[]
 MpMobSpriteUpdate
 uint64 id
 uint64 sprite

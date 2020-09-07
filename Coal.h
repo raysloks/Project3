@@ -14,6 +14,8 @@ public:
 	Coal(const std::string& string);
 	Coal(int64_t integer);
 	Coal(uint64_t integer);
+	Coal(int32_t integer);
+	Coal(uint32_t integer);
 	Coal(float real);
 	Coal(bool boolean);
 	Coal(const std::map<std::string, Coal>& members);

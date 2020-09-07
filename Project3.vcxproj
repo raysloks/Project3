@@ -190,6 +190,9 @@
     <ClCompile Include="MobPos\MpCancelCommand.cpp" />
     <ClCompile Include="MobPos\MpCommand.cpp" />
     <ClCompile Include="MobPos\MpDamage.cpp" />
+    <ClCompile Include="MobPos\MpDirectionTargetActionCommand.cpp" />
+    <ClCompile Include="MobPos\MpLinearResourceChange.cpp" />
+    <ClCompile Include="MobPos\MpMobHealthUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobSpriteUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobStateUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobTeamUpdate.cpp" />
@@ -272,6 +275,9 @@
     <ClInclude Include="MobPos\MpCancelCommand.h" />
     <ClInclude Include="MobPos\MpCommand.h" />
     <ClInclude Include="MobPos\MpDamage.h" />
+    <ClInclude Include="MobPos\MpDirectionTargetActionCommand.h" />
+    <ClInclude Include="MobPos\MpLinearResourceChange.h" />
+    <ClInclude Include="MobPos\MpMobHealthUpdate.h" />
     <ClInclude Include="MobPos\MpMobSpriteUpdate.h" />
     <ClInclude Include="MobPos\MpMobStateUpdate.h" />
     <ClInclude Include="MobPos\MpMobTeamUpdate.h" />

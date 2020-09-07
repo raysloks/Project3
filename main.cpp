@@ -356,12 +356,12 @@ Level * create_level(int floor)
 	}
 
 	// create ui
-	if (false)
+	if (true)
 	{
 		auto ui = level->add_entity();
 
 		// create health display
-		if (false)
+		if (true)
 		{
 			auto entity = level->add_entity();
 			Entity::adopt(entity, ui);
@@ -437,7 +437,7 @@ int main(int argc, char* args[])
 	engine.input->keyBindings.set(KB_ACTION_8, SDLK_9);
 	engine.input->keyBindings.set(KB_ACTION_9, SDLK_0);
 
-	engine.input->keyBindings.set(KB_ACTION_1, -1);
+	//engine.input->keyBindings.set(KB_ACTION_1, -1);
 	engine.input->keyBindings.set(KB_MOVE_ATTACK_CURSOR, -3);
 	//engine.input->keyBindings.set(KB_ATTACK_CURSOR, -3);
 	engine.input->keyBindings.set(KB_STOP_MOVE, SDLK_s);

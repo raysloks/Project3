@@ -50,7 +50,7 @@ Engine::Engine()
 	input = new InputSystem();
 	systems.push_back(input);
 
-	auto net = new MobPosHandler();
+	net = new MobPosHandler();
 	systems.push_back(net);
 
 
@@ -235,6 +235,8 @@ void Engine::updateConveniencePointers()
 	CustomBehaviour::level = level;
 	CustomBehaviour::tm = &level->tilemap;
 	CustomBehaviour::rng = &level->rng;
+
+	CustomBehaviour::net = net;
 
 	for (auto system : systems)
 	{

@@ -9,6 +9,8 @@
 #include "CustomBehaviourSystem.h"
 #include "CollisionSystem.h"
 
+class MobPosHandler;
+
 #include "Level.h"
 
 // forward declarations to avoid unnecessary includes
@@ -38,6 +40,7 @@ public:
 	InputSystem * input;
 	CustomBehaviourSystem * cbs;
 	CollisionSystem * cs;
+	MobPosHandler * net;
 
 	Level * level;
 

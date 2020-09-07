@@ -23,5 +23,6 @@ public:
 	static Level * level;
 	static Tilemap * tm;
 	static Xoroshiro128Plus * rng;
+	static MobPosHandler * net;
 	// may need to make thread_local or something if multiple engines are running off the same process
 };

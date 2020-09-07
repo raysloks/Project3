@@ -12,7 +12,10 @@
 #include "MpChat.h"
 #include "MpCommand.h"
 #include "MpDamage.h"
+#include "MpDirectionTargetActionCommand.h"
 #include "MpGuid.h"
+#include "MpLinearResourceChange.h"
+#include "MpMobHealthUpdate.h"
 #include "MpMobSpriteUpdate.h"
 #include "MpMobStateUpdate.h"
 #include "MpMobTeamUpdate.h"
@@ -45,7 +48,10 @@ public:
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpChat& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpDamage& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpDirectionTargetActionCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpGuid& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpLinearResourceChange& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobHealthUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobSpriteUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobStateUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobTeamUpdate& message);

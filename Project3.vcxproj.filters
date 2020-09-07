@@ -269,6 +269,15 @@
     <ClCompile Include="MobPos\MpAttackMoveCommand.cpp">
       <Filter>Source Files\MobPos</Filter>
     </ClCompile>
+    <ClCompile Include="MobPos\MpLinearResourceChange.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpMobHealthUpdate.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpDirectionTargetActionCommand.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -521,6 +530,15 @@
       <Filter>Source Files\MobPos</Filter>
     </ClInclude>
     <ClInclude Include="MobPos\MpAttackMoveCommand.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpLinearResourceChange.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpMobHealthUpdate.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpDirectionTargetActionCommand.h">
       <Filter>Source Files\MobPos</Filter>
     </ClInclude>
   </ItemGroup>

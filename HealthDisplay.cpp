@@ -1,6 +1,10 @@
 #include "HealthDisplay.h"
 
+#include <chrono>
+
 #include "Player.h"
+
+#include "MobPosHandler.h"
 
 void HealthDisplay::start()
 {
@@ -44,19 +48,24 @@ void HealthDisplay::start()
 		fg->color = SDL_Color({ 255, 0, 0, 255 });
 		Component::attach(fg, entity);
 	}
-
-	player = level->get<Player>();
 }
 
 void HealthDisplay::tick(float dt)
 {
+	player = level->get<Mob>();
+
+	if (player == nullptr)
+		return;
+
 	entity->x = srs->getWidth() / 2 - 64;
 	entity->y = srs->getHeight() - 32;
 
-	fg->scale.x = 128 * player->hp / player->hp_max;
+	int64_t current_hp = player->hp.evaluate(net->time);
+
+	fg->scale.x = 128 * current_hp / player->hp.cap;
 	fg->entity->x = fg->scale.x / 2;
 
-	std::string text = format(player->hp, 5) + " / " + format(player->hp_max);
+	std::string text = format(current_hp, 5) + " / " + format(player->hp.cap);
 	for (size_t i = 0; i < sprites.size(); ++i)
 	{
 		auto sprite = sprites[i];

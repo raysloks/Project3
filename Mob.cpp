@@ -3,7 +3,6 @@
 Mob::Mob()
 {
 	hp = 3;
-	hp_max = 3;
 
 	cooldown = 0.0f;
 }
@@ -83,7 +82,7 @@ void Mob::onCollision(const Collision & collision)
 
 void Mob::onDamaged(int64_t damage)
 {
-	hp -= damage;
+	hp.current -= damage;
 
 	// create floating text
 	{

@@ -4,6 +4,8 @@
 
 #include "MobStatBlock.h"
 
+#include "ResourceBar.h"
+
 class Mob :
 	public CustomBehaviour
 {
@@ -20,7 +22,7 @@ public:
 
 	uint32_t team;
 
-	int64_t hp, hp_max;
+	ResourceBar hp;
 
 	Vec2 v, n, move;
 

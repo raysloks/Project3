@@ -62,8 +62,7 @@ const std::unordered_map<std::type_index, std::function<void(std::ostream&, Comp
 	{ std::type_index(typeid(Player)), [] (std::ostream& os, Component * component) {
 		auto obj = (Player*)component;
 		os << "Player\n";
-		os << " hp " << obj->hp << "\n";
-		os << " hp_max " << obj->hp_max << "\n";
+		os << " team " << obj->team << "\n";
 		os << " v ";
 		os << obj->v.x << " ";
 		os << obj->v.y << "\n";
@@ -75,12 +74,14 @@ const std::unordered_map<std::type_index, std::function<void(std::ostream&, Comp
 		os << obj->move.y << "\n";
 		os << " anim " << obj->anim << "\n";
 		os << " cooldown " << obj->cooldown << "\n";
+		os << " move_target ";
+		os << obj->move_target.x << " ";
+		os << obj->move_target.y << "\n";
 	} },
 	{ std::type_index(typeid(Mob)), [] (std::ostream& os, Component * component) {
 		auto obj = (Mob*)component;
 		os << "Mob\n";
-		os << " hp " << obj->hp << "\n";
-		os << " hp_max " << obj->hp_max << "\n";
+		os << " team " << obj->team << "\n";
 		os << " v ";
 		os << obj->v.x << " ";
 		os << obj->v.y << "\n";
@@ -161,8 +162,7 @@ const std::unordered_map<std::type_index, std::function<void(std::ostream&, Comp
 	{ std::type_index(typeid(Enemy)), [] (std::ostream& os, Component * component) {
 		auto obj = (Enemy*)component;
 		os << "Enemy\n";
-		os << " hp " << obj->hp << "\n";
-		os << " hp_max " << obj->hp_max << "\n";
+		os << " team " << obj->team << "\n";
 		os << " v ";
 		os << obj->v.x << " ";
 		os << obj->v.y << "\n";
@@ -231,8 +231,7 @@ const std::unordered_map<std::type_index, std::function<void(std::ostream&, Comp
 	{ std::type_index(typeid(NetworkMob)), [] (std::ostream& os, Component * component) {
 		auto obj = (NetworkMob*)component;
 		os << "NetworkMob\n";
-		os << " hp " << obj->hp << "\n";
-		os << " hp_max " << obj->hp_max << "\n";
+		os << " team " << obj->team << "\n";
 		os << " v ";
 		os << obj->v.x << " ";
 		os << obj->v.y << "\n";
@@ -244,6 +243,7 @@ const std::unordered_map<std::type_index, std::function<void(std::ostream&, Comp
 		os << obj->move.y << "\n";
 		os << " anim " << obj->anim << "\n";
 		os << " cooldown " << obj->cooldown << "\n";
+		os << " id " << obj->id << "\n";
 	} },
 	{ std::type_index(typeid(Inspector)), [] (std::ostream& os, Component * component) {
 		auto obj = (Inspector*)component;
@@ -257,6 +257,7 @@ const std::unordered_map<std::type_index, std::function<void(std::ostream&, Comp
 	{ std::type_index(typeid(TextBox)), [] (std::ostream& os, Component * component) {
 		auto obj = (TextBox*)component;
 		os << "TextBox\n";
+		os << " active " << obj->active << "\n";
 	} } };
 const std::unordered_map<std::string, std::type_index> indices = {
 	{ "CustomBehaviour", std::type_index(typeid(CustomBehaviour)) },
@@ -362,8 +363,7 @@ const std::unordered_map<std::type_index, std::function<void(Component*,const Co
 	} },
 	{ std::type_index(typeid(Player)), [] (Component * component, const Coal& coal) {
 		auto obj = (Player*)component;
-		obj->hp = coal.members.at("hp").integer;
-		obj->hp_max = coal.members.at("hp_max").integer;
+		obj->team = coal.members.at("team").integer;
 		obj->v.x = coal.members.at("v").members.at("x").real;
 		obj->v.y = coal.members.at("v").members.at("y").real;
 		obj->n.x = coal.members.at("n").members.at("x").real;
@@ -372,11 +372,12 @@ const std::unordered_map<std::type_index, std::function<void(Component*,const Co
 		obj->move.y = coal.members.at("move").members.at("y").real;
 		obj->anim = coal.members.at("anim").real;
 		obj->cooldown = coal.members.at("cooldown").real;
+		obj->move_target.x = coal.members.at("move_target").members.at("x").real;
+		obj->move_target.y = coal.members.at("move_target").members.at("y").real;
 	} },
 	{ std::type_index(typeid(Mob)), [] (Component * component, const Coal& coal) {
 		auto obj = (Mob*)component;
-		obj->hp = coal.members.at("hp").integer;
-		obj->hp_max = coal.members.at("hp_max").integer;
+		obj->team = coal.members.at("team").integer;
 		obj->v.x = coal.members.at("v").members.at("x").real;
 		obj->v.y = coal.members.at("v").members.at("y").real;
 		obj->n.x = coal.members.at("n").members.at("x").real;
@@ -438,8 +439,7 @@ const std::unordered_map<std::type_index, std::function<void(Component*,const Co
 	} },
 	{ std::type_index(typeid(Enemy)), [] (Component * component, const Coal& coal) {
 		auto obj = (Enemy*)component;
-		obj->hp = coal.members.at("hp").integer;
-		obj->hp_max = coal.members.at("hp_max").integer;
+		obj->team = coal.members.at("team").integer;
 		obj->v.x = coal.members.at("v").members.at("x").real;
 		obj->v.y = coal.members.at("v").members.at("y").real;
 		obj->n.x = coal.members.at("n").members.at("x").real;
@@ -493,8 +493,7 @@ const std::unordered_map<std::type_index, std::function<void(Component*,const Co
 	} },
 	{ std::type_index(typeid(NetworkMob)), [] (Component * component, const Coal& coal) {
 		auto obj = (NetworkMob*)component;
-		obj->hp = coal.members.at("hp").integer;
-		obj->hp_max = coal.members.at("hp_max").integer;
+		obj->team = coal.members.at("team").integer;
 		obj->v.x = coal.members.at("v").members.at("x").real;
 		obj->v.y = coal.members.at("v").members.at("y").real;
 		obj->n.x = coal.members.at("n").members.at("x").real;
@@ -503,6 +502,7 @@ const std::unordered_map<std::type_index, std::function<void(Component*,const Co
 		obj->move.y = coal.members.at("move").members.at("y").real;
 		obj->anim = coal.members.at("anim").real;
 		obj->cooldown = coal.members.at("cooldown").real;
+		obj->id = coal.members.at("id").integer;
 	} },
 	{ std::type_index(typeid(Inspector)), [] (Component * component, const Coal& coal) {
 		auto obj = (Inspector*)component;
@@ -513,6 +513,7 @@ const std::unordered_map<std::type_index, std::function<void(Component*,const Co
 	} },
 	{ std::type_index(typeid(TextBox)), [] (Component * component, const Coal& coal) {
 		auto obj = (TextBox*)component;
+		obj->active = coal.members.at("active").boolean;
 	} } };
 const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_funcs = {
 	{ std::type_index(typeid(CustomBehaviour)), [] (Component * component) {
@@ -523,8 +524,7 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 	{ std::type_index(typeid(Player)), [] (Component * component) {
 		auto obj = (Player*)component;
 		Coal coal;
-		coal.members["hp"] = obj->hp;
-		coal.members["hp_max"] = obj->hp_max;
+		coal.members["team"] = obj->team;
 		coal.members["v"] = Coal({
 			{"x", obj->v.x},
 			{"y", obj->v.y}});
@@ -536,13 +536,15 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 			{"y", obj->move.y}});
 		coal.members["anim"] = obj->anim;
 		coal.members["cooldown"] = obj->cooldown;
+		coal.members["move_target"] = Coal({
+			{"x", obj->move_target.x},
+			{"y", obj->move_target.y}});
 		return coal;
 	} },
 	{ std::type_index(typeid(Mob)), [] (Component * component) {
 		auto obj = (Mob*)component;
 		Coal coal;
-		coal.members["hp"] = obj->hp;
-		coal.members["hp_max"] = obj->hp_max;
+		coal.members["team"] = obj->team;
 		coal.members["v"] = Coal({
 			{"x", obj->v.x},
 			{"y", obj->v.y}});
@@ -633,8 +635,7 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 	{ std::type_index(typeid(Enemy)), [] (Component * component) {
 		auto obj = (Enemy*)component;
 		Coal coal;
-		coal.members["hp"] = obj->hp;
-		coal.members["hp_max"] = obj->hp_max;
+		coal.members["team"] = obj->team;
 		coal.members["v"] = Coal({
 			{"x", obj->v.x},
 			{"y", obj->v.y}});
@@ -711,8 +712,7 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 	{ std::type_index(typeid(NetworkMob)), [] (Component * component) {
 		auto obj = (NetworkMob*)component;
 		Coal coal;
-		coal.members["hp"] = obj->hp;
-		coal.members["hp_max"] = obj->hp_max;
+		coal.members["team"] = obj->team;
 		coal.members["v"] = Coal({
 			{"x", obj->v.x},
 			{"y", obj->v.y}});
@@ -724,6 +724,7 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 			{"y", obj->move.y}});
 		coal.members["anim"] = obj->anim;
 		coal.members["cooldown"] = obj->cooldown;
+		coal.members["id"] = obj->id;
 		return coal;
 	} },
 	{ std::type_index(typeid(Inspector)), [] (Component * component) {
@@ -740,6 +741,7 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 	{ std::type_index(typeid(TextBox)), [] (Component * component) {
 		auto obj = (TextBox*)component;
 		Coal coal;
+		coal.members["active"] = obj->active;
 		return coal;
 	} } };
 void Diamond::print(std::ostream& os, Component * component)

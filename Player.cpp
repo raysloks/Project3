@@ -18,7 +18,6 @@
 Player::Player()
 {
 	hp = 20;
-	hp_max = 20;
 
 	blood = 0;
 

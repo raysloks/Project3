@@ -8,6 +8,7 @@ CollisionSystem * CustomBehaviour::cs;
 Level * CustomBehaviour::level;
 Tilemap * CustomBehaviour::tm;
 Xoroshiro128Plus * CustomBehaviour::rng;
+MobPosHandler * CustomBehaviour::net;
 
 CustomBehaviour::~CustomBehaviour()
 {

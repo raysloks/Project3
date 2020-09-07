@@ -189,6 +189,20 @@ Coal::Coal(uint64_t integer) : integer(integer)
 	type = Type::Integer;
 }
 
+Coal::Coal(int32_t integer) : integer(integer)
+{
+	real = integer;
+	boolean = integer;
+	type = Type::Integer;
+}
+
+Coal::Coal(uint32_t integer) : integer(integer)
+{
+	real = integer;
+	boolean = integer;
+	type = Type::Integer;
+}
+
 Coal::Coal(float real) : real(real)
 {
 	integer = real;
