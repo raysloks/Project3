@@ -7,6 +7,7 @@
 #include "MpActionCommand.h"
 #include "Vec2.h"
 
+#pragma pack(push, 1)
 class MpDirectionTargetActionCommand
 {
 public:
@@ -16,3 +17,4 @@ public:
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);
 };
+#pragma pack(pop)

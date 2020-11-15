@@ -4,6 +4,7 @@
 
 #include "GameKeyBinding.h"
 #include "SpriteAnimator.h"
+#include "HealthDisplay.h"
 
 MobPosHandler::MobPosHandler()
 {
@@ -19,79 +20,48 @@ MobPosHandler::MobPosHandler()
 	heartbeat_timer = 0.0f;
 
 	endpoint = asio::ip::udp::endpoint(asio::ip::address::from_string("2a01:7e01::f03c:92ff:fe8e:50b4"), 43857);
+	link.Connect(endpoint);
 }
 
-void MobPosHandler::MpActionCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpActionCommand & message)
+void MobPosHandler::AcceptHandler(const asio::ip::udp::endpoint & endpoint)
 {
 }
 
-void MobPosHandler::MpAttackHandler(const asio::ip::udp::endpoint & endpoint, const MpAttack & message)
-{
-}
-
-void MobPosHandler::MpAttackCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpAttackCommand & message)
-{
-}
-
-void MobPosHandler::MpAttackMoveCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpAttackMoveCommand & message)
-{
-}
-
-void MobPosHandler::MpCancelCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpCancelCommand & message)
+void MobPosHandler::ConnectHandler(const asio::ip::udp::endpoint & endpoint)
 {
 }
 
 void MobPosHandler::MpChatHandler(const asio::ip::udp::endpoint & endpoint, const MpChat & message)
 {
-}
-
-void MobPosHandler::MpCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpCommand & message)
-{
+	std::cout << message.message << std::endl;
 }
 
 void MobPosHandler::MpDamageHandler(const asio::ip::udp::endpoint & endpoint, const MpDamage & message)
 {
+	mutex.lock();
 	auto mob = mobs.find(message.id);
 	if (mob != mobs.end())
 	{
 		mob->second.mob->onDamaged(message.damage);
 	}
-}
-
-void MobPosHandler::MpDirectionTargetActionCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpDirectionTargetActionCommand & message)
-{
-}
-
-void MobPosHandler::MpGuidHandler(const asio::ip::udp::endpoint & endpoint, const MpGuid & message)
-{
-}
-
-void MobPosHandler::MpLinearResourceChangeHandler(const asio::ip::udp::endpoint & endpoint, const MpLinearResourceChange & message)
-{
+	mutex.unlock();
 }
 
 std::vector<std::string> temp = { "bone_boy.png", "imp.png" };
 
 void MobPosHandler::MpMobHealthUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobHealthUpdate & message)
 {
-	auto mob = getMob(message.id);
-	auto&& data = mob->second;
-
-	data.mob->hp.current = message.current;
-	data.mob->hp.cap = message.cap;
-	data.mob->hp.changes = message.changes;
 }
 
 void MobPosHandler::MpMobSpriteUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobSpriteUpdate & message)
 {
-	/*if (message.id == player_mob_id)
-		return;*/
-
-	auto mob = getMob(message.id);
-	mob->second.mob->getComponent<Sprite>()->sheet = SpriteSheet::get(temp[message.sprite]);
 }
 
 void MobPosHandler::MpMobStateUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobStateUpdate & message)
+{
+}
+
+void MobPosHandler::MpMobStatsUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobStatsUpdate & message)
 {
 }
 
@@ -101,60 +71,68 @@ void MobPosHandler::MpMobTeamUpdateHandler(const asio::ip::udp::endpoint & endpo
 
 void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobUpdate & message)
 {
+	auto it = getMob(message.id);
+	auto&& data = it->second;
+	auto&& mob = *data.mob;
+
+	if (message.stats)
+	{
+		mob.base_stats = *message.stats;
+		mob.recalculateStats();
+	}
+
+	if (message.hp)
+	{
+		mob.hp.current = message.hp->current;
+		mob.hp.cap = message.hp->cap;
+		mob.hp.changes = message.hp->changes;
+	}
+
+	if (message.path)
+	{
+		data.path.clear();
+		data.path.points = message.path->points;
+		if (data.path.points.size() > 0)
+		{
+			data.path.distances.resize(data.path.points.size() - 1);
+			for (size_t i = 0; i < data.path.distances.size(); ++i)
+				data.path.distances[i] = (data.path.points[i + 1] - data.path.points[i]).Len();
+		}
+		int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
+		int64_t diff = message.path->time - (now + time_offset);
+		float speed = mob.stats.move_speed * mob.stats.move_multiplier;
+		data.path.move(diff * 0.000000001 * speed);
+	}
+
+	if (message.state)
+	{
+		mob.team = message.state->team;
+		mob.getComponent<Sprite>()->sheet = SpriteSheet::get(temp[message.state->sprite]);
+	}
 }
 
 void MobPosHandler::MpMobUpdateDataHandler(const asio::ip::udp::endpoint & endpoint, const MpMobUpdateData & message)
 {
 }
 
-void MobPosHandler::MpMoveCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpMoveCommand & message)
-{
-}
-
-void MobPosHandler::MpPathHandler(const asio::ip::udp::endpoint & endpoint, const MpPath & message)
-{
-	auto mob = getMob(message.id);
-	auto&& data = mob->second;
-
-	data.path.clear();
-	data.path.points = message.points;
-	if (data.path.points.size() > 0)
-	{
-		data.path.distances.resize(data.path.points.size() - 1);
-		for (size_t i = 0; i < data.path.distances.size(); ++i)
-			data.path.distances[i] = (data.path.points[i + 1] - data.path.points[i]).Len();
-	}
-	int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
-	int64_t diff = message.time - (now + time_offset);
-	float speed = 1.5f;
-	data.path.move(diff * 0.000000001 * speed);
-}
-
 void MobPosHandler::MpPlayerMobCreatedHandler(const asio::ip::udp::endpoint & endpoint, const MpPlayerMobCreated & message)
 {
 	player_mob_id = message.id;
-}
-
-void MobPosHandler::MpPointTargetActionCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpPointTargetActionCommand & message)
-{
+	level->get<HealthDisplay>()->player = getMob(message.id)->second.mob;
 }
 
 void MobPosHandler::MpSoundHandler(const asio::ip::udp::endpoint & endpoint, const MpSound & message)
 {
 }
 
-void MobPosHandler::MpStopCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpStopCommand & message)
-{
-}
-
-void MobPosHandler::MpUnitTargetActionCommandHandler(const asio::ip::udp::endpoint & endpoint, const MpUnitTargetActionCommand & message)
-{
-}
-
 void MobPosHandler::MpUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpUpdate & message)
 {
 	int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
-	time_offset = message.time - now;
+	int64_t offset = message.time - now;
+	int64_t diff = time_offset - offset;
+	if (abs(diff) > 5'000'000)
+		time_offset = offset;
+	link.Send(endpoint, message);
 }
 
 void MobPosHandler::tick(float dt)
@@ -283,14 +261,6 @@ void MobPosHandler::tick(float dt)
 		engine->srs->camera_position = player_mob->second.mob->entity->xy;
 	}
 
-	heartbeat_timer -= dt;
-	if (heartbeat_timer <= 0.0f)
-	{
-		MpUpdate message;
-		link.Send(endpoint, message);
-		heartbeat_timer += 2.5f;
-	}
-
 	if (isnan(heartbeat_timer))
 		heartbeat_timer = 0.0f;
 	if (heartbeat_timer > 4.0f || heartbeat_timer < -4.0f)
@@ -357,7 +327,7 @@ const float nominal_margin_upper = -2.0f;
 
 void MobPosData::tick(float dt)
 {
-	float speed = 1.5f;
+	float speed = mob->stats.move_speed * mob->stats.move_multiplier;
 
 	path.move(dt * speed);
 

@@ -17,6 +17,8 @@ public:
 
 	static std::shared_ptr<SpriteSheet> load(const std::string & fname);
 
+	static void destroyUnusedTextures();
+
 	void save(const std::string & fname) const;
 
 	static std::shared_ptr<SpriteSheet> createIsometricFloorLosslessMap(size_t w, size_t h);

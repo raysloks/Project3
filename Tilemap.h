@@ -20,6 +20,9 @@ public:
 	uint8_t getEffect(const Vec2& p) const;
 	void setEffect(const Vec2& p, uint8_t effect);
 
+	void balanceEffect(size_t type, size_t& effect, const Vec2& p);
+	void depositEffect(size_t type, size_t& effect, const Vec2& p);
+
 	float getZ(const Vec2& p) const;
 
 	void refreshUpdatedEffects();

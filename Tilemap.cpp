@@ -49,6 +49,32 @@ void Tilemap::setEffect(const Vec2 & p, uint8_t effect)
 	tile.effects.dirty = true;
 }
 
+void Tilemap::balanceEffect(size_t type, size_t & effect, const Vec2 & p)
+{
+	auto tile_p = p / tile_size;
+	intmax_t x = llroundf(tile_p.x);
+	intmax_t y = llroundf(tile_p.y);
+	auto& tile = at(x, y);
+	tile.effects.balance(type, effect, p - (Vec2(x, y) - Vec2(0.5f, 0.5f)) * tile_size);
+
+	if (!tile.effects.dirty)
+		updated_tiles.push_back(std::make_pair(x, y));
+	tile.effects.dirty = true;
+}
+
+void Tilemap::depositEffect(size_t type, size_t & effect, const Vec2 & p)
+{
+	auto tile_p = p / tile_size;
+	intmax_t x = llroundf(tile_p.x);
+	intmax_t y = llroundf(tile_p.y);
+	auto& tile = at(x, y);
+	tile.effects.deposit(type, effect, p - (Vec2(x, y) - Vec2(0.5f, 0.5f)) * tile_size);
+
+	if (!tile.effects.dirty)
+		updated_tiles.push_back(std::make_pair(x, y));
+	tile.effects.dirty = true;
+}
+
 float Tilemap::getZ(const Vec2 & p) const
 {
 	auto tile_p = p / tile_size;

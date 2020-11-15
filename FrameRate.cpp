@@ -18,20 +18,19 @@ void FrameRate::start()
 		sprites.push_back(sprite);
 	}
 
-	max_frame_count = 60;
+	records.resize(300);
 }
 
 void FrameRate::tick(float dt)
 {
 	double tps = 1.0 / engine->full;
 
-	records.push_back(tps);
-	intmax_t over = records.size() - max_frame_count;
-	if (over > 0)
-		records.erase(records.begin(), records.begin() + over);
+	records[record_counter] = tps;
+	++record_counter;
+	record_counter %= records.size();
 
 	double sum = 0.0;
-	double min = records.front();
+	double min = std::numeric_limits<double>::infinity();
 	for (auto record : records)
 	{
 		sum += record;
@@ -39,7 +38,7 @@ void FrameRate::tick(float dt)
 			min = record;
 	}
 
-	std::string text = std::to_string(lround(sum / records.size())) + " " + std::to_string(lround(min));
+	std::string text = std::to_string(lround(min)) + " " + std::to_string(lround(sum / records.size()));
 	for (size_t i = 0; i < sprites.size(); ++i)
 	{
 		auto sprite = sprites[i];

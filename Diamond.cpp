@@ -201,7 +201,6 @@ const std::unordered_map<std::type_index, std::function<void(std::ostream&, Comp
 	{ std::type_index(typeid(FrameRate)), [] (std::ostream& os, Component * component) {
 		auto obj = (FrameRate*)component;
 		os << "FrameRate\n";
-		os << " max_frame_count " << obj->max_frame_count << "\n";
 	} },
 	{ std::type_index(typeid(HealthDisplay)), [] (std::ostream& os, Component * component) {
 		auto obj = (HealthDisplay*)component;
@@ -469,7 +468,6 @@ const std::unordered_map<std::type_index, std::function<void(Component*,const Co
 	} },
 	{ std::type_index(typeid(FrameRate)), [] (Component * component, const Coal& coal) {
 		auto obj = (FrameRate*)component;
-		obj->max_frame_count = coal.members.at("max_frame_count").integer;
 	} },
 	{ std::type_index(typeid(HealthDisplay)), [] (Component * component, const Coal& coal) {
 		auto obj = (HealthDisplay*)component;
@@ -677,7 +675,6 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 	{ std::type_index(typeid(FrameRate)), [] (Component * component) {
 		auto obj = (FrameRate*)component;
 		Coal coal;
-		coal.members["max_frame_count"] = obj->max_frame_count;
 		return coal;
 	} },
 	{ std::type_index(typeid(HealthDisplay)), [] (Component * component) {

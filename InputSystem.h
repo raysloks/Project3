@@ -14,6 +14,7 @@
 
 struct SDL_KeyboardEvent;
 struct SDL_MouseMotionEvent;
+struct SDL_MouseWheelEvent;
 struct SDL_MouseButtonEvent;
 struct SDL_TextInputEvent;
 
@@ -25,6 +26,7 @@ public:
 	void processKeyUpEvent(SDL_KeyboardEvent& event);
 
 	void processMouseMoveEvent(SDL_MouseMotionEvent& event);
+	void processMouseWheelEvent(SDL_MouseWheelEvent& event);
 
 	void processButtonDownEvent(SDL_MouseButtonEvent& event);
 	void processButtonUpEvent(SDL_MouseButtonEvent& event);

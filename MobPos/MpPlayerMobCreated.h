@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+#pragma pack(push, 1)
 class MpPlayerMobCreated
 {
 public:
@@ -12,3 +13,4 @@ public:
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);
 };
+#pragma pack(pop)

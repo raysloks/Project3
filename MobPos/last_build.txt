@@ -32,7 +32,6 @@ int64 start
 int64 duration
 int64 amount
 MpMobHealthUpdate
-uint64 id
 int64 current
 int64 cap
 LinearResourceChange changes[]
@@ -40,15 +39,20 @@ MpMobSpriteUpdate
 uint64 id
 uint64 sprite
 MpMobStateUpdate
-uint64 id
 uint64 sprite
 uint32 team
+MpMobStatsUpdate
+uint64 id
+MobStatBlock stats
 MpMobTeamUpdate
 uint64 id
 uint32 team
 MpMobUpdate
 uint64 id
-MpMobUpdateData data
+MpMobHealthUpdate * hp
+MpPath * path
+MobStatBlock * stats
+MpMobStateUpdate * state
 MpMobUpdateData
 uint64 tick
 vec3 position
@@ -58,7 +62,6 @@ MpMoveCommand
 MpCommand command
 vec2 target
 MpPath
-uint64 id
 uint64 time
 vec2 points[]
 MpPlayerMobCreated

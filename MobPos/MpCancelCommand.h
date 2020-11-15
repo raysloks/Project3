@@ -6,6 +6,7 @@
 
 #include "MpCommand.h"
 
+#pragma pack(push, 1)
 class MpCancelCommand
 {
 public:
@@ -14,3 +15,4 @@ public:
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);
 };
+#pragma pack(pop)

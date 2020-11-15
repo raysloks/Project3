@@ -7,13 +7,14 @@
 
 #include "Vec2.h"
 
+#pragma pack(push, 1)
 class MpPath
 {
 public:
-	uint64_t id;
 	uint64_t time;
 	std::vector<Vec2> points;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);
 };
+#pragma pack(pop)

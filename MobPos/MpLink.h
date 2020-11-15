@@ -4,6 +4,8 @@
 
 #include <asio.hpp>
 
+#include <map>
+
 #include "MpActionCommand.h"
 #include "MpAttack.h"
 #include "MpAttackCommand.h"
@@ -18,6 +20,7 @@
 #include "MpMobHealthUpdate.h"
 #include "MpMobSpriteUpdate.h"
 #include "MpMobStateUpdate.h"
+#include "MpMobStatsUpdate.h"
 #include "MpMobTeamUpdate.h"
 #include "MpMobUpdate.h"
 #include "MpMobUpdateData.h"
@@ -39,6 +42,7 @@ public:
 	MpLink();
 	void Open(const asio::ip::udp::endpoint& endpoint);
 	void Receive();
+	void Connect(const asio::ip::udp::endpoint& endpoint);
 	void Dispatch(asio::streambuf& buffer, const asio::ip::udp::endpoint& endpoint);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpActionCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpAttack& message);
@@ -54,6 +58,7 @@ public:
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobHealthUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobSpriteUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobStateUpdate& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobStatsUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobTeamUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobUpdateData& message);
@@ -69,4 +74,5 @@ public:
 private:
 	asio::io_context io_context;
 	asio::ip::udp::socket socket;
+	std::map<asio::ip::udp::endpoint, int64_t> connections;
 };

@@ -30,8 +30,8 @@ Player::Player()
 	abilities.push_back(slot);
 
 	base_stats.move_speed = 24.0f;
-	base_stats.move_acc = 60.0f;
-	base_stats.move_dec = 240.0f;
+	/*base_stats.move_acc = 60.0f;
+	base_stats.move_dec = 240.0f;*/
 
 	team = 0;
 }

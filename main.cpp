@@ -390,6 +390,7 @@ Level * create_level(int floor)
 		}
 
 		// create inspector
+		if (false)
 		{
 			auto entity = level->add_entity();
 			Entity::adopt(entity, ui);

@@ -166,7 +166,6 @@
     <ClCompile Include="Body.cpp" />
     <ClCompile Include="BouncingBall.cpp" />
     <ClCompile Include="CircleCollider.cpp" />
-    <ClCompile Include="Coal.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
@@ -195,6 +194,7 @@
     <ClCompile Include="MobPos\MpMobHealthUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobSpriteUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobStateUpdate.cpp" />
+    <ClCompile Include="MobPos\MpMobStatsUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobTeamUpdate.cpp" />
     <ClCompile Include="MobPos\MpMoveCommand.cpp" />
     <ClCompile Include="MobPos\MpPath.cpp" />
@@ -223,7 +223,6 @@
     <ClCompile Include="MobPos\MpPlayerMobCreated.cpp" />
     <ClCompile Include="MobPos\MpSound.cpp" />
     <ClCompile Include="MobPos\MpUpdate.cpp" />
-    <ClCompile Include="MobStatBlock.cpp" />
     <ClCompile Include="NetworkMob.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Projectile.cpp" />
@@ -249,7 +248,6 @@
     <ClInclude Include="Body.h" />
     <ClInclude Include="BouncingBall.h" />
     <ClInclude Include="CircleCollider.h" />
-    <ClInclude Include="Coal.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="CollisionSystem.h" />
@@ -280,6 +278,7 @@
     <ClInclude Include="MobPos\MpMobHealthUpdate.h" />
     <ClInclude Include="MobPos\MpMobSpriteUpdate.h" />
     <ClInclude Include="MobPos\MpMobStateUpdate.h" />
+    <ClInclude Include="MobPos\MpMobStatsUpdate.h" />
     <ClInclude Include="MobPos\MpMobTeamUpdate.h" />
     <ClInclude Include="MobPos\MpMoveCommand.h" />
     <ClInclude Include="MobPos\MpPath.h" />
@@ -308,7 +307,6 @@
     <ClInclude Include="MobPos\MpPlayerMobCreated.h" />
     <ClInclude Include="MobPos\MpSound.h" />
     <ClInclude Include="MobPos\MpUpdate.h" />
-    <ClInclude Include="MobStatBlock.h" />
     <ClInclude Include="NetworkMob.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Projectile.h" />
@@ -329,6 +327,9 @@
     <ClInclude Include="Tilemap.h" />
     <ClInclude Include="TilemapCollider.h" />
     <ClInclude Include="Weapon.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="MobPos\last_build.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

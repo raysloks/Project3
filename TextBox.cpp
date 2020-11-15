@@ -1,5 +1,7 @@
 #include "TextBox.h"
 
+#include "MobPosHandler.h"
+
 void TextBox::start()
 {
 	font = SpriteSheet::get("font.png")->makeOutline({ 0, 0, 0, 255 }, { 255, 255, 255, 255 });;
@@ -17,7 +19,17 @@ void TextBox::start()
 	input->addKeyDownCallback(SDLK_RETURN, [this]()
 		{
 			if (level->contains_entity(entity))
+			{
+				if (active && !text.empty())
+				{
+					MpChat message;
+					message.message = text;
+					net->Send(message);
+
+					setText("");
+				}
 				active = !active;
+			}
 		});
 	input->addUnfilteredKeyDownCallback(SDLK_BACKSPACE, [this]()
 		{

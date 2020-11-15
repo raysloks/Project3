@@ -17,12 +17,13 @@ Engine::Engine()
 
 	window = SDL_CreateWindow(nullptr, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 	
-	render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
 
 	stopped = false;
 
-	framerate_cap = 0.0;
+	framerate_cap_fg = 0.0;
+	framerate_cap_bg = 30.0;
 
 	max_dt = 1.0 / 30.0;
 
@@ -38,12 +39,6 @@ Engine::Engine()
 
 	// initialize systems
 
-	cbs = new CustomBehaviourSystem();
-	systems.push_back(cbs);
-
-	cs = new CollisionSystem();
-	systems.push_back(cs);
-
 	srs = new SpriteRenderSystem(render);
 	systems.push_back(srs);
 
@@ -52,6 +47,12 @@ Engine::Engine()
 
 	net = new MobPosHandler();
 	systems.push_back(net);
+
+	cbs = new CustomBehaviourSystem();
+	systems.push_back(cbs);
+
+	cs = new CollisionSystem();
+	systems.push_back(cs);
 
 
 	updateConveniencePointers();
@@ -98,54 +99,64 @@ void Engine::run()
 
 	while (!stopped)
 	{
-		updateCursor();
-
 		updateLevel();
 
-		SDL_Event e;
-
-		while (SDL_PollEvent(&e))
 		{
-			switch (e.type)
+			std::lock_guard<std::mutex> lock(net->mutex);
+
+			updateCursor();
+
+			SDL_Event e;
+
+			while (SDL_PollEvent(&e))
 			{
-			case SDL_QUIT:
-				stop();
-				break;
-			case SDL_KEYDOWN:
-				input->processKeyDownEvent(e.key);
-				break;
-			case SDL_KEYUP:
-				input->processKeyUpEvent(e.key);
-				break;
-			case SDL_MOUSEMOTION:
-				input->processMouseMoveEvent(e.motion);
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-				input->processButtonDownEvent(e.button);
-				break;
-			case SDL_MOUSEBUTTONUP:
-				input->processButtonUpEvent(e.button);
-				break;
-			case SDL_TEXTINPUT:
-				input->processTextInputEvent(e.text);
-				break;
-			default:
-				break;
+				switch (e.type)
+				{
+				case SDL_QUIT:
+					stop();
+					break;
+				case SDL_KEYDOWN:
+					input->processKeyDownEvent(e.key);
+					break;
+				case SDL_KEYUP:
+					input->processKeyUpEvent(e.key);
+					break;
+				case SDL_MOUSEMOTION:
+					input->processMouseMoveEvent(e.motion);
+					break;
+				case SDL_MOUSEWHEEL:
+					input->processMouseWheelEvent(e.wheel);
+					break;
+				case SDL_MOUSEBUTTONDOWN:
+					input->processButtonDownEvent(e.button);
+					break;
+				case SDL_MOUSEBUTTONUP:
+					input->processButtonUpEvent(e.button);
+					break;
+				case SDL_TEXTINPUT:
+					input->processTextInputEvent(e.text);
+					break;
+				default:
+					break;
+				}
+			}
+
+			for (auto system : systems)
+			{
+				//auto start = SDL_GetPerformanceCounter();
+				system->tick(fmin(full, max_dt));
+				/*auto end = SDL_GetPerformanceCounter();
+				double duration = double(end - start) / freq;
+				std::cout << typeid(*system).name() << std::endl;
+				std::cout << 100 * duration / full << std::endl;*/
 			}
 		}
 
-		for (auto system : systems)
-		{
-			//auto start = SDL_GetPerformanceCounter();
-			system->tick(fmin(full, max_dt));
-			/*auto end = SDL_GetPerformanceCounter();
-			double duration = double(end - start) / freq;
-			std::cout << typeid(*system).name() << std::endl;
-			std::cout << 100 * duration / full << std::endl;*/
-		}
+		SpriteSheet::destroyUnusedTextures();
 
 		end_busy = SDL_GetPerformanceCounter();
 		busy = double(end_busy - start_busy) / freq;
+		double framerate_cap = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS ? framerate_cap_fg : framerate_cap_bg;
 		if (framerate_cap > 0.0)
 		{
 			double delay = (1.0 / framerate_cap - busy) * 1000.0;

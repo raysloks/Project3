@@ -40,4 +40,6 @@ void NetworkMob::tick(float dt)
 		if (child_sprite)
 			child_sprite->flip = sprite->flip;
 	}
+
+	entity->z = tm->getZ(entity->xy);
 }

@@ -7,10 +7,10 @@
 
 #include "LinearResourceChange.h"
 
+#pragma pack(push, 1)
 class MpMobHealthUpdate
 {
 public:
-	uint64_t id;
 	int64_t current;
 	int64_t cap;
 	std::vector<LinearResourceChange> changes;
@@ -18,3 +18,4 @@ public:
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);
 };
+#pragma pack(pop)

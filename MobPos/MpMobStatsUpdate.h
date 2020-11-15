@@ -4,16 +4,14 @@
 
 #include <iostream>
 
-#include "Vec3.h"
+#include "MobStatBlock.h"
 
 #pragma pack(push, 1)
-class MpMobUpdateData
+class MpMobStatsUpdate
 {
 public:
-	uint64_t tick;
-	Vec3 position;
-	Vec3 velocity;
-	Vec3 facing;
+	uint64_t id;
+	MobStatBlock stats;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

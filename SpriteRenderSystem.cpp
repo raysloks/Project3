@@ -69,6 +69,15 @@ void SpriteRenderSystem::tick(float dt)
 
 	SDL_GetRendererOutputSize(render, &render_w, &render_h);
 
+	Vec2 camera_position_iso(camera_position.x - camera_position.y, (camera_position.y + camera_position.x) * 0.5f);
+	Vec2 camera_position_iso_raw_raw = camera_position_iso;
+	camera_position_iso *= raw_scale;
+	camera_position_iso -= Vec2(render_w / 2, render_h / 2);
+	Vec2 camera_position_iso_raw = camera_position_iso;
+
+	camera_position_iso.x = roundf(camera_position_iso.x);
+	camera_position_iso.y = roundf(camera_position_iso.y);
+
 	std::multimap<float, Sprite*> sorted;
 
 	for (size_t i = 0; i < sprites.size(); ++i)
@@ -76,10 +85,14 @@ void SpriteRenderSystem::tick(float dt)
 		auto & sprite = sprites[i];
 		if (sprite.entity)
 		{
-			if (sprite.sheet->surface)
+			if (sprite.sheet && sprite.sheet->surface)
 			{
 				auto p = sprite.entity->getPosition();
-				sorted.insert(std::make_pair(p.y + p.x + p.z + sprite.sort, &sprite));
+				Vec2 p_iso(p.x - p.y, (p.y + p.x) * 0.5f - p.z);
+				Vec2 diff = p_iso - camera_position_iso_raw_raw;
+				Vec2 bounds(240.0f + 32.0f, 240.0f);
+				if (diff < bounds && diff > -bounds)
+					sorted.insert(std::make_pair(p.y + p.x + p.z + sprite.sort, &sprite));
 			}
 		}
 		else
@@ -91,14 +104,6 @@ void SpriteRenderSystem::tick(float dt)
 			}
 		}
 	}
-
-	Vec2 camera_position_iso(camera_position.x - camera_position.y, (camera_position.y + camera_position.x) * 0.5f);
-	camera_position_iso *= raw_scale;
-	camera_position_iso -= Vec2(render_w / 2, render_h / 2);
-	Vec2 camera_position_iso_raw = camera_position_iso;
-
-	camera_position_iso.x = roundf(camera_position_iso.x);
-	camera_position_iso.y = roundf(camera_position_iso.y);
 
 	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
 	SDL_RenderClear(render);

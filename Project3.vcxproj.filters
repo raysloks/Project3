@@ -158,9 +158,6 @@
     <ClCompile Include="Equipment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MobStatBlock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ItemSlot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -213,9 +210,6 @@
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
     <ClCompile Include="TextBox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Coal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UID.cpp">
@@ -276,6 +270,9 @@
       <Filter>Source Files\MobPos</Filter>
     </ClCompile>
     <ClCompile Include="MobPos\MpDirectionTargetActionCommand.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpMobStatsUpdate.cpp">
       <Filter>Source Files\MobPos</Filter>
     </ClCompile>
   </ItemGroup>
@@ -418,9 +415,6 @@
     <ClInclude Include="Equipment.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="MobStatBlock.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="ItemSlot.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -476,9 +470,6 @@
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
     <ClInclude Include="TextBox.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Coal.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="UID.h">
@@ -541,5 +532,13 @@
     <ClInclude Include="MobPos\MpDirectionTargetActionCommand.h">
       <Filter>Source Files\MobPos</Filter>
     </ClInclude>
+    <ClInclude Include="MobPos\MpMobStatsUpdate.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="MobPos\last_build.txt">
+      <Filter>Source Files\MobPos</Filter>
+    </Text>
   </ItemGroup>
 </Project>

@@ -6,6 +6,7 @@
 
 #include "Vec3.h"
 
+#pragma pack(push, 1)
 class MpSound
 {
 public:
@@ -15,3 +16,4 @@ public:
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);
 };
+#pragma pack(pop)

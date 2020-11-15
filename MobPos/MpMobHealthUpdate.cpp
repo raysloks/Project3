@@ -6,7 +6,6 @@
 
 void MpMobHealthUpdate::serialize(std::ostream& os) const
 {
-	os.write((char*)&id, (sizeof(id) + 3) / 4 * 4);
 	os.write((char*)&current, (sizeof(current) + 3) / 4 * 4);
 	os.write((char*)&cap, (sizeof(cap) + 3) / 4 * 4);
 	{
@@ -18,7 +17,6 @@ void MpMobHealthUpdate::serialize(std::ostream& os) const
 
 void MpMobHealthUpdate::deserialize(std::istream& is)
 {
-	is.read((char*)&id, (sizeof(id) + 3) / 4 * 4);
 	is.read((char*)&current, (sizeof(current) + 3) / 4 * 4);
 	is.read((char*)&cap, (sizeof(cap) + 3) / 4 * 4);
 	{

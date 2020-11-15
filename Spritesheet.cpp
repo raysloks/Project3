@@ -4,12 +4,17 @@
 #include <SDL_image.h>
 
 #include <thread>
+#include <mutex>
 
 #include "Vec2.h"
 
 #include "Text.h"
 
 #include <sstream>
+#include <iostream>
+
+std::vector<SDL_Texture*> unused_textures;
+std::mutex unused_textures_mutex;
 
 SpriteSheet::SpriteSheet()
 {
@@ -42,7 +47,11 @@ SpriteSheet::SpriteSheet(size_t w, size_t h)
 SpriteSheet::~SpriteSheet()
 {
 	if (texture)
-		SDL_DestroyTexture(texture);
+	{
+		unused_textures_mutex.lock();
+		unused_textures.push_back(texture);
+		unused_textures_mutex.unlock();
+	}
 	if (surface)
 		SDL_FreeSurface(surface);
 }
@@ -70,6 +79,15 @@ std::shared_ptr<SpriteSheet> SpriteSheet::load(const std::string & fname)
 	t.detach();
 
 	return sheet;
+}
+
+void SpriteSheet::destroyUnusedTextures()
+{
+	unused_textures_mutex.lock();
+	for (auto texture : unused_textures)
+		SDL_DestroyTexture(texture);
+	unused_textures.clear();
+	unused_textures_mutex.unlock();
 }
 
 void SpriteSheet::save(const std::string & fname) const
@@ -116,6 +134,8 @@ std::shared_ptr<SpriteSheet> SpriteSheet::createIsometricFloorLosslessMap(size_t
 	SDL_Surface * surface = SDL_CreateRGBSurface(0, nw, nh, 32, 0xff, 0xff << 8, 0xff << 16, 0xff << 24);
 	intmax_t pitch = surface->pitch;
 	uint8_t * pixels = (uint8_t*)surface->pixels;
+
+	sheet->surface = surface;
 
 	/*float rads = rotation * M_PI / 180.0f;
 	float sin = sinf(rads);
@@ -164,8 +184,6 @@ std::shared_ptr<SpriteSheet> SpriteSheet::createIsometricFloorLosslessMap(size_t
 		}
 	}
 
-	sheet->surface = surface;
-
 	sheet->loaded = true;
 
 	return sheet;
@@ -184,7 +202,8 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeCopy() const
 		{
 			auto& surface = shared_this->surface;
 			auto& format = surface->format;
-			sheet->surface = SDL_CreateRGBSurfaceFrom(surface->pixels, surface->w, surface->h, surface->pitch, format->BitsPerPixel, format->Rmask, format->Gmask, format->Bmask, format->Amask);
+			sheet->surface = SDL_CreateRGBSurfaceWithFormat(0, surface->w, surface->h, format->BitsPerPixel, format->format);
+			memcpy(sheet->surface->pixels, surface->pixels, format->BytesPerPixel * surface->pitch * surface->h);
 			sheet->columns = shared_this->columns;
 			sheet->rows = shared_this->rows;
 			sheet->offset_x = shared_this->offset_x;

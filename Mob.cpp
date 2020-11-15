@@ -16,50 +16,6 @@ void Mob::start()
 
 void Mob::tick(float dt)
 {
-	recalculateStats();
-
-	entity->xy += v * dt;
-
-	Vec2 v_prev = v;
-
-	float l = move.Len();
-	if (l != 0.0f)
-	{
-		float n_dot_move = n.Dot(move);
-		if (n_dot_move > 0.0f)
-		{
-			move -= n * n_dot_move;
-			move /= move.Len();
-			move *= l;
-		}
-
-		if (l > 1.0f)
-			move /= l;
-
-		float mag_pre = v.Len();
-		v += move * (stats.move_acc + stats.move_dec) * dt;
-		v.Truncate(fmaxf(mag_pre, stats.move_speed));
-	}
-
-	n = Vec2();
-
-	float mag = v.Len();
-	float loss = stats.move_dec * dt;
-	float over = mag - loss - stats.move_speed;
-	if (over > 0.0f)
-		loss += fminf(over, loss);
-
-	if (loss < mag)
-		v -= v / mag * loss;
-	else
-		v = Vec2();
-
-	Vec2 at = v - v_prev;
-	entity->xy += at * 0.5f * dt;
-
-	entity->z = tm->getZ(entity->xy);
-
-	cooldown -= dt;
 }
 
 void Mob::onCollision(const Collision & collision)
@@ -100,16 +56,36 @@ void Mob::onDamaged(int64_t damage)
 		Component::attach(text, entity);
 	}
 
+	{
+		auto diff = srs->screenToWorld(input->getCursor()) - entity->xy;
+		auto dir = diff.Normalized();
+		size_t total_remaining = 0;
+		for (intmax_t i = -20; i <= 20; ++i)
+		{
+			size_t remaining = 1;
+			for (intmax_t j = 0; j < 24 - llabs(i) || remaining > 0; ++j)
+			{
+				if (j < 24 - llabs(i))
+					remaining += 2;
+
+				auto launch = dir * (j + (rng->next_float() + rng->next_float()) * 32.0f);
+				launch.Rotate(i);
+
+				auto p = entity->xy + launch;
+
+				tm->depositEffect(0, remaining, p);
+			}
+			total_remaining += remaining;
+		}
+
+		tm->refreshUpdatedEffects();
+	}
+
 	/*if (hp <= 0)
 		level->remove_entity(entity);*/
 }
 
 void Mob::recalculateStats()
 {
-	for (size_t i = 0; i < stats.istat.size(); i++)
-		stats.istat[i] = base_stats.istat[i];
-	for (size_t i = 0; i < stats.fstat.size(); i++)
-		stats.fstat[i] = base_stats.fstat[i];
-	for (size_t i = 0; i < stats.mstat.size(); i++)
-		stats.mstat[i] = base_stats.mstat[i];
+	memcpy(&stats, &base_stats, sizeof(MobStatBlock));
 }

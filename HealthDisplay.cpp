@@ -52,8 +52,6 @@ void HealthDisplay::start()
 
 void HealthDisplay::tick(float dt)
 {
-	player = level->get<Mob>();
-
 	if (player == nullptr)
 		return;
 

@@ -5,6 +5,7 @@
 #include <memory>
 
 class Vec2;
+struct SDL_Color;
 
 class GroundEffectChunk
 {
@@ -19,6 +20,11 @@ public:
 	void clear();
 
 	bool dirty;
+
+	void balance(size_t type, size_t& effect, const Vec2& p);
+	void deposit(size_t type, size_t& effect, const Vec2& p);
+
+	void color(size_t x, size_t y, SDL_Color& pixel) const;
 
 private:
 	uint8_t & at(size_t x, size_t y);

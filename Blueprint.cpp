@@ -116,16 +116,13 @@ void Blueprint::save(const std::string & fname) const
 		{
 			std::string uid = entity.uid;
 
-			Coal data({
-				{ "x", entity.x },
-				{ "y", entity.y },
-				{ "z", entity.z } });
+			Coal data({ { "xyz", entity.xyz } });
 
 			auto parent = entity.getParent();
 			if (parent)
 				data.members["parent"] = (std::string)parent->uid;
 
-			coal.members.emplace(std::make_pair("_" + uid, Coal({ "Entity", std::move(data) })));
+			coal.members.emplace(std::make_pair("_" + uid, Coal(std::vector<Coal>{ "Entity", std::move(data) })));
 
 			for (auto component : entity.getComponents())
 			{
@@ -134,7 +131,7 @@ void Blueprint::save(const std::string & fname) const
 				Coal data = Diamond::data(component.get());
 				data.members["entity"] = (std::string)entity.uid;
 
-				coal.members.emplace(std::make_pair("_" + uid, Coal({ Diamond::name(component.get()), std::move(data) })));
+				coal.members.emplace(std::make_pair("_" + uid, Coal(std::vector<Coal>{ Diamond::name(component.get()), std::move(data) })));
 			}
 		}
 

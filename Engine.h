@@ -57,7 +57,7 @@ private:
 
 	bool stopped;
 
-	double framerate_cap;
+	double framerate_cap_fg, framerate_cap_bg;
 	float max_dt;
 
 	std::vector<System*> systems;

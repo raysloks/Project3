@@ -25,6 +25,10 @@ void InputSystem::processMouseMoveEvent(SDL_MouseMotionEvent & event)
 	cursorPosition.y = event.y;
 }
 
+void InputSystem::processMouseWheelEvent(SDL_MouseWheelEvent & event)
+{
+}
+
 void InputSystem::processButtonDownEvent(SDL_MouseButtonEvent & event)
 {
 	processKeyDown(-event.button);
