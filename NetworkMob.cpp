@@ -1,5 +1,7 @@
 #include "NetworkMob.h"
 
+#include "MobTemplate.h"
+
 NetworkMob::NetworkMob()
 {
 }
@@ -42,4 +44,16 @@ void NetworkMob::tick(float dt)
 	}
 
 	entity->z = tm->getZ(entity->xy);
+}
+
+#include <iostream>
+
+void NetworkMob::setMobTemplate(uint64_t new_mob_template_id)
+{
+	mob_template_id = new_mob_template_id;
+	mob_template = MobTemplate::get(mob_template_id);
+	memcpy(&base_stats, &mob_template->stats, sizeof(MobStatBlock));
+	recalculateStats();
+
+	hp.cap = stats.hp;
 }

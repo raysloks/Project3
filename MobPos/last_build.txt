@@ -9,6 +9,15 @@ uint64 target
 MpAttackMoveCommand
 MpCommand command
 vec2 target
+MpAuraUpdate
+uint64 index
+uint64 aura_id
+int64 start
+int64 end
+int64 a
+int64 b
+int64 c
+int64 d
 MpCancelCommand
 MpCommand command
 MpChat
@@ -31,6 +40,8 @@ MpLinearResourceChange
 int64 start
 int64 duration
 int64 amount
+MpMobAurasUpdate
+MpAuraUpdate updated[]
 MpMobHealthUpdate
 int64 current
 int64 cap
@@ -47,12 +58,15 @@ MobStatBlock stats
 MpMobTeamUpdate
 uint64 id
 uint32 team
+MpMobTypeUpdate
+uint64 template_id
 MpMobUpdate
 uint64 id
 MpMobHealthUpdate * hp
 MpPath * path
-MobStatBlock * stats
+MpMobAurasUpdate * auras
 MpMobStateUpdate * state
+MpMobTypeUpdate * type
 MpMobUpdateData
 uint64 tick
 vec3 position

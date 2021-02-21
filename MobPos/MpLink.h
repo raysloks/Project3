@@ -10,6 +10,7 @@
 #include "MpAttack.h"
 #include "MpAttackCommand.h"
 #include "MpAttackMoveCommand.h"
+#include "MpAuraUpdate.h"
 #include "MpCancelCommand.h"
 #include "MpChat.h"
 #include "MpCommand.h"
@@ -17,11 +18,13 @@
 #include "MpDirectionTargetActionCommand.h"
 #include "MpGuid.h"
 #include "MpLinearResourceChange.h"
+#include "MpMobAurasUpdate.h"
 #include "MpMobHealthUpdate.h"
 #include "MpMobSpriteUpdate.h"
 #include "MpMobStateUpdate.h"
 #include "MpMobStatsUpdate.h"
 #include "MpMobTeamUpdate.h"
+#include "MpMobTypeUpdate.h"
 #include "MpMobUpdate.h"
 #include "MpMobUpdateData.h"
 #include "MpMoveCommand.h"
@@ -48,6 +51,7 @@ public:
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpAttack& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpAttackCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpAttackMoveCommand& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpAuraUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpCancelCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpChat& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpCommand& message);
@@ -55,11 +59,13 @@ public:
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpDirectionTargetActionCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpGuid& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpLinearResourceChange& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobAurasUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobHealthUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobSpriteUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobStateUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobStatsUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobTeamUpdate& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobTypeUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobUpdateData& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMoveCommand& message);

@@ -1,6 +1,6 @@
 #include "Inspector.h"
 
-#include "Diamond.h"
+#include "DiamondComponent.h"
 
 #include <sstream>
 

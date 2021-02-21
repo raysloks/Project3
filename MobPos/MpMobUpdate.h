@@ -5,10 +5,10 @@
 #include <memory>
 #include <iostream>
 
-#include "MobStatBlock.h"
-
+class MpMobAurasUpdate;
 class MpMobHealthUpdate;
 class MpMobStateUpdate;
+class MpMobTypeUpdate;
 class MpPath;
 
 #pragma pack(push, 1)
@@ -18,8 +18,9 @@ public:
 	uint64_t id;
 	std::unique_ptr<MpMobHealthUpdate> hp;
 	std::unique_ptr<MpPath> path;
-	std::unique_ptr<MobStatBlock> stats;
+	std::unique_ptr<MpMobAurasUpdate> auras;
 	std::unique_ptr<MpMobStateUpdate> state;
+	std::unique_ptr<MpMobTypeUpdate> type;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

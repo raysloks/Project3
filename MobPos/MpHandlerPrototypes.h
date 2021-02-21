@@ -7,6 +7,7 @@
 	void MpMobStateUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobStateUpdate& message);
 	void MpMobStatsUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobStatsUpdate& message);
 	void MpMobTeamUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobTeamUpdate& message);
+	void MpMobTypeUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobTypeUpdate& message);
 	void MpMobUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobUpdate& message);
 	void MpMobUpdateDataHandler(const asio::ip::udp::endpoint& endpoint, const MpMobUpdateData& message);
 	void MpPlayerMobCreatedHandler(const asio::ip::udp::endpoint& endpoint, const MpPlayerMobCreated& message);

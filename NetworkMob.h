@@ -2,6 +2,8 @@
 
 #include "Mob.h"
 
+class MobTemplate;
+
 class NetworkMob :
 	public Mob
 {
@@ -13,5 +15,10 @@ public:
 	void tick(float dt);
 
 	uint64_t id;
+
+	void setMobTemplate(uint64_t mob_template_id);
+
+	uint64_t mob_template_id;
+	const MobTemplate * mob_template;
 };
 

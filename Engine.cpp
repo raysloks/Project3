@@ -17,7 +17,7 @@ Engine::Engine()
 
 	window = SDL_CreateWindow(nullptr, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 	
-	render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
 
 	stopped = false;

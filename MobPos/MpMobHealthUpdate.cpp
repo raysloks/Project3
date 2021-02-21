@@ -6,8 +6,8 @@
 
 void MpMobHealthUpdate::serialize(std::ostream& os) const
 {
-	os.write((char*)&current, (sizeof(current) + 3) / 4 * 4);
-	os.write((char*)&cap, (sizeof(cap) + 3) / 4 * 4);
+	os.write((char*)&this->current, (sizeof(this->current) + 3) / 4 * 4);
+	os.write((char*)&this->cap, (sizeof(this->cap) + 3) / 4 * 4);
 	{
 		uint16_t size = this->changes.size();
 		os.write((char*)&size, sizeof(size));
@@ -17,8 +17,8 @@ void MpMobHealthUpdate::serialize(std::ostream& os) const
 
 void MpMobHealthUpdate::deserialize(std::istream& is)
 {
-	is.read((char*)&current, (sizeof(current) + 3) / 4 * 4);
-	is.read((char*)&cap, (sizeof(cap) + 3) / 4 * 4);
+	is.read((char*)&this->current, (sizeof(this->current) + 3) / 4 * 4);
+	is.read((char*)&this->cap, (sizeof(this->cap) + 3) / 4 * 4);
 	{
 		uint16_t size;
 		is.read((char*)&size, sizeof(size));

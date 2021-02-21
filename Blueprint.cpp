@@ -9,7 +9,7 @@
 
 #include "Coal.h"
 
-#include "Diamond.h"
+#include "DiamondComponent.h"
 
 Blueprint::Blueprint()
 {

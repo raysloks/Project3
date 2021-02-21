@@ -33,6 +33,9 @@
     <Filter Include="Source Files\MobPos">
       <UniqueIdentifier>{09293e87-d17d-4c59-a44a-b5eaa38a7d67}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{3a2b00a2-393f-4f10-bdcd-d39492d38a21}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -143,9 +146,6 @@
     <ClCompile Include="Item.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Ability.cpp">
-      <Filter>Source Files\Game</Filter>
-    </ClCompile>
     <ClCompile Include="ActionBar.cpp">
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
@@ -199,9 +199,6 @@
     </ClCompile>
     <ClCompile Include="Blueprint.cpp">
       <Filter>Source Files\Resources</Filter>
-    </ClCompile>
-    <ClCompile Include="Diamond.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Inspector.cpp">
       <Filter>Source Files\Custom Behaviours</Filter>
@@ -274,6 +271,24 @@
     </ClCompile>
     <ClCompile Include="MobPos\MpMobStatsUpdate.cpp">
       <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpAuraUpdate.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpMobAurasUpdate.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpMobTypeUpdate.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="DiamondComponent.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -400,9 +415,6 @@
     <ClInclude Include="shared_from.h">
       <Filter>Source Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Ability.h">
-      <Filter>Source Files\Game</Filter>
-    </ClInclude>
     <ClInclude Include="ActionBar.h">
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
@@ -459,9 +471,6 @@
     </ClInclude>
     <ClInclude Include="Blueprint.h">
       <Filter>Source Files\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Diamond.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Inspector.h">
       <Filter>Source Files\Custom Behaviours</Filter>
@@ -534,6 +543,24 @@
     </ClInclude>
     <ClInclude Include="MobPos\MpMobStatsUpdate.h">
       <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability.h">
+      <Filter>Source Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpAuraUpdate.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpMobAurasUpdate.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpMobTypeUpdate.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="DiamondComponent.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

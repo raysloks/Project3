@@ -5,8 +5,11 @@
 #include "GameKeyBinding.h"
 #include "SpriteAnimator.h"
 #include "HealthDisplay.h"
+#include "ActionBar.h"
 
-MobPosHandler::MobPosHandler()
+#include "MobTemplate.h"
+
+MobPosHandler::MobPosHandler() : grid(64, 64)
 {
 	link.handler = this;
 	link.Open(asio::ip::udp::endpoint(asio::ip::address_v6::any(), 0));
@@ -69,16 +72,24 @@ void MobPosHandler::MpMobTeamUpdateHandler(const asio::ip::udp::endpoint & endpo
 {
 }
 
+void MobPosHandler::MpMobTypeUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobTypeUpdate & message)
+{
+}
+
 void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobUpdate & message)
 {
 	auto it = getMob(message.id);
 	auto&& data = it->second;
 	auto&& mob = *data.mob;
 
-	if (message.stats)
+	if (message.type)
 	{
-		mob.base_stats = *message.stats;
-		mob.recalculateStats();
+		mob.setMobTemplate(message.type->template_id);
+		mob.getComponent<Sprite>()->sheet = SpriteSheet::get(temp[mob.mob_template->sprite]);
+	}
+
+	if (message.auras)
+	{
 	}
 
 	if (message.hp)
@@ -98,9 +109,8 @@ void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint,
 			for (size_t i = 0; i < data.path.distances.size(); ++i)
 				data.path.distances[i] = (data.path.points[i + 1] - data.path.points[i]).Len();
 		}
-		int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
-		int64_t diff = message.path->time - (now + time_offset);
-		float speed = mob.stats.move_speed * mob.stats.move_multiplier;
+		int64_t diff = time - message.path->time;
+		float speed = mob.stats.movement_speed * mob.stats.movement_speed_multiplier;
 		data.path.move(diff * 0.000000001 * speed);
 	}
 
@@ -119,6 +129,7 @@ void MobPosHandler::MpPlayerMobCreatedHandler(const asio::ip::udp::endpoint & en
 {
 	player_mob_id = message.id;
 	level->get<HealthDisplay>()->player = getMob(message.id)->second.mob;
+	level->get<ActionBar>()->player = getMob(message.id)->second.mob;
 }
 
 void MobPosHandler::MpSoundHandler(const asio::ip::udp::endpoint & endpoint, const MpSound & message)
@@ -130,22 +141,37 @@ void MobPosHandler::MpUpdateHandler(const asio::ip::udp::endpoint & endpoint, co
 	int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
 	int64_t offset = message.time - now;
 	int64_t diff = time_offset - offset;
-	if (abs(diff) > 5'000'000)
+	if (abs(diff) > 10'000'000)
+	{
 		time_offset = offset;
+		std::cout << "SYNC" << std::endl;
+	}
 	link.Send(endpoint, message);
 }
 
 void MobPosHandler::tick(float dt)
 {
 	int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
+	int64_t diff = now + time_offset - time;
 	time = now + time_offset;
 
 	if (!initialized)
 	{
 		initialized = true;
 
+		for (size_t x = 0; x < grid.w; ++x)
+		{
+			for (size_t y = 0; y < grid.h; ++y)
+			{
+				grid.at(x, y) = engine->level->tilemap.at(x, y).tile;
+			}
+		}
+
 		engine->input->addKeyDownCallback(KB_MOVE_ATTACK_CURSOR, [this]()
 			{
+				if (player_mob_id == -1)
+					return;
+
 				int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
 
 				Vec2 target = engine->srs->screenToWorld(engine->input->getCursor());
@@ -165,16 +191,41 @@ void MobPosHandler::tick(float dt)
 				if (target_mob)
 				{
 					MpAttackCommand message;
-					message.command.time = now + time_offset;
+					message.command.time = time;
 					message.target = target_mob->id;
 					link.Send(endpoint, message);
 				}
 				else
 				{
 					MpMoveCommand message;
-					message.command.time = now + time_offset;
+					message.command.time = time;
 					message.target = target / 16.0f + 0.5f;
 					link.Send(endpoint, message);
+
+					//if (false)
+					{
+						auto&& mob = mobs[player_mob_id];
+						auto&& path = mob.path;
+
+						//float speed = mob.mob->stats.movement_speed * mob.mob->stats.movement_speed_multiplier;
+						//path.move((now + time_offset - time) * 0.000000001 * speed);
+						/*if (path.points.size() > 0)
+							mob.mob->entity->xy = path.getPosition() * 16.0f - 8.0f;*/
+						path.clear();
+						path.points = grid.findPath(mob.mob->entity->xy / 16.0f + 0.5f, message.target);
+						//path.points = { message.target, mob.mob->entity->xy / 16.0f + 0.5f };
+						std::reverse(path.points.begin(), path.points.end());
+						if (path.points.size() > 0)
+						{
+							path.distances.resize(path.points.size() - 1);
+							for (size_t i = 0; i < path.distances.size(); ++i)
+								path.distances[i] = (path.points[i + 1] - path.points[i]).Len();
+						}
+						else
+						{
+							path.points.push_back(mob.mob->entity->xy / 16.0f + 0.5f);
+						}
+					}
 
 					// create poof
 					{
@@ -198,7 +249,7 @@ void MobPosHandler::tick(float dt)
 				int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
 
 				MpStopCommand message;
-				message.command.time = now + time_offset;
+				message.command.time = time;
 				link.Send(endpoint, message);
 			});
 
@@ -207,7 +258,7 @@ void MobPosHandler::tick(float dt)
 				int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
 
 				MpCancelCommand message;
-				message.command.time = now + time_offset;
+				message.command.time = time;
 				link.Send(endpoint, message);
 			});
 
@@ -234,7 +285,7 @@ void MobPosHandler::tick(float dt)
 					if (target_mob)
 					{
 						MpUnitTargetActionCommand message;
-						message.action.command.time = now + time_offset;
+						message.action.command.time = time;
 						message.action.action = i;
 						message.target = target_mob->id;
 						link.Send(endpoint, message);
@@ -242,7 +293,7 @@ void MobPosHandler::tick(float dt)
 					else
 					{
 						MpActionCommand message;
-						message.command.time = now + time_offset;
+						message.command.time = time;
 						message.action = i;
 						link.Send(endpoint, message);
 					}
@@ -252,7 +303,7 @@ void MobPosHandler::tick(float dt)
 
 	for (auto& i : mobs)
 	{
-		i.second.tick(dt);
+		i.second.tick(diff * 0.000000001);
 	}
 
 	auto player_mob = mobs.find(player_mob_id);
@@ -327,7 +378,7 @@ const float nominal_margin_upper = -2.0f;
 
 void MobPosData::tick(float dt)
 {
-	float speed = mob->stats.move_speed * mob->stats.move_multiplier;
+	float speed = mob->stats.movement_speed * mob->stats.movement_speed_multiplier;
 
 	path.move(dt * speed);
 

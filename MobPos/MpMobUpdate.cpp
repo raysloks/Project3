@@ -4,44 +4,58 @@
 
 #include <iostream>
 
+#include "MpMobAurasUpdate.h"
 #include "MpMobHealthUpdate.h"
 #include "MpMobStateUpdate.h"
+#include "MpMobTypeUpdate.h"
 #include "MpPath.h"
 
 void MpMobUpdate::serialize(std::ostream& os) const
 {
-	os.write((char*)&id, (sizeof(id) + 3) / 4 * 4);
-	if (hp)
+	os.write((char*)&this->id, (sizeof(this->id) + 3) / 4 * 4);
+	if (this->hp)
 	{
 		os.put(true);
-		this->hp->serialize(os);
+		auto&& value = *this->hp;
+	value.serialize(os);
 	}
 	else
 	{
 		os.put(false);
 	}
-	if (path)
+	if (this->path)
 	{
 		os.put(true);
-		this->path->serialize(os);
+		auto&& value = *this->path;
+	value.serialize(os);
 	}
 	else
 	{
 		os.put(false);
 	}
-	if (stats)
+	if (this->auras)
 	{
 		os.put(true);
-		os.write((char*)this->stats.get(), sizeof(MobStatBlock));
+		auto&& value = *this->auras;
+	value.serialize(os);
 	}
 	else
 	{
 		os.put(false);
 	}
-	if (state)
+	if (this->state)
 	{
 		os.put(true);
 		os.write((char*)this->state.get(), sizeof(MpMobStateUpdate));
+	}
+	else
+	{
+		os.put(false);
+	}
+	if (this->type)
+	{
+		os.put(true);
+		os.write((char*)this->type.get(), sizeof(MpMobTypeUpdate));
 	}
 	else
 	{
@@ -51,26 +65,34 @@ void MpMobUpdate::serialize(std::ostream& os) const
 
 void MpMobUpdate::deserialize(std::istream& is)
 {
-	is.read((char*)&id, (sizeof(id) + 3) / 4 * 4);
+	is.read((char*)&this->id, (sizeof(this->id) + 3) / 4 * 4);
 	if (is.get())
 	{
-		hp = std::make_unique<MpMobHealthUpdate>();
-		this->hp->deserialize(is);
+		this->hp = std::make_unique<MpMobHealthUpdate>();
+		auto&& value = *this->hp;
+	value.deserialize(is);
 	}
 	if (is.get())
 	{
-		path = std::make_unique<MpPath>();
-		this->path->deserialize(is);
+		this->path = std::make_unique<MpPath>();
+		auto&& value = *this->path;
+	value.deserialize(is);
 	}
 	if (is.get())
 	{
-		stats = std::make_unique<MobStatBlock>();
-		is.read((char*)this->stats.get(), sizeof(MobStatBlock));
+		this->auras = std::make_unique<MpMobAurasUpdate>();
+		auto&& value = *this->auras;
+	value.deserialize(is);
 	}
 	if (is.get())
 	{
-		state = std::make_unique<MpMobStateUpdate>();
+		this->state = std::make_unique<MpMobStateUpdate>();
 		is.read((char*)this->state.get(), sizeof(MpMobStateUpdate));
+	}
+	if (is.get())
+	{
+		this->type = std::make_unique<MpMobTypeUpdate>();
+		is.read((char*)this->type.get(), sizeof(MpMobTypeUpdate));
 	}
 }
 

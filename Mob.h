@@ -6,6 +6,8 @@
 
 #include "ResourceBar.h"
 
+#include "AbilitySlot.h"
+
 class Mob :
 	public CustomBehaviour
 {
@@ -31,6 +33,8 @@ public:
 	float cooldown;
 
 	MobStatBlock stats, base_stats;
+
+	std::vector<AbilitySlot> abilities;
 
 	void recalculateStats();
 };

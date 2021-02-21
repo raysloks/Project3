@@ -22,14 +22,14 @@ Player::Player()
 	blood = 0;
 
 	auto ability = std::make_shared<Ability>();
-	ability->sheet = SpriteSheet::get("floor.png");
+	//ability->sheet = SpriteSheet::get("icons/icon1.png");
 
 	AbilitySlot slot;
 	slot.ability = ability;
 
 	abilities.push_back(slot);
 
-	base_stats.move_speed = 24.0f;
+	base_stats.movement_speed = 24.0f;
 	/*base_stats.move_acc = 60.0f;
 	base_stats.move_dec = 240.0f;*/
 
@@ -141,12 +141,12 @@ void Player::tick(float dt)
 
 	Mob::tick(dt);
 
-	for (auto& ability : abilities)
+	/*for (auto& ability : abilities)
 	{
 		ability.charges += dt / ability.ability->cooldown;
 		if (ability.charges > ability.ability->max_charges)
 			ability.charges = ability.ability->max_charges;
-	}
+	}*/
 
 	update_camera();
 }

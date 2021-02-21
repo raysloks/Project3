@@ -1,4 +1,4 @@
-#include "Diamond.h"
+#include "DiamondComponent.h"
 #include <typeinfo>
 #include <typeindex>
 #include <unordered_map>
@@ -6,11 +6,11 @@
 #include <sstream>
 #include "Coal.h"
 #include "CustomBehaviour.h"
-#include "Player.h"
 #include "Mob.h"
+#include "Player.h"
 #include "ActionBar.h"
-#include "TilemapCollider.h"
 #include "Collider.h"
+#include "TilemapCollider.h"
 #include "SpriteCollider.h"
 #include "CircleCollider.h"
 #include "RectangleCollider.h"
@@ -26,38 +26,55 @@
 #include "SpriteAnimator.h"
 #include "Projectile.h"
 #include "NetworkMob.h"
-#include "Inspector.h"
 #include "TextDisplay.h"
+#include "Inspector.h"
 #include "TextBox.h"
 const std::unordered_map<std::type_index, std::string> names = {
-{ std::type_index(typeid(CustomBehaviour)), "CustomBehaviour" },
-{ std::type_index(typeid(Player)), "Player" },
-{ std::type_index(typeid(Mob)), "Mob" },
-{ std::type_index(typeid(ActionBar)), "ActionBar" },
-{ std::type_index(typeid(TilemapCollider)), "TilemapCollider" },
-{ std::type_index(typeid(Collider)), "Collider" },
-{ std::type_index(typeid(SpriteCollider)), "SpriteCollider" },
-{ std::type_index(typeid(CircleCollider)), "CircleCollider" },
-{ std::type_index(typeid(RectangleCollider)), "RectangleCollider" },
-{ std::type_index(typeid(Sprite)), "Sprite" },
-{ std::type_index(typeid(Body)), "Body" },
-{ std::type_index(typeid(BouncingBall)), "BouncingBall" },
-{ std::type_index(typeid(Enemy)), "Enemy" },
-{ std::type_index(typeid(FloatingText)), "FloatingText" },
-{ std::type_index(typeid(FollowCursor)), "FollowCursor" },
-{ std::type_index(typeid(FrameRate)), "FrameRate" },
-{ std::type_index(typeid(HealthDisplay)), "HealthDisplay" },
-{ std::type_index(typeid(Inventory)), "Inventory" },
-{ std::type_index(typeid(SpriteAnimator)), "SpriteAnimator" },
-{ std::type_index(typeid(Projectile)), "Projectile" },
-{ std::type_index(typeid(NetworkMob)), "NetworkMob" },
-{ std::type_index(typeid(Inspector)), "Inspector" },
-{ std::type_index(typeid(TextDisplay)), "TextDisplay" },
-{ std::type_index(typeid(TextBox)), "TextBox" } };
+	{ std::type_index(typeid(CustomBehaviour)), "CustomBehaviour" },
+	{ std::type_index(typeid(Mob)), "Mob" },
+	{ std::type_index(typeid(Player)), "Player" },
+	{ std::type_index(typeid(ActionBar)), "ActionBar" },
+	{ std::type_index(typeid(Collider)), "Collider" },
+	{ std::type_index(typeid(TilemapCollider)), "TilemapCollider" },
+	{ std::type_index(typeid(SpriteCollider)), "SpriteCollider" },
+	{ std::type_index(typeid(CircleCollider)), "CircleCollider" },
+	{ std::type_index(typeid(RectangleCollider)), "RectangleCollider" },
+	{ std::type_index(typeid(Sprite)), "Sprite" },
+	{ std::type_index(typeid(Body)), "Body" },
+	{ std::type_index(typeid(BouncingBall)), "BouncingBall" },
+	{ std::type_index(typeid(Enemy)), "Enemy" },
+	{ std::type_index(typeid(FloatingText)), "FloatingText" },
+	{ std::type_index(typeid(FollowCursor)), "FollowCursor" },
+	{ std::type_index(typeid(FrameRate)), "FrameRate" },
+	{ std::type_index(typeid(HealthDisplay)), "HealthDisplay" },
+	{ std::type_index(typeid(Inventory)), "Inventory" },
+	{ std::type_index(typeid(SpriteAnimator)), "SpriteAnimator" },
+	{ std::type_index(typeid(Projectile)), "Projectile" },
+	{ std::type_index(typeid(NetworkMob)), "NetworkMob" },
+	{ std::type_index(typeid(TextDisplay)), "TextDisplay" },
+	{ std::type_index(typeid(Inspector)), "Inspector" },
+	{ std::type_index(typeid(TextBox)), "TextBox" } };
+
 const std::unordered_map<std::type_index, std::function<void(std::ostream&, Component*)>> print_funcs = {
 	{ std::type_index(typeid(CustomBehaviour)), [] (std::ostream& os, Component * component) {
 		auto obj = (CustomBehaviour*)component;
 		os << "CustomBehaviour\n";
+	} },
+	{ std::type_index(typeid(Mob)), [] (std::ostream& os, Component * component) {
+		auto obj = (Mob*)component;
+		os << "Mob\n";
+		os << " team " << obj->team << "\n";
+		os << " v ";
+		os << obj->v.x << " ";
+		os << obj->v.y << "\n";
+		os << " n ";
+		os << obj->n.x << " ";
+		os << obj->n.y << "\n";
+		os << " move ";
+		os << obj->move.x << " ";
+		os << obj->move.y << "\n";
+		os << " anim " << obj->anim << "\n";
+		os << " cooldown " << obj->cooldown << "\n";
 	} },
 	{ std::type_index(typeid(Player)), [] (std::ostream& os, Component * component) {
 		auto obj = (Player*)component;
@@ -78,37 +95,21 @@ const std::unordered_map<std::type_index, std::function<void(std::ostream&, Comp
 		os << obj->move_target.x << " ";
 		os << obj->move_target.y << "\n";
 	} },
-	{ std::type_index(typeid(Mob)), [] (std::ostream& os, Component * component) {
-		auto obj = (Mob*)component;
-		os << "Mob\n";
-		os << " team " << obj->team << "\n";
-		os << " v ";
-		os << obj->v.x << " ";
-		os << obj->v.y << "\n";
-		os << " n ";
-		os << obj->n.x << " ";
-		os << obj->n.y << "\n";
-		os << " move ";
-		os << obj->move.x << " ";
-		os << obj->move.y << "\n";
-		os << " anim " << obj->anim << "\n";
-		os << " cooldown " << obj->cooldown << "\n";
-	} },
 	{ std::type_index(typeid(ActionBar)), [] (std::ostream& os, Component * component) {
 		auto obj = (ActionBar*)component;
 		os << "ActionBar\n";
 		os << " slot_count " << obj->slot_count << "\n";
+	} },
+	{ std::type_index(typeid(Collider)), [] (std::ostream& os, Component * component) {
+		auto obj = (Collider*)component;
+		os << "Collider\n";
+		os << " layers " << obj->layers << "\n";
 	} },
 	{ std::type_index(typeid(TilemapCollider)), [] (std::ostream& os, Component * component) {
 		auto obj = (TilemapCollider*)component;
 		os << "TilemapCollider\n";
 		os << " layers " << obj->layers << "\n";
 		os << " tilemap " << obj->tilemap << "\n";
-	} },
-	{ std::type_index(typeid(Collider)), [] (std::ostream& os, Component * component) {
-		auto obj = (Collider*)component;
-		os << "Collider\n";
-		os << " layers " << obj->layers << "\n";
 	} },
 	{ std::type_index(typeid(SpriteCollider)), [] (std::ostream& os, Component * component) {
 		auto obj = (SpriteCollider*)component;
@@ -243,28 +244,31 @@ const std::unordered_map<std::type_index, std::function<void(std::ostream&, Comp
 		os << " anim " << obj->anim << "\n";
 		os << " cooldown " << obj->cooldown << "\n";
 		os << " id " << obj->id << "\n";
+		os << " mob_template_id " << obj->mob_template_id << "\n";
+		os << " mob_template " << obj->mob_template << "\n";
+	} },
+	{ std::type_index(typeid(TextDisplay)), [] (std::ostream& os, Component * component) {
+		auto obj = (TextDisplay*)component;
+		os << "TextDisplay\n";
 	} },
 	{ std::type_index(typeid(Inspector)), [] (std::ostream& os, Component * component) {
 		auto obj = (Inspector*)component;
 		os << "Inspector\n";
 		os << " index " << obj->index << "\n";
 	} },
-	{ std::type_index(typeid(TextDisplay)), [] (std::ostream& os, Component * component) {
-		auto obj = (TextDisplay*)component;
-		os << "TextDisplay\n";
-	} },
 	{ std::type_index(typeid(TextBox)), [] (std::ostream& os, Component * component) {
 		auto obj = (TextBox*)component;
 		os << "TextBox\n";
 		os << " active " << obj->active << "\n";
 	} } };
+
 const std::unordered_map<std::string, std::type_index> indices = {
 	{ "CustomBehaviour", std::type_index(typeid(CustomBehaviour)) },
-	{ "Player", std::type_index(typeid(Player)) },
 	{ "Mob", std::type_index(typeid(Mob)) },
+	{ "Player", std::type_index(typeid(Player)) },
 	{ "ActionBar", std::type_index(typeid(ActionBar)) },
-	{ "TilemapCollider", std::type_index(typeid(TilemapCollider)) },
 	{ "Collider", std::type_index(typeid(Collider)) },
+	{ "TilemapCollider", std::type_index(typeid(TilemapCollider)) },
 	{ "SpriteCollider", std::type_index(typeid(SpriteCollider)) },
 	{ "CircleCollider", std::type_index(typeid(CircleCollider)) },
 	{ "RectangleCollider", std::type_index(typeid(RectangleCollider)) },
@@ -280,27 +284,28 @@ const std::unordered_map<std::string, std::type_index> indices = {
 	{ "SpriteAnimator", std::type_index(typeid(SpriteAnimator)) },
 	{ "Projectile", std::type_index(typeid(Projectile)) },
 	{ "NetworkMob", std::type_index(typeid(NetworkMob)) },
-	{ "Inspector", std::type_index(typeid(Inspector)) },
 	{ "TextDisplay", std::type_index(typeid(TextDisplay)) },
+	{ "Inspector", std::type_index(typeid(Inspector)) },
 	{ "TextBox", std::type_index(typeid(TextBox)) } };
+
 const std::unordered_map<std::type_index, std::function<Component*()>> create_funcs = {
 	{ std::type_index(typeid(CustomBehaviour)), [] () {
 		return new CustomBehaviour();
 	} },
-	{ std::type_index(typeid(Player)), [] () {
-		return new Player();
-	} },
 	{ std::type_index(typeid(Mob)), [] () {
 		return new Mob();
+	} },
+	{ std::type_index(typeid(Player)), [] () {
+		return new Player();
 	} },
 	{ std::type_index(typeid(ActionBar)), [] () {
 		return new ActionBar();
 	} },
-	{ std::type_index(typeid(TilemapCollider)), [] () {
-		return new TilemapCollider();
-	} },
 	{ std::type_index(typeid(Collider)), [] () {
 		return new Collider();
+	} },
+	{ std::type_index(typeid(TilemapCollider)), [] () {
+		return new TilemapCollider();
 	} },
 	{ std::type_index(typeid(SpriteCollider)), [] () {
 		return new SpriteCollider();
@@ -347,18 +352,31 @@ const std::unordered_map<std::type_index, std::function<Component*()>> create_fu
 	{ std::type_index(typeid(NetworkMob)), [] () {
 		return new NetworkMob();
 	} },
-	{ std::type_index(typeid(Inspector)), [] () {
-		return new Inspector();
-	} },
 	{ std::type_index(typeid(TextDisplay)), [] () {
 		return new TextDisplay();
+	} },
+	{ std::type_index(typeid(Inspector)), [] () {
+		return new Inspector();
 	} },
 	{ std::type_index(typeid(TextBox)), [] () {
 		return new TextBox();
 	} } };
+
 const std::unordered_map<std::type_index, std::function<void(Component*,const Coal&)>> init_funcs = {
 	{ std::type_index(typeid(CustomBehaviour)), [] (Component * component, const Coal& coal) {
 		auto obj = (CustomBehaviour*)component;
+	} },
+	{ std::type_index(typeid(Mob)), [] (Component * component, const Coal& coal) {
+		auto obj = (Mob*)component;
+		obj->team = coal.members.at("team").integer;
+		obj->v.x = coal.members.at("v").members.at("x").real;
+		obj->v.y = coal.members.at("v").members.at("y").real;
+		obj->n.x = coal.members.at("n").members.at("x").real;
+		obj->n.y = coal.members.at("n").members.at("y").real;
+		obj->move.x = coal.members.at("move").members.at("x").real;
+		obj->move.y = coal.members.at("move").members.at("y").real;
+		obj->anim = coal.members.at("anim").real;
+		obj->cooldown = coal.members.at("cooldown").real;
 	} },
 	{ std::type_index(typeid(Player)), [] (Component * component, const Coal& coal) {
 		auto obj = (Player*)component;
@@ -374,28 +392,16 @@ const std::unordered_map<std::type_index, std::function<void(Component*,const Co
 		obj->move_target.x = coal.members.at("move_target").members.at("x").real;
 		obj->move_target.y = coal.members.at("move_target").members.at("y").real;
 	} },
-	{ std::type_index(typeid(Mob)), [] (Component * component, const Coal& coal) {
-		auto obj = (Mob*)component;
-		obj->team = coal.members.at("team").integer;
-		obj->v.x = coal.members.at("v").members.at("x").real;
-		obj->v.y = coal.members.at("v").members.at("y").real;
-		obj->n.x = coal.members.at("n").members.at("x").real;
-		obj->n.y = coal.members.at("n").members.at("y").real;
-		obj->move.x = coal.members.at("move").members.at("x").real;
-		obj->move.y = coal.members.at("move").members.at("y").real;
-		obj->anim = coal.members.at("anim").real;
-		obj->cooldown = coal.members.at("cooldown").real;
-	} },
 	{ std::type_index(typeid(ActionBar)), [] (Component * component, const Coal& coal) {
 		auto obj = (ActionBar*)component;
 		obj->slot_count = coal.members.at("slot_count").integer;
 	} },
-	{ std::type_index(typeid(TilemapCollider)), [] (Component * component, const Coal& coal) {
-		auto obj = (TilemapCollider*)component;
-		obj->layers = coal.members.at("layers").integer;
-	} },
 	{ std::type_index(typeid(Collider)), [] (Component * component, const Coal& coal) {
 		auto obj = (Collider*)component;
+		obj->layers = coal.members.at("layers").integer;
+	} },
+	{ std::type_index(typeid(TilemapCollider)), [] (Component * component, const Coal& coal) {
+		auto obj = (TilemapCollider*)component;
 		obj->layers = coal.members.at("layers").integer;
 	} },
 	{ std::type_index(typeid(SpriteCollider)), [] (Component * component, const Coal& coal) {
@@ -501,22 +507,41 @@ const std::unordered_map<std::type_index, std::function<void(Component*,const Co
 		obj->anim = coal.members.at("anim").real;
 		obj->cooldown = coal.members.at("cooldown").real;
 		obj->id = coal.members.at("id").integer;
+		obj->mob_template_id = coal.members.at("mob_template_id").integer;
+	} },
+	{ std::type_index(typeid(TextDisplay)), [] (Component * component, const Coal& coal) {
+		auto obj = (TextDisplay*)component;
 	} },
 	{ std::type_index(typeid(Inspector)), [] (Component * component, const Coal& coal) {
 		auto obj = (Inspector*)component;
 		obj->index = coal.members.at("index").integer;
 	} },
-	{ std::type_index(typeid(TextDisplay)), [] (Component * component, const Coal& coal) {
-		auto obj = (TextDisplay*)component;
-	} },
 	{ std::type_index(typeid(TextBox)), [] (Component * component, const Coal& coal) {
 		auto obj = (TextBox*)component;
 		obj->active = coal.members.at("active").boolean;
 	} } };
+
 const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_funcs = {
 	{ std::type_index(typeid(CustomBehaviour)), [] (Component * component) {
 		auto obj = (CustomBehaviour*)component;
 		Coal coal;
+		return coal;
+	} },
+	{ std::type_index(typeid(Mob)), [] (Component * component) {
+		auto obj = (Mob*)component;
+		Coal coal;
+		coal.members["team"] = obj->team;
+		coal.members["v"] = Coal({
+			{"x", obj->v.x},
+			{"y", obj->v.y}});
+		coal.members["n"] = Coal({
+			{"x", obj->n.x},
+			{"y", obj->n.y}});
+		coal.members["move"] = Coal({
+			{"x", obj->move.x},
+			{"y", obj->move.y}});
+		coal.members["anim"] = obj->anim;
+		coal.members["cooldown"] = obj->cooldown;
 		return coal;
 	} },
 	{ std::type_index(typeid(Player)), [] (Component * component) {
@@ -539,27 +564,16 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 			{"y", obj->move_target.y}});
 		return coal;
 	} },
-	{ std::type_index(typeid(Mob)), [] (Component * component) {
-		auto obj = (Mob*)component;
-		Coal coal;
-		coal.members["team"] = obj->team;
-		coal.members["v"] = Coal({
-			{"x", obj->v.x},
-			{"y", obj->v.y}});
-		coal.members["n"] = Coal({
-			{"x", obj->n.x},
-			{"y", obj->n.y}});
-		coal.members["move"] = Coal({
-			{"x", obj->move.x},
-			{"y", obj->move.y}});
-		coal.members["anim"] = obj->anim;
-		coal.members["cooldown"] = obj->cooldown;
-		return coal;
-	} },
 	{ std::type_index(typeid(ActionBar)), [] (Component * component) {
 		auto obj = (ActionBar*)component;
 		Coal coal;
 		coal.members["slot_count"] = obj->slot_count;
+		return coal;
+	} },
+	{ std::type_index(typeid(Collider)), [] (Component * component) {
+		auto obj = (Collider*)component;
+		Coal coal;
+		coal.members["layers"] = obj->layers;
 		return coal;
 	} },
 	{ std::type_index(typeid(TilemapCollider)), [] (Component * component) {
@@ -567,12 +581,6 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 		Coal coal;
 		coal.members["layers"] = obj->layers;
 		coal.members["tilemap"] = (uint64_t)obj->tilemap;
-		return coal;
-	} },
-	{ std::type_index(typeid(Collider)), [] (Component * component) {
-		auto obj = (Collider*)component;
-		Coal coal;
-		coal.members["layers"] = obj->layers;
 		return coal;
 	} },
 	{ std::type_index(typeid(SpriteCollider)), [] (Component * component) {
@@ -722,6 +730,13 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 		coal.members["anim"] = obj->anim;
 		coal.members["cooldown"] = obj->cooldown;
 		coal.members["id"] = obj->id;
+		coal.members["mob_template_id"] = obj->mob_template_id;
+		coal.members["mob_template"] = (uint64_t)obj->mob_template;
+		return coal;
+	} },
+	{ std::type_index(typeid(TextDisplay)), [] (Component * component) {
+		auto obj = (TextDisplay*)component;
+		Coal coal;
 		return coal;
 	} },
 	{ std::type_index(typeid(Inspector)), [] (Component * component) {
@@ -730,38 +745,40 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 		coal.members["index"] = obj->index;
 		return coal;
 	} },
-	{ std::type_index(typeid(TextDisplay)), [] (Component * component) {
-		auto obj = (TextDisplay*)component;
-		Coal coal;
-		return coal;
-	} },
 	{ std::type_index(typeid(TextBox)), [] (Component * component) {
 		auto obj = (TextBox*)component;
 		Coal coal;
 		coal.members["active"] = obj->active;
 		return coal;
 	} } };
+
 void Diamond::print(std::ostream& os, Component * component)
 {
 	print_funcs.at(std::type_index(typeid(*component)))(os, component);
 }
+
 std::type_index Diamond::index(const std::string& type)
 {
 	return indices.at(type);
 }
+
 std::string Diamond::name(Component * component)
 {
 	return names.at(std::type_index(typeid(*component)));
 }
+
 Component * Diamond::create(const std::type_index& type)
 {
 	return create_funcs.at(type)();
 }
+
 void Diamond::init(Component * component, const Coal& coal)
 {
 	init_funcs.at(std::type_index(typeid(*component)))(component, coal);
 }
+
 Coal Diamond::data(Component * component)
 {
 	return data_funcs.at(std::type_index(typeid(*component)))(component);
 }
+

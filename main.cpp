@@ -21,6 +21,8 @@
 
 #include "Xoroshiro128Plus.h"
 
+#include "MobTemplate.h"
+
 #include <chrono>
 
 #include <iostream>
@@ -371,7 +373,7 @@ Level * create_level(int floor)
 		}
 
 		// create action bar
-		if (false)
+		if (true)
 		{
 			auto entity = level->add_entity();
 			Entity::adopt(entity, ui);
@@ -458,6 +460,8 @@ int main(int argc, char* args[])
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy", floor_iso_gen_lossy));
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy_blur", floor_iso_gen_lossy_blur));
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossless", floor_iso_gen_lossless));
+
+	MobTemplate::load();
 
 	Level * level = create_level(0);
 

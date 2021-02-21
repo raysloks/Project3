@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -172,7 +172,7 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="CustomBehaviour.cpp" />
     <ClCompile Include="CustomBehaviourSystem.cpp" />
-    <ClCompile Include="Diamond.cpp" />
+    <ClCompile Include="DiamondComponent.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -186,16 +186,19 @@
     <ClCompile Include="MobPos\MpAttack.cpp" />
     <ClCompile Include="MobPos\MpAttackCommand.cpp" />
     <ClCompile Include="MobPos\MpAttackMoveCommand.cpp" />
+    <ClCompile Include="MobPos\MpAuraUpdate.cpp" />
     <ClCompile Include="MobPos\MpCancelCommand.cpp" />
     <ClCompile Include="MobPos\MpCommand.cpp" />
     <ClCompile Include="MobPos\MpDamage.cpp" />
     <ClCompile Include="MobPos\MpDirectionTargetActionCommand.cpp" />
     <ClCompile Include="MobPos\MpLinearResourceChange.cpp" />
+    <ClCompile Include="MobPos\MpMobAurasUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobHealthUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobSpriteUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobStateUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobStatsUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobTeamUpdate.cpp" />
+    <ClCompile Include="MobPos\MpMobTypeUpdate.cpp" />
     <ClCompile Include="MobPos\MpMoveCommand.cpp" />
     <ClCompile Include="MobPos\MpPath.cpp" />
     <ClCompile Include="MobPos\MpPointTargetActionCommand.cpp" />
@@ -239,6 +242,7 @@
     <ClCompile Include="Tilemap.cpp" />
     <ClCompile Include="TilemapCollider.cpp" />
     <ClCompile Include="Weapon.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ability.h" />
@@ -255,7 +259,7 @@
     <ClInclude Include="ComponentContainer.h" />
     <ClInclude Include="CustomBehaviour.h" />
     <ClInclude Include="CustomBehaviourSystem.h" />
-    <ClInclude Include="Diamond.h" />
+    <ClInclude Include="DiamondComponent.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Entity.h" />
@@ -270,16 +274,19 @@
     <ClInclude Include="MobPos\MpAttack.h" />
     <ClInclude Include="MobPos\MpAttackCommand.h" />
     <ClInclude Include="MobPos\MpAttackMoveCommand.h" />
+    <ClInclude Include="MobPos\MpAuraUpdate.h" />
     <ClInclude Include="MobPos\MpCancelCommand.h" />
     <ClInclude Include="MobPos\MpCommand.h" />
     <ClInclude Include="MobPos\MpDamage.h" />
     <ClInclude Include="MobPos\MpDirectionTargetActionCommand.h" />
     <ClInclude Include="MobPos\MpLinearResourceChange.h" />
+    <ClInclude Include="MobPos\MpMobAurasUpdate.h" />
     <ClInclude Include="MobPos\MpMobHealthUpdate.h" />
     <ClInclude Include="MobPos\MpMobSpriteUpdate.h" />
     <ClInclude Include="MobPos\MpMobStateUpdate.h" />
     <ClInclude Include="MobPos\MpMobStatsUpdate.h" />
     <ClInclude Include="MobPos\MpMobTeamUpdate.h" />
+    <ClInclude Include="MobPos\MpMobTypeUpdate.h" />
     <ClInclude Include="MobPos\MpMoveCommand.h" />
     <ClInclude Include="MobPos\MpPath.h" />
     <ClInclude Include="MobPos\MpPointTargetActionCommand.h" />
@@ -327,6 +334,7 @@
     <ClInclude Include="Tilemap.h" />
     <ClInclude Include="TilemapCollider.h" />
     <ClInclude Include="Weapon.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="MobPos\last_build.txt" />
