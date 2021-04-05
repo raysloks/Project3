@@ -21,6 +21,7 @@
 
 #include "Xoroshiro128Plus.h"
 
+#include "Ability.h"
 #include "MobTemplate.h"
 
 #include <chrono>
@@ -461,6 +462,7 @@ int main(int argc, char* args[])
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy_blur", floor_iso_gen_lossy_blur));
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossless", floor_iso_gen_lossless));
 
+	Ability::load();
 	MobTemplate::load();
 
 	Level * level = create_level(0);

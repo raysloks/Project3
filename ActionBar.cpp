@@ -31,24 +31,24 @@ void ActionBar::tick(float dt)
 		sprites_slot.push_back(sprite);
 	}
 
-	//for (size_t i = sprites.size(); i < player->abilities.size(); ++i)
-	//{
-	//	auto entity = level->add_entity();
-	//	Entity::adopt(entity, this->entity);
-	//	entity->x = 17 * (i - slot_count * 0.5f + 0.5f);
+	for (size_t i = sprites.size(); i < player->abilities.size(); ++i)
+	{
+		auto entity = level->add_entity();
+		Entity::adopt(entity, this->entity);
+		entity->x = 17 * (i - slot_count * 0.5f + 0.5f);
 
-	//	auto sprite = level->ui_sprites.add();
+		auto sprite = level->ui_sprites.add();
 
-	//	sprite->sort = 512;
-	//	//sprite->scale = 0.5f;
+		sprite->sort = 512;
+		//sprite->scale = 0.5f;
 
-	//	Component::attach(sprite, entity);
+		Component::attach(sprite, entity);
 
-	//	sprites.push_back(sprite);
-	//}
+		sprites.push_back(sprite);
+	}
 
-	//for (size_t i = 0; i < player->abilities.size(); ++i)
-	//{
-	//	sprites[i]->sheet = player->abilities[i].ability->sheet;
-	//}
+	for (size_t i = 0; i < player->abilities.size(); ++i)
+	{
+		sprites[i]->sheet = SpriteSheet::get("icons/icon" + std::to_string(player->abilities[i].ability->icon) + ".png");
+	}
 }

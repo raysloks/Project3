@@ -56,7 +56,7 @@ void Mob::onDamaged(int64_t damage)
 		Component::attach(text, entity);
 	}
 
-	{
+	/*{
 		auto diff = srs->screenToWorld(input->getCursor()) - entity->xy;
 		auto dir = diff.Normalized();
 		size_t total_remaining = 0;
@@ -79,7 +79,7 @@ void Mob::onDamaged(int64_t damage)
 		}
 
 		tm->refreshUpdatedEffects();
-	}
+	}*/
 
 	/*if (hp <= 0)
 		level->remove_entity(entity);*/

@@ -7,7 +7,7 @@
 class AbilitySlot
 {
 public:
-	std::shared_ptr<const Ability> ability;
+	const Ability * ability;
 
 	float charges;
 };

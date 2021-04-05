@@ -9,7 +9,7 @@ std::vector<Ability> abilities;
 
 void Ability::load()
 {
-	std::ifstream f("../../../abilities.txt", std::ifstream::in);
+	std::ifstream f("abilities.txt", std::ifstream::in);
 	
 	auto coal = Coal::parse(f);
 
@@ -20,6 +20,7 @@ void Ability::load()
 		{
 			Ability ability;
 			ability.name = element["name"].string;
+			ability.icon = element["icon"];
 			ability.wind_up = element["wind_up"];
 			ability.wind_down = element["wind_down"];
 			ability.range = element["range"];

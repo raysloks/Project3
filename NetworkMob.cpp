@@ -36,12 +36,12 @@ void NetworkMob::tick(float dt)
 		sprite->subsprite_x = (int(anim) % sprite->sheet->columns);
 	}
 
-	for (auto child : entity->getChildren())
+	/*for (auto child : entity->getChildren())
 	{
 		auto child_sprite = child->getComponent<Sprite>();
 		if (child_sprite)
 			child_sprite->flip = sprite->flip;
-	}
+	}*/
 
 	entity->z = tm->getZ(entity->xy);
 }
@@ -55,5 +55,5 @@ void NetworkMob::setMobTemplate(uint64_t new_mob_template_id)
 	memcpy(&base_stats, &mob_template->stats, sizeof(MobStatBlock));
 	recalculateStats();
 
-	hp.cap = stats.hp;
+	hp.set_cap(stats.hp);
 }

@@ -15,10 +15,10 @@ Engine::Engine()
 
 	IMG_Init(IMG_INIT_PNG);
 
-	window = SDL_CreateWindow(nullptr, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+	window = SDL_CreateWindow(nullptr, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_VULKAN);
 	
-	render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
+	/*render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);*/
 
 	stopped = false;
 
@@ -38,6 +38,10 @@ Engine::Engine()
 
 
 	// initialize systems
+
+	mrs = new ModelRenderSystem();
+	mrs->init(window);
+	systems.push_back(mrs);
 
 	srs = new SpriteRenderSystem(render);
 	systems.push_back(srs);

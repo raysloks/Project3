@@ -125,6 +125,16 @@ void MobPosHandler::MpMobUpdateDataHandler(const asio::ip::udp::endpoint & endpo
 {
 }
 
+void MobPosHandler::MpPlayerMobAbilitiesUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpPlayerMobAbilitiesUpdate & message)
+{
+	auto mob = getMob(message.id)->second.mob.get();
+	mob->abilities.resize(message.abilities.size());
+	for (size_t i = 0; i < message.abilities.size(); ++i)
+	{
+		mob->abilities[i].ability = Ability::get(message.abilities[i]);
+	}
+}
+
 void MobPosHandler::MpPlayerMobCreatedHandler(const asio::ip::udp::endpoint & endpoint, const MpPlayerMobCreated & message)
 {
 	player_mob_id = message.id;
@@ -299,6 +309,34 @@ void MobPosHandler::tick(float dt)
 					}
 				});
 		}
+
+		engine->input->addKeyDownCallback(KB_ACTION_0, [this]()
+			{
+				auto mob = mobs[player_mob_id].mob;
+
+				Vec2 direction = engine->srs->screenToWorld(engine->input->getCursor()) - mob->entity->xy;
+				direction.Normalize();
+
+				auto sword = level->add_entity();
+
+				auto swoop = SpriteSheet::get("cone.png");
+
+				float rotation_degs = atan2f(direction.x, -direction.y) * 180.0f / float(M_PI);
+				auto swoop_iso = swoop->makeIsometricFloorLossless(rotation_degs);
+
+				auto sprite = level->sprites.add(Sprite(swoop_iso));
+				sprite->color = SDL_Color({ 255, 255, 255, 255 });
+				sprite->sort = 1;
+				//sprite->rotation = atan2f(direction.x, -direction.y) * 180.0f / float(M_PI);
+				//sprite->flip = flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+				Component::attach(sprite, sword);
+
+				auto animator = level->add<SpriteAnimator>(30.0f);
+				animator->destroy = true;
+				Component::attach(animator, sword);
+
+				Entity::adopt(sword, mob->entity);
+			});
 	}
 
 	for (auto& i : mobs)

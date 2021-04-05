@@ -22,6 +22,8 @@ public:
 
 	std::string name;
 
+	uint64_t icon;
+
 	uint64_t cooldown, charges;
 	uint64_t wind_up, wind_down;
 

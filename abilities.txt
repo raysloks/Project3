@@ -1,0 +1,98 @@
+[
+	{
+		name "Melee"
+		icon 1
+		range 1
+		effects
+		[
+			{
+				type "Damage"
+				damage 100
+			}
+		]
+	}
+	{
+		name "Skull-Splitting Strike"
+		icon 12
+		range 2
+		effects
+		[
+			{
+				type "Damage"
+				damage 150
+			}
+		]
+	}
+	{
+		name "Power Word: Heal"
+		icon 0
+		range 8
+		effects
+		[
+			{
+				type "Heal"
+				heal 100
+			}
+		]
+	}
+	{
+		name "Power Word: Shield"
+		icon 0
+		range 8
+		effects
+		[
+			{
+				type "Aura"
+				aura 0
+			}
+		]
+	}
+	{
+		name "Truestrike"
+		icon 0
+		range 1
+		effects
+		[
+			{
+				type "Damage"
+				damage 110
+			}
+		]
+	}
+	{
+		name "Ignite"
+		icon 9
+		range 2
+		effects
+		[
+			{
+				type "Aura"
+				aura 1
+			}
+		]
+	}
+	{
+		name "Lightning Bolt"
+		icon 2
+		range 8
+		effects
+		[
+			{
+				type "Missile"
+				missile 0
+			}
+		]
+	}
+	{
+		name "Shield Block"
+		icon 0
+		range 0
+		effects
+		[
+			{
+				type "Aura"
+				aura 2
+			}
+		]
+	}
+]

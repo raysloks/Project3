@@ -29,6 +29,7 @@
 #include "MpMobUpdateData.h"
 #include "MpMoveCommand.h"
 #include "MpPath.h"
+#include "MpPlayerMobAbilitiesUpdate.h"
 #include "MpPlayerMobCreated.h"
 #include "MpPointTargetActionCommand.h"
 #include "MpSound.h"
@@ -70,6 +71,7 @@ public:
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMobUpdateData& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpMoveCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpPath& message);
+	void Send(const asio::ip::udp::endpoint& endpoint, const MpPlayerMobAbilitiesUpdate& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpPlayerMobCreated& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpPointTargetActionCommand& message);
 	void Send(const asio::ip::udp::endpoint& endpoint, const MpSound& message);

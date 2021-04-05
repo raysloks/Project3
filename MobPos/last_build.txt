@@ -78,6 +78,9 @@ vec2 target
 MpPath
 uint64 time
 vec2 points[]
+MpPlayerMobAbilitiesUpdate
+uint64 id
+uint64 abilities[]
 MpPlayerMobCreated
 uint64 id
 MpPointTargetActionCommand

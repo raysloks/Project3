@@ -8,6 +8,7 @@
 #include "InputSystem.h"
 #include "CustomBehaviourSystem.h"
 #include "CollisionSystem.h"
+#include "ModelRenderSystem.h"
 
 class MobPosHandler;
 
@@ -41,6 +42,7 @@ public:
 	CustomBehaviourSystem * cbs;
 	CollisionSystem * cs;
 	MobPosHandler * net;
+	ModelRenderSystem * mrs;
 
 	Level * level;
 
