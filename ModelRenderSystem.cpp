@@ -6,6 +6,8 @@
 #include "Model.h"
 #include "SpriteSheet.h"
 
+#include "Level.h"
+
 #include "Quaternion.h"
 #include "Matrix3.h"
 
@@ -36,14 +38,14 @@ ModelRenderSystem::ModelRenderSystem()
 	graphics_pipeline = nullptr;
 	command_pool = nullptr;
 
-	max_frames_in_flight = 3;
+	max_frames_in_flight = 2;
 	current_frame_index = 0;
 
 	staging_offset = 0;
 
 	time = 0.0f;
 
-	models.add("hoodlum.mdl", "hoodlum.png");
+	field_of_view = 35.0f;
 }
 
 ModelRenderSystem::~ModelRenderSystem()
@@ -94,8 +96,6 @@ void ModelRenderSystem::init(SDL_Window * window)
 	createDescriptorSets();
 
 	allocateCommandBuffers();
-
-	recordCommandBuffers();
 
 	createSynchronizationPrimitives();
 }
@@ -605,7 +605,7 @@ void ModelRenderSystem::createCommandPool()
 	VkCommandPoolCreateInfo command_pool_create_info = {
 		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		nullptr,
-		0,
+		VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
 		graphics_queue_family_index
 	};
 
@@ -639,51 +639,6 @@ void ModelRenderSystem::allocateCommandBuffers()
 
 	if (vkAllocateCommandBuffers(device, &command_buffer_allocate_info, command_buffers.data()))
 		throw std::runtime_error("failed to allocate command buffers.");
-}
-
-void ModelRenderSystem::recordCommandBuffers()
-{
-	for (size_t i = 0; i < command_buffers.size(); ++i)
-	{
-		std::vector<VkCommandBuffer> secondary_command_buffers;
-		for (auto& model : models.components)
-			secondary_command_buffers.push_back(model.getCommandBuffer(this, i));
-
-		VkCommandBufferBeginInfo command_buffer_begin_info = {
-			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-			nullptr,
-			0,
-			nullptr
-		};
-
-		if (vkBeginCommandBuffer(command_buffers[i], &command_buffer_begin_info))
-			throw std::runtime_error("failed to begin recording command buffer.");
-
-		std::array<VkClearValue, 2> clear_values = {};
-		clear_values[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-		clear_values[1].depthStencil = { 1.0f, 0 };
-
-		VkRenderPassBeginInfo render_pass_begin_info = {
-			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-			nullptr,
-			render_pass,
-			swapchain_framebuffers[i],
-			{ { 0, 0 }, swapchain_extent },
-			(uint32_t)clear_values.size(),
-			clear_values.data()
-		};
-
-		vkCmdBindPipeline(command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
-
-		vkCmdBeginRenderPass(command_buffers[i], &render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-
-		vkCmdExecuteCommands(command_buffers[i], secondary_command_buffers.size(), secondary_command_buffers.data());
-
-		vkCmdEndRenderPass(command_buffers[i]);
-
-		if (vkEndCommandBuffer(command_buffers[i]))
-			throw std::runtime_error("failed to record command buffer.");
-	}
 }
 
 void ModelRenderSystem::createSynchronizationPrimitives()
@@ -948,6 +903,53 @@ void ModelRenderSystem::createUniformBuffers()
 	}
 }
 
+void ModelRenderSystem::recordCommandBuffer(uint32_t image_index)
+{
+	auto& command_buffer = command_buffers[image_index];
+
+	std::vector<VkCommandBuffer> secondary_command_buffers;
+	for (auto& model : level->models.components)
+		secondary_command_buffers.push_back(model.getCommandBuffer(this, image_index));
+
+	VkCommandBufferBeginInfo command_buffer_begin_info = {
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		nullptr,
+		0,
+		nullptr
+	};
+
+	if (vkResetCommandBuffer(command_buffer, 0))
+		throw std::runtime_error("failed to reset command buffer.");
+
+	if (vkBeginCommandBuffer(command_buffer, &command_buffer_begin_info))
+		throw std::runtime_error("failed to begin recording command buffer.");
+
+	std::array<VkClearValue, 2> clear_values = {};
+	clear_values[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clear_values[1].depthStencil = { 1.0f, 0 };
+
+	VkRenderPassBeginInfo render_pass_begin_info = {
+		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		nullptr,
+		render_pass,
+		swapchain_framebuffers[image_index],
+		{ { 0, 0 }, swapchain_extent },
+		(uint32_t)clear_values.size(),
+		clear_values.data()
+	};
+
+	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
+
+	vkCmdBeginRenderPass(command_buffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+
+	vkCmdExecuteCommands(command_buffer, secondary_command_buffers.size(), secondary_command_buffers.data());
+
+	vkCmdEndRenderPass(command_buffer);
+
+	if (vkEndCommandBuffer(command_buffer))
+		throw std::runtime_error("failed to record command buffer.");
+}
+
 void ModelRenderSystem::allocateSecondaryCommandBuffer(VkCommandBuffer& command_buffer)
 {
 	VkCommandBufferAllocateInfo command_buffer_allocate_info = {
@@ -1155,9 +1157,9 @@ void ModelRenderSystem::createDescriptorSets()
 
 void ModelRenderSystem::recreateSwapchain()
 {
-	vkDeviceWaitIdle(device);
 	if (present_thread.joinable())
 		present_thread.join();
+	vkDeviceWaitIdle(device);
 
 	releaseSwapchain();
 
@@ -1168,7 +1170,6 @@ void ModelRenderSystem::recreateSwapchain()
 	createDepthBuffer();
 	createFramebuffers();
 	allocateCommandBuffers();
-	recordCommandBuffers();
 }
 
 void ModelRenderSystem::release()
@@ -1309,6 +1310,37 @@ VkDescriptorSetLayout ModelRenderSystem::getDescriptorSetLayout() const
 	return descriptor_set_layout;
 }
 
+float ModelRenderSystem::getAspectRatio() const
+{
+	return swapchain_extent.width / (float)swapchain_extent.height;
+}
+
+float ModelRenderSystem::getFieldOfView() const
+{
+	return field_of_view;
+}
+
+Matrix4 ModelRenderSystem::getViewMatrix() const
+{
+	return Matrix4::Translation(-camera_position) * camera_rotation.getConj();
+}
+
+Vec2 ModelRenderSystem::screenToWorld(const Vec2& screen_position) const
+{
+	Matrix4 view_proj = getViewMatrix() * Matrix4::Perspective(field_of_view, getAspectRatio(), 0.1f, 100.0f);
+
+	Matrix3 plane_proj = view_proj;
+	plane_proj.mtrx[2][0] = view_proj.mtrx[3][0];
+	plane_proj.mtrx[2][1] = view_proj.mtrx[3][1];
+	plane_proj.mtrx[2][2] = view_proj.mtrx[3][3];
+	plane_proj.mtrx[1][2] = view_proj.mtrx[1][3];
+	plane_proj.mtrx[0][2] = view_proj.mtrx[0][3];
+
+	Vec3 pos = plane_proj.Inverse() * Vec3(screen_position.x / swapchain_extent.width * 2.0f - 1.0f, screen_position.y / swapchain_extent.height * 2.0f - 1.0f, 1.0f);
+
+	return pos.xy / pos.z;
+}
+
 void ModelRenderSystem::tick(float dt)
 {
 	if (staging_regions.size())
@@ -1340,8 +1372,10 @@ void ModelRenderSystem::tick(float dt)
 		vkWaitForFences(device, 1, &images_in_flight[image_index], VK_TRUE, UINT64_MAX);
 	images_in_flight[image_index] = in_flight_fences[current_frame_index];
 
+	recordCommandBuffer(image_index);
+
 	updateUniformBuffer(image_index);
-	for (auto& model : models.components)
+	for (auto& model : level->models.components)
 		model.updateUniformBuffer(this, image_index);
 
 	VkSemaphore wait_semaphores[] = { image_available_semaphores[current_frame_index] };

@@ -9,6 +9,8 @@
 
 #include "MobTemplate.h"
 
+#include "ModelRenderSystem.h"
+
 MobPosHandler::MobPosHandler() : grid(64, 64)
 {
 	link.handler = this;
@@ -184,7 +186,7 @@ void MobPosHandler::tick(float dt)
 
 				int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
 
-				Vec2 target = engine->srs->screenToWorld(engine->input->getCursor());
+				Vec2 target = engine->mrs->screenToWorld(engine->input->getCursor());
 
 				Reference<NetworkMob> target_mob;
 				auto in_range = engine->cs->overlapCircle(target + Vec2(4.0f), 8.0f);
@@ -209,7 +211,7 @@ void MobPosHandler::tick(float dt)
 				{
 					MpMoveCommand message;
 					message.command.time = time;
-					message.target = target / 16.0f + 0.5f;
+					message.target = target;
 					link.Send(endpoint, message);
 
 					//if (false)
@@ -222,7 +224,7 @@ void MobPosHandler::tick(float dt)
 						/*if (path.points.size() > 0)
 							mob.mob->entity->xy = path.getPosition() * 16.0f - 8.0f;*/
 						path.clear();
-						path.points = grid.findPath(mob.mob->entity->xy / 16.0f + 0.5f, message.target);
+						path.points = grid.findPath(mob.mob->entity->xy, message.target);
 						//path.points = { message.target, mob.mob->entity->xy / 16.0f + 0.5f };
 						std::reverse(path.points.begin(), path.points.end());
 						if (path.points.size() > 0)
@@ -233,7 +235,7 @@ void MobPosHandler::tick(float dt)
 						}
 						else
 						{
-							path.points.push_back(mob.mob->entity->xy / 16.0f + 0.5f);
+							path.points.push_back(mob.mob->entity->xy);
 						}
 					}
 
@@ -348,6 +350,8 @@ void MobPosHandler::tick(float dt)
 	if (player_mob != mobs.end())
 	{
 		engine->srs->camera_position = player_mob->second.mob->entity->xy;
+		engine->mrs->camera_position = player_mob->second.mob->entity->getPosition() + Vec3(15.0f, 15.0f, 15.0f);
+		engine->mrs->camera_rotation = Quaternion(M_PI * 0.75f, Vec3(0.0f, 0.0f, 1.0f)) * Quaternion(-M_PI * 0.5f - atanf(M_SQRT1_2), Vec3(1.0f, 0.0f, 0.0f));
 	}
 
 	if (isnan(heartbeat_timer))
@@ -423,12 +427,12 @@ void MobPosData::tick(float dt)
 
 	path.move(dt * speed);
 
-	mob->entity->xy = path.getPosition() * 16.0f - 8.0f;
+	mob->entity->xy = path.getPosition();
 
 	mob->v = Vec2();
 	if (!path.finished())
 	{
 		mob->move = path.getDirection();
-		mob->v = path.getDirection() * speed * 16.0f;
+		mob->v = path.getDirection() * speed;
 	}
 }

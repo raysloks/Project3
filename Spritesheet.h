@@ -42,6 +42,7 @@ public:
 
 	SDL_Texture * getTexture(SDL_Renderer * render);
 
+	void createTexture(ModelRenderSystem * mrs);
 	void createTextureImage(ModelRenderSystem * mrs);
 	void createTextureImageView(ModelRenderSystem * mrs);
 	void createTextureSampler(ModelRenderSystem * mrs);

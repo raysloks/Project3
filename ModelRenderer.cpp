@@ -26,9 +26,7 @@ VkCommandBuffer ModelRenderer::getCommandBuffer(ModelRenderSystem * mrs, size_t 
 		command_buffers.resize(mrs->getDescriptorSetCount());
 		mrs->allocateSecondaryCommandBuffers(command_buffers);
 
-		texture->createTextureImage(mrs);
-		texture->createTextureImageView(mrs);
-		texture->createTextureSampler(mrs);
+		texture->createTexture(mrs);
 
 		createUniformBuffers(mrs);
 		createDescriptorSets(mrs);
@@ -62,6 +60,7 @@ VkCommandBuffer ModelRenderer::getCommandBuffer(ModelRenderSystem * mrs, size_t 
 			if (vkBeginCommandBuffer(command_buffer, &command_buffer_begin_info))
 				throw std::runtime_error("failed to begin recording command buffer.");
 
+			// TODO recreate when graphics pipeline is changed (works now on this machine, but it's undefined behaviour i think)
 			vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mrs->getGraphicsPipeline());
 
 			VkBuffer vertex_buffers[] = { mrs->getVideoMemoryAllocator()->buffer };
@@ -82,14 +81,14 @@ VkCommandBuffer ModelRenderer::getCommandBuffer(ModelRenderSystem * mrs, size_t 
 	return command_buffers[current_image_index];
 }
 
-int flip = 0;
-
 void ModelRenderer::updateUniformBuffer(ModelRenderSystem * mrs, size_t current_image_index)
 {
-	flip = (flip + 1) % 240;
-	uniform_buffer_object.model = Quaternion(flip * M_PI / 240 * 2, Vec3(0.0f, 0.0f, 1.0f));
-	uniform_buffer_object.view = Matrix4::Translation(0.0f, 15.0f, -15.0f) * Quaternion(-M_PI * 1.25f, Vec3(1.0f, 0.0f, 0.0f));
-	uniform_buffer_object.proj = Matrix4::Perspective(35.0f, 640 / (float)480, 0.1f, 100.0f);
+	if (uniform_buffers.empty())
+		return;
+
+	uniform_buffer_object.model = Matrix4::Translation(entity->getPosition());
+	uniform_buffer_object.view = mrs->getViewMatrix();
+	uniform_buffer_object.proj = Matrix4::Perspective(mrs->getFieldOfView(), mrs->getAspectRatio(), 0.1f, 100.0f);
 
 	void * data;
 	vkMapMemory(mrs->getDevice(), uniform_buffer_memories[current_image_index], 0, sizeof(uniform_buffer_object), 0, &data);

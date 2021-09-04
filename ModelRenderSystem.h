@@ -40,7 +40,6 @@ public:
 	void createDepthBuffer();
 	void createStagingBuffer();
 	void allocateCommandBuffers();
-	void recordCommandBuffers();
 	void createSynchronizationPrimitives();
 
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memory_properties, VkBuffer& buffer, VkDeviceMemory& buffer_memory);
@@ -61,6 +60,8 @@ public:
 	void createModelBuffers();
 
 	void createUniformBuffers();
+
+	void recordCommandBuffer(uint32_t image_index);
 
 	void allocateSecondaryCommandBuffer(VkCommandBuffer& command_buffer);
 	void allocateSecondaryCommandBuffers(std::vector<VkCommandBuffer>& command_buffers);
@@ -99,7 +100,18 @@ public:
 	size_t getDescriptorSetCount() const;
 	VkDescriptorSetLayout getDescriptorSetLayout() const;
 
+	float getAspectRatio() const;
+	float getFieldOfView() const;
+	Matrix4 getViewMatrix() const;
+
+	Vec2 screenToWorld(const Vec2& screen_position) const;
+
 	void tick(float dt);
+
+	float field_of_view;
+
+	Vec3 camera_position;
+	Quaternion camera_rotation;
 
 	struct UniformBufferObject
 	{
@@ -178,8 +190,6 @@ private:
 	std::vector<VkBufferCopy> staging_regions;
 	VkBuffer staging_buffer;
 	VkDeviceMemory staging_buffer_memory;
-
-	ComponentContainer<ModelRenderer> models;
 
 	std::thread present_thread;
 

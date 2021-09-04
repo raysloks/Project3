@@ -30,6 +30,11 @@ SpriteSheet::SpriteSheet()
 	offset_y = 0;
 
 	loaded = false;
+
+	texture_image = nullptr;
+	texture_image_memory = nullptr;
+	texture_image_view = nullptr;
+	texture_sampler = nullptr;
 }
 
 SpriteSheet::SpriteSheet(size_t w, size_t h)
@@ -44,6 +49,11 @@ SpriteSheet::SpriteSheet(size_t w, size_t h)
 	offset_y = 0;
 
 	loaded = true;
+
+	texture_image = nullptr;
+	texture_image_memory = nullptr;
+	texture_image_view = nullptr;
+	texture_sampler = nullptr;
 }
 
 SpriteSheet::~SpriteSheet()
@@ -124,6 +134,16 @@ SDL_Texture * SpriteSheet::getTexture(SDL_Renderer * render)
 			if (surface)
 				texture = SDL_CreateTextureFromSurface(render, surface);
 	return texture;
+}
+
+void SpriteSheet::createTexture(ModelRenderSystem * mrs)
+{
+	if (texture_image == nullptr)
+	{
+		createTextureImage(mrs);
+		createTextureImageView(mrs);
+		createTextureSampler(mrs);
+	}
 }
 
 void SpriteSheet::createTextureImage(ModelRenderSystem * mrs)

@@ -215,13 +215,16 @@ Level * create_level(int floor)
 						show_floor = true;
 
 					auto entity = level->add_entity();
-					entity->xy = Vec2(x, y) * tilemap.getTileSize();
+					entity->xy = Vec2(x, y);
 
 					auto sprite = level->sprites.add("tile_iso.png");
 					size_t tile_index = (tile.tile >> 1);
 					sprite->subsprite_x = tile_index % sprite->sheet->columns;
 					sprite->subsprite_y = tile_index / sprite->sheet->columns;
 					Component::attach(sprite, entity);
+
+					auto model = level->models.add("offset_cube.mdl", "old_floor.png");
+					Component::attach(model, entity);
 				}
 			}
 
