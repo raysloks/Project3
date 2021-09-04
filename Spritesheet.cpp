@@ -10,6 +10,8 @@
 
 #include "Text.h"
 
+#include "ModelRenderSystem.h"
+
 #include <sstream>
 #include <iostream>
 
@@ -122,6 +124,68 @@ SDL_Texture * SpriteSheet::getTexture(SDL_Renderer * render)
 			if (surface)
 				texture = SDL_CreateTextureFromSurface(render, surface);
 	return texture;
+}
+
+void SpriteSheet::createTextureImage(ModelRenderSystem * mrs)
+{
+	uint32_t width = surface->w;
+	uint32_t height = surface->h;
+	VkDeviceSize buffer_size = (VkDeviceSize)width * height * 4;
+
+	VkBuffer staging_buffer;
+	VkDeviceMemory staging_buffer_memory;
+	mrs->createBuffer(buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging_buffer, staging_buffer_memory);
+
+	void * data;
+	vkMapMemory(mrs->getDevice(), staging_buffer_memory, 0, buffer_size, 0, &data);
+	memcpy(data, surface->pixels, (size_t)buffer_size);
+	vkUnmapMemory(mrs->getDevice(), staging_buffer_memory);
+
+	mrs->createImage(width, height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, texture_image, texture_image_memory);
+
+	mrs->transitionImageLayout(texture_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+	mrs->copyBufferToImage(staging_buffer, texture_image, width, height);
+
+	mrs->transitionImageLayout(texture_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+	vkDestroyBuffer(mrs->getDevice(), staging_buffer, nullptr);
+	vkFreeMemory(mrs->getDevice(), staging_buffer_memory, nullptr);
+}
+
+void SpriteSheet::createTextureImageView(ModelRenderSystem * mrs)
+{
+	mrs->createImageView(texture_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, texture_image_view);
+}
+
+void SpriteSheet::createTextureSampler(ModelRenderSystem * mrs)
+{
+	VkPhysicalDeviceProperties physical_device_properties;
+	vkGetPhysicalDeviceProperties(mrs->getPhysicalDevice(), &physical_device_properties);
+
+	VkSamplerCreateInfo sampler_create_info = {
+		VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+		nullptr,
+		0,
+		VK_FILTER_LINEAR,
+		VK_FILTER_LINEAR,
+		VK_SAMPLER_MIPMAP_MODE_LINEAR,
+		VK_SAMPLER_ADDRESS_MODE_REPEAT,
+		VK_SAMPLER_ADDRESS_MODE_REPEAT,
+		VK_SAMPLER_ADDRESS_MODE_REPEAT,
+		0.0f,
+		VK_TRUE,
+		physical_device_properties.limits.maxSamplerAnisotropy,
+		VK_FALSE,
+		VK_COMPARE_OP_ALWAYS,
+		0.0f,
+		0.0f,
+		VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+		VK_FALSE
+	};
+
+	if (vkCreateSampler(mrs->getDevice(), &sampler_create_info, nullptr, &texture_sampler))
+		throw std::runtime_error("failed to create texture sampler.");
 }
 
 std::shared_ptr<SpriteSheet> SpriteSheet::createIsometricFloorLosslessMap(size_t w, size_t h)

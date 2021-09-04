@@ -92,7 +92,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.170.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -110,7 +110,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.170.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.170.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -152,7 +152,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.170.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -213,7 +213,10 @@
     <ClCompile Include="MobPos\MpPointTargetActionCommand.cpp" />
     <ClCompile Include="MobPos\MpStopCommand.cpp" />
     <ClCompile Include="MobPos\MpUnitTargetActionCommand.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="ModelRenderSystem.cpp" />
+    <ClCompile Include="TemporaryCommandBuffer.cpp" />
     <ClCompile Include="UID.cpp" />
     <ClCompile Include="HealthDisplay.cpp" />
     <ClCompile Include="InputSystem.cpp" />
@@ -251,6 +254,7 @@
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="Tilemap.cpp" />
     <ClCompile Include="TilemapCollider.cpp" />
+    <ClCompile Include="VideoMemoryAllocator.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -303,7 +307,10 @@
     <ClInclude Include="MobPos\MpPointTargetActionCommand.h" />
     <ClInclude Include="MobPos\MpStopCommand.h" />
     <ClInclude Include="MobPos\MpUnitTargetActionCommand.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="ModelRenderSystem.h" />
+    <ClInclude Include="TemporaryCommandBuffer.h" />
     <ClInclude Include="UID.h" />
     <ClInclude Include="HealthDisplay.h" />
     <ClInclude Include="InputSystem.h" />
@@ -345,6 +352,7 @@
     <ClInclude Include="Tile.h" />
     <ClInclude Include="Tilemap.h" />
     <ClInclude Include="TilemapCollider.h" />
+    <ClInclude Include="VideoMemoryAllocator.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>

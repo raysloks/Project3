@@ -8,6 +8,7 @@
 #include "CustomBehaviour.h"
 
 #include "MobPosHandler.h"
+#include "ModelRenderSystem.h"
 
 Engine::Engine()
 {
@@ -169,7 +170,7 @@ void Engine::run()
 		}
 		start_busy = SDL_GetPerformanceCounter();
 
-		SDL_RenderPresent(render);
+		//SDL_RenderPresent(render);
 
 		end = SDL_GetPerformanceCounter();
 		uint64_t diff = end - start;

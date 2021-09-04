@@ -15,6 +15,8 @@
 
 #include "Sprite.h"
 
+#include "ModelRenderer.h"
+
 #include "ComponentContainer.h"
 
 class Level
@@ -39,6 +41,7 @@ public:
 	ComponentContainer<SpriteCollider> sprite_colliders;
 	ComponentContainer<TilemapCollider> tilemap_colliders;
 	ComponentContainer<Sprite> sprites, ui_sprites;
+	ComponentContainer<ModelRenderer> models;
 
 	ComponentContainer<ComponentContainer<CustomBehaviour>*> custom_behaviours;
 	std::vector<ComponentContainer<CustomBehaviour>*> added;

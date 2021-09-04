@@ -4,6 +4,10 @@
 
 #include <SDL.h>
 
+#include <vulkan/vulkan.h>
+
+class ModelRenderSystem;
+
 class SpriteSheet :
 	public Resource<SpriteSheet>
 {
@@ -38,6 +42,10 @@ public:
 
 	SDL_Texture * getTexture(SDL_Renderer * render);
 
+	void createTextureImage(ModelRenderSystem * mrs);
+	void createTextureImageView(ModelRenderSystem * mrs);
+	void createTextureSampler(ModelRenderSystem * mrs);
+
 //private:
 	SDL_Surface * surface;
 	SDL_Texture * texture;
@@ -45,5 +53,10 @@ public:
 	size_t rows, columns;
 
 	int offset_x, offset_y;
+
+	VkImage texture_image;
+	VkDeviceMemory texture_image_memory;
+	VkImageView texture_image_view;
+	VkSampler texture_sampler;
 };
 

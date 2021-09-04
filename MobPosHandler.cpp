@@ -372,6 +372,9 @@ void MobPosHandler::createMob(uint64_t id)
 	auto sprite = level->sprites.add("uu.png");
 	Component::attach(sprite, entity);
 
+	auto model = level->models.add("hoodlum.mdl", "hoodlum.png");
+	Component::attach(model, entity);
+
 	auto mob = level->add<NetworkMob>();
 	mob->id = id;
 	Component::attach(mob, entity);

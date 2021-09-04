@@ -36,6 +36,9 @@
     <Filter Include="Source Files\UI">
       <UniqueIdentifier>{3a2b00a2-393f-4f10-bdcd-d39492d38a21}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Vulkan">
+      <UniqueIdentifier>{7459036c-c34e-4003-a6d5-4a07f08c2a57}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -295,6 +298,18 @@
     </ClCompile>
     <ClCompile Include="ModelRenderSystem.cpp">
       <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="TemporaryCommandBuffer.cpp">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoMemoryAllocator.cpp">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelRenderer.cpp">
+      <Filter>Source Files\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -573,6 +588,18 @@
     </ClInclude>
     <ClInclude Include="ModelRenderSystem.h">
       <Filter>Source Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Source Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="TemporaryCommandBuffer.h">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoMemoryAllocator.h">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelRenderer.h">
+      <Filter>Source Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
