@@ -189,7 +189,7 @@ void MobPosHandler::tick(float dt)
 				Vec2 target = engine->mrs->screenToWorld(engine->input->getCursor());
 
 				Reference<NetworkMob> target_mob;
-				auto in_range = engine->cs->overlapCircle(target + Vec2(4.0f), 8.0f);
+				auto in_range = engine->cs->overlapCircle(target, 0.5f);
 				for (auto i : in_range)
 				{
 					auto mob = i.second->getComponent<NetworkMob>();
@@ -280,11 +280,11 @@ void MobPosHandler::tick(float dt)
 				{
 					int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
 
-					Vec2 target = engine->srs->screenToWorld(engine->input->getCursor());
+					Vec2 target = engine->mrs->screenToWorld(engine->input->getCursor());
 
 					Reference<NetworkMob> target_mob;
-					auto in_range = engine->cs->overlapCircle(target + Vec2(4.0f), 8.0f);
-					for (auto i : in_range)
+					auto in_range = engine->cs->overlapCircle(target, 0.5f);
+					for (auto& i : in_range)
 					{
 						auto mob = i.second->getComponent<NetworkMob>();
 						if (mob)
@@ -316,7 +316,7 @@ void MobPosHandler::tick(float dt)
 			{
 				auto mob = mobs[player_mob_id].mob;
 
-				Vec2 direction = engine->srs->screenToWorld(engine->input->getCursor()) - mob->entity->xy;
+				Vec2 direction = engine->mrs->screenToWorld(engine->input->getCursor()) - mob->entity->xy;
 				direction.Normalize();
 
 				auto sword = level->add_entity();
@@ -346,14 +346,6 @@ void MobPosHandler::tick(float dt)
 		i.second.tick(diff * 0.000000001);
 	}
 
-	auto player_mob = mobs.find(player_mob_id);
-	if (player_mob != mobs.end())
-	{
-		engine->srs->camera_position = player_mob->second.mob->entity->xy;
-		engine->mrs->camera_position = player_mob->second.mob->entity->getPosition() + Vec3(15.0f, 15.0f, 15.0f);
-		engine->mrs->camera_rotation = Quaternion(M_PI * 0.75f, Vec3(0.0f, 0.0f, 1.0f)) * Quaternion(-M_PI * 0.5f - atanf(M_SQRT1_2), Vec3(1.0f, 0.0f, 0.0f));
-	}
-
 	if (isnan(heartbeat_timer))
 		heartbeat_timer = 0.0f;
 	if (heartbeat_timer > 4.0f || heartbeat_timer < -4.0f)
@@ -376,14 +368,14 @@ void MobPosHandler::createMob(uint64_t id)
 	auto sprite = level->sprites.add("uu.png");
 	Component::attach(sprite, entity);
 
-	auto model = level->models.add("hoodlum.mdl", "hoodlum.png");
+	auto model = level->models.add("hoodlum.mdl", "hoodlum.png", "hoodlum.anm");
 	Component::attach(model, entity);
 
 	auto mob = level->add<NetworkMob>();
 	mob->id = id;
 	Component::attach(mob, entity);
 
-	auto collider = level->circle_colliders.add(3.0f);
+	auto collider = level->circle_colliders.add(0.1875f);
 	collider->layers = 0b10;
 	Component::attach(collider, entity);
 
@@ -403,7 +395,7 @@ void MobPosHandler::createMob(uint64_t id)
 	MobPosData data;
 	data.mob = mob;
 
-	mobs.emplace(std::make_pair(id, data));
+	mobs.insert(std::make_pair(id, data));
 }
 
 //const float lower_margin = -5.25f;

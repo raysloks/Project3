@@ -4,6 +4,7 @@
 
 #include "Model.h"
 #include "SpriteSheet.h"
+#include "Animation.h"
 
 #include "Matrix4.h"
 #include "Quaternion.h"
@@ -17,36 +18,46 @@ class ModelRenderer :
 {
 public:
 	ModelRenderer();
-	ModelRenderer(const std::string& model, const std::string& texture);
+	ModelRenderer(const std::string& model, const std::string& texture, const std::string& animation = "");
 	~ModelRenderer();
 
 	VkCommandBuffer getCommandBuffer(ModelRenderSystem * mrs, size_t current_image_index);
 
 	void updateUniformBuffer(ModelRenderSystem * mrs, size_t current_image_index);
 
+	void setDirty();
+
 	void createDescriptorSets(ModelRenderSystem * mrs);
 
 	void createUniformBuffers(ModelRenderSystem * mrs);
 
+	void freeCommandBuffers(ModelRenderSystem * mrs);
+
 	struct UniformBufferObject
 	{
 		Matrix4 model;
-		Matrix4 view;
-		Matrix4 proj;
+		Matrix4 bones[256];
 	};
 
+	float animation_time;
+
 	UniformBufferObject uniform_buffer_object;
+
+	size_t getUniformBufferObjectSize() const;
 
 private:
 	std::shared_ptr<Model> model;
 	std::shared_ptr<SpriteSheet> texture;
+	std::shared_ptr<Animation> animation;
+
 	std::vector<VkCommandBuffer> command_buffers;
 
-	std::vector<VkBuffer> uniform_buffers;
-	std::vector<VkDeviceMemory> uniform_buffer_memories;
+	std::weak_ptr<VkPipeline> pipeline;
+
+	VideoMemoryAllocator * uniform_vma;
+	std::vector<size_t> uniform_buffer_offsets;
 	std::vector<VkDescriptorSet> descriptor_sets;
 
-	// could change these to fixed size arrays for small performance gain
-	// very unlikely to ever use more than 4
+	std::vector<bool> dirty;
 };
 

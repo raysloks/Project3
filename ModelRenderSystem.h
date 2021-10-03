@@ -12,6 +12,8 @@
 
 #include "Matrix4.h"
 
+#include "TemporaryCommandBuffer.h"
+
 class Model;
 class SpriteSheet;
 
@@ -38,16 +40,17 @@ public:
 	void createFramebuffers();
 	void createCommandPool();
 	void createDepthBuffer();
-	void createStagingBuffer();
+	void createStagingBuffers();
 	void allocateCommandBuffers();
 	void createSynchronizationPrimitives();
 
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memory_properties, VkBuffer& buffer, VkDeviceMemory& buffer_memory);
 
 	void stageBufferData(void * source_data, VkDeviceSize size, VkDeviceSize destination_offset);
+	void stageUniformBufferData(void * source_data, VkDeviceSize size, VkDeviceSize destination_offset);
 
-	void copyBuffer(VkBuffer source, VkBuffer destination, VkDeviceSize size);
-	void copyBuffers(VkBuffer source, VkBuffer destination, const std::vector<VkBufferCopy>& regions);
+	void copyBuffer(VkBuffer source, VkBuffer destination, VkDeviceSize size, VkCommandBuffer command_buffer, VkFence fence);
+	void copyBuffers(VkBuffer source, VkBuffer destination, const std::vector<VkBufferCopy>& regions, VkCommandBuffer command_buffer, VkFence fence);
 
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
@@ -57,14 +60,14 @@ public:
 
 	void createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspect, VkImageView& image_view);
 
-	void createModelBuffers();
-
 	void createUniformBuffers();
 
 	void recordCommandBuffer(uint32_t image_index);
 
 	void allocateSecondaryCommandBuffer(VkCommandBuffer& command_buffer);
 	void allocateSecondaryCommandBuffers(std::vector<VkCommandBuffer>& command_buffers);
+
+	void freeSecondaryCommandBuffers();
 
 	void createTextureImage();
 	void createTextureImageView();
@@ -73,7 +76,6 @@ public:
 	void updateUniformBuffer(uint32_t current_image_index);
 
 	void createDescriptorPool();
-	void createDescriptorSets();
 
 	void recreateSwapchain();
 
@@ -81,9 +83,11 @@ public:
 	void releaseSwapchain();
 
 	VkDevice getDevice() const;
-	VideoMemoryAllocator * getVideoMemoryAllocator() const;
 
 	VkPhysicalDevice getPhysicalDevice() const;
+
+	VideoMemoryAllocator * getVideoMemoryAllocator() const;
+	VideoMemoryAllocator * getUniformBufferVideoMemoryAllocator() const;
 
 	VkCommandPool getCommandPool() const;
 	VkRenderPass getRenderPass() const;
@@ -93,12 +97,16 @@ public:
 
 	VkDescriptorPool getDescriptorPool() const;
 
+	size_t getUniformBufferOffset(size_t image_index) const;
+
 	uint32_t findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties);
 
 	VkShaderModule createShaderModule(const std::string& code);
 
 	size_t getDescriptorSetCount() const;
 	VkDescriptorSetLayout getDescriptorSetLayout() const;
+
+	uint64_t getPresentTime() const;
 
 	float getAspectRatio() const;
 	float getFieldOfView() const;
@@ -115,10 +123,12 @@ public:
 
 	struct UniformBufferObject
 	{
-		Matrix4 model;
 		Matrix4 view;
 		Matrix4 proj;
 	};
+
+	uint64_t wait_fences_a, wait_fences_b;
+	uint64_t wait_c, wait_d, wait_e;
 
 private:
 	SDL_Window * window;
@@ -147,12 +157,12 @@ private:
 	std::vector<VkFramebuffer> swapchain_framebuffers;
 
 	VkCommandPool command_pool;
-	std::vector<VkCommandBuffer> command_buffers;
+	std::vector<std::vector<VkCommandBuffer>> command_buffers;
 
 	std::vector<VkSemaphore> image_available_semaphores;
 	std::vector<VkSemaphore> render_finished_semaphores;
-	std::vector<VkFence> in_flight_fences;
-	std::vector<VkFence> images_in_flight;
+	std::vector<std::vector<VkFence>> in_flight_fences;
+	std::vector<size_t> image_to_frame_index;
 
 	size_t max_frames_in_flight;
 	size_t current_frame_index;
@@ -168,7 +178,6 @@ private:
 	std::vector<const char*> extension_names;
 
 	VkDescriptorPool descriptor_pool;
-	std::vector<VkDescriptorSet> descriptor_sets;
 
 	VkImage texture_image;
 	VkDeviceMemory texture_image_memory;
@@ -179,20 +188,25 @@ private:
 	VkDeviceMemory depth_image_memory;
 	VkImageView depth_image_view;
 
-	std::vector<VkBuffer> uniform_buffers;
-	std::vector<VkDeviceMemory> uniform_buffer_memories;
+	std::vector<size_t> uniform_buffer_offsets;
 
 	std::shared_ptr<Model> model;
 	std::shared_ptr<SpriteSheet> sprite_sheet;
 
 	VideoMemoryAllocator * vma;
-	size_t staging_offset;
+	std::vector<size_t> staging_offsets;
 	std::vector<VkBufferCopy> staging_regions;
 	VkBuffer staging_buffer;
 	VkDeviceMemory staging_buffer_memory;
 
+	VideoMemoryAllocator * uniform_vma;
+	std::vector<size_t> uniform_staging_offsets;
+	std::vector<VkBufferCopy> uniform_staging_regions;
+	VkBuffer uniform_staging_buffer;
+	VkDeviceMemory uniform_staging_buffer_memory;
+
 	std::thread present_thread;
 
-	float time;
+	uint64_t present_time_unsafe, present_time_safe;
 };
 

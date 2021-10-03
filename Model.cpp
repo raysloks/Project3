@@ -17,6 +17,14 @@ Model::Model()
 
 Model::~Model()
 {
+	if (vma)
+	{
+		size_t vertex_buffer_size = sizeof(vertices[0]) * vertices.size();
+		size_t index_buffer_size = sizeof(triangles[0]) * triangles.size();
+
+		vma->deallocate(vertex_buffer_size, vertex_buffer_offset);
+		vma->deallocate(index_buffer_size, index_buffer_offset);
+	}
 }
 
 std::shared_ptr<Model> Model::load(const std::string & fname)
@@ -37,12 +45,15 @@ std::shared_ptr<Model> Model::load(const std::string & fname)
 
 				std::stringstream ss(buffer);
 
-				uint32_t vertex_count;
+				uint8_t flags;
+				ss.read((char*)&flags, sizeof(flags));
+
+				uint16_t vertex_count;
 				ss.read((char*)&vertex_count, sizeof(vertex_count));
 				model->vertices.resize(vertex_count);
 				ss.read((char*)model->vertices.data(), sizeof(Vertex) * vertex_count);
 
-				uint32_t triangle_count;
+				uint16_t triangle_count;
 				ss.read((char*)&triangle_count, sizeof(triangle_count));
 				model->triangles.resize(triangle_count);
 				ss.read((char*)model->triangles.data(), sizeof(Triangle) * triangle_count);
@@ -65,21 +76,39 @@ VkVertexInputBindingDescription Model::getBindingDescription()
 	return vertex_input_binding_description;
 }
 
-std::array<VkVertexInputAttributeDescription, 2> Model::getAttributeDescriptions()
+std::vector<VkVertexInputAttributeDescription> Model::getAttributeDescriptions()
 {
-	std::array<VkVertexInputAttributeDescription, 2> vertex_input_attribute_descriptions;
-	vertex_input_attribute_descriptions[0] = {
+	std::vector<VkVertexInputAttributeDescription> vertex_input_attribute_descriptions;
+	vertex_input_attribute_descriptions.push_back({
 		0,
 		0,
 		VK_FORMAT_R32G32B32_SFLOAT,
 		offsetof(Vertex, position)
-	};
-	vertex_input_attribute_descriptions[1] = {
+		});
+	vertex_input_attribute_descriptions.push_back({
 		1,
 		0,
 		VK_FORMAT_R32G32_SFLOAT,
 		offsetof(Vertex, uv)
-	};
+		});
+	vertex_input_attribute_descriptions.push_back({
+		2,
+		0,
+		VK_FORMAT_R32G32B32_SFLOAT,
+		offsetof(Vertex, normal)
+		});
+	vertex_input_attribute_descriptions.push_back({
+		3,
+		0,
+		VK_FORMAT_R8G8B8A8_UINT,
+		offsetof(Vertex, bones)
+		});
+	vertex_input_attribute_descriptions.push_back({
+		4,
+		0,
+		VK_FORMAT_R32G32B32A32_SFLOAT,
+		offsetof(Vertex, weights)
+		});
 	return vertex_input_attribute_descriptions;
 }
 

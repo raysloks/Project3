@@ -311,6 +311,12 @@
     <ClCompile Include="ModelRenderer.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoMemoryAllocatorSettings.cpp">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -601,10 +607,24 @@
     <ClInclude Include="ModelRenderer.h">
       <Filter>Source Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Source Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoMemoryAllocatorSettings.h">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="MobPos\last_build.txt">
       <Filter>Source Files\MobPos</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ShaderCompileTask Include="data\shaders\shader.vert">
+      <Filter>Resource Files</Filter>
+    </ShaderCompileTask>
+    <ShaderCompileTask Include="data\shaders\shader.frag">
+      <Filter>Resource Files</Filter>
+    </ShaderCompileTask>
   </ItemGroup>
 </Project>

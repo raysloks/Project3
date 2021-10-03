@@ -62,6 +62,9 @@ private:
 	double framerate_cap_fg, framerate_cap_bg;
 	float max_dt;
 
+	int profiling_counter;
+	float profiling_accumulator, profiling_low, profiling_high;
+
 	std::vector<System*> systems;
 
 	std::function<void(void)> fullscreen_toggle_func;

@@ -53,6 +53,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="..\..\..\..\Documents\ShaderCompileTask\ShaderCompileTask.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
     <Import Project="..\..\MapGenerator\MapGenerator\MapGenerator.vcxitems" Label="Shared" />
@@ -104,6 +105,11 @@
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
+    <CustomBuildStep>
+      <Command>(echo %(Inputs);) &gt; test.txt</Command>
+      <Outputs>test.txt;%(Outputs)</Outputs>
+      <Inputs>test_input.txt;%(ShaderCompileTask.ContentOutput);%(Inputs)</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -123,6 +129,11 @@
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
+    <CustomBuildStep>
+      <Command>(echo %(Inputs);) &gt; test.txt</Command>
+      <Outputs>test.txt;%(Outputs)</Outputs>
+      <Inputs>test_input.txt;%(ShaderCompileTask.ContentOutput);%(Inputs)</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -146,6 +157,11 @@
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
+    <CustomBuildStep>
+      <Command>(echo %(Inputs);) &gt; test.txt</Command>
+      <Outputs>test.txt;%(Outputs)</Outputs>
+      <Inputs>test_input.txt;%(ShaderCompileTask.ContentOutput);%(Inputs)</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -169,11 +185,17 @@
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
     </Manifest>
+    <CustomBuildStep>
+      <Command>(echo %(Inputs);) &gt; test.txt</Command>
+      <Outputs>test.txt;%(Outputs)</Outputs>
+      <Inputs>test_input.txt;%(ShaderCompileTask.ContentOutput);%(Inputs)</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ability.cpp" />
     <ClCompile Include="AbilitySlot.cpp" />
     <ClCompile Include="ActionBar.cpp" />
+    <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Blueprint.cpp" />
     <ClCompile Include="Body.cpp" />
     <ClCompile Include="BouncingBall.cpp" />
@@ -259,6 +281,7 @@
     <ClCompile Include="Tilemap.cpp" />
     <ClCompile Include="TilemapCollider.cpp" />
     <ClCompile Include="VideoMemoryAllocator.cpp" />
+    <ClCompile Include="VideoMemoryAllocatorSettings.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -266,6 +289,7 @@
     <ClInclude Include="Ability.h" />
     <ClInclude Include="AbilitySlot.h" />
     <ClInclude Include="ActionBar.h" />
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="Blueprint.h" />
     <ClInclude Include="Body.h" />
     <ClInclude Include="BouncingBall.h" />
@@ -357,13 +381,19 @@
     <ClInclude Include="Tilemap.h" />
     <ClInclude Include="TilemapCollider.h" />
     <ClInclude Include="VideoMemoryAllocator.h" />
+    <ClInclude Include="VideoMemoryAllocatorSettings.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="MobPos\last_build.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ShaderCompileTask Include="data\shaders\shader.frag" />
+    <ShaderCompileTask Include="data\shaders\shader.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\..\..\Documents\ShaderCompileTask\ShaderCompileTask.targets" />
   </ImportGroup>
 </Project>

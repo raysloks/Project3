@@ -223,7 +223,7 @@ Level * create_level(int floor)
 					sprite->subsprite_y = tile_index / sprite->sheet->columns;
 					Component::attach(sprite, entity);
 
-					auto model = level->models.add("offset_cube.mdl", "old_floor.png");
+					auto model = level->models.add("offset_cube.mdl", "wall.png");
 					Component::attach(model, entity);
 				}
 			}
@@ -244,13 +244,16 @@ Level * create_level(int floor)
 			if (show_floor)
 			{
 				auto entity = level->add_entity();
-				entity->xy = Vec2(x, y) * tilemap.getTileSize();
+				entity->xy = Vec2(x, y);
 
 				auto sheet = SpriteSheet::get("floor_iso_gen_lossless");
 
 				auto sprite = level->sprites.add(sheet);
 				sprite->sort = -16;
 				Component::attach(sprite, entity);
+
+				auto model = level->models.add("offset_plane.mdl", "floor.png");
+				Component::attach(model, entity);
 
 				if (!tile.effects.empty())
 				{
@@ -426,6 +429,9 @@ int main(int argc, char* args[])
 	/*auto bp = Blueprint::load("test.bp");
 	bp->save("data/test_save.bp");*/
 
+	Ability::load();
+	MobTemplate::load();
+
 	Engine engine;
 
 	/*engine.input->keyBindings.set(KB_UP, SDLK_w);
@@ -464,9 +470,6 @@ int main(int argc, char* args[])
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy", floor_iso_gen_lossy));
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy_blur", floor_iso_gen_lossy_blur));
 	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossless", floor_iso_gen_lossless));
-
-	Ability::load();
-	MobTemplate::load();
 
 	Level * level = create_level(0);
 

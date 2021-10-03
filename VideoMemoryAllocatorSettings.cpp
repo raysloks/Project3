@@ -1,0 +1,1 @@
+#include "VideoMemoryAllocatorSettings.h"

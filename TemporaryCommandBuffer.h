@@ -5,7 +5,8 @@
 class TemporaryCommandBuffer
 {
 public:
-	TemporaryCommandBuffer(VkDevice device, VkCommandPool command_pool);
+	TemporaryCommandBuffer();
+	TemporaryCommandBuffer(VkDevice device, VkCommandPool command_pool, VkFence fence = VK_NULL_HANDLE);
 	~TemporaryCommandBuffer();
 
 	void submit(VkQueue queue);
@@ -16,5 +17,6 @@ private:
 	VkDevice device;
 	VkCommandPool command_pool;
 	VkCommandBuffer command_buffer;
+	VkFence fence;
 };
 

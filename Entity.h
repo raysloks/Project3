@@ -4,6 +4,8 @@
 
 #include "Vec2.h"
 #include "Vec3.h"
+#include "Quaternion.h"
+#include "Matrix4.h"
 
 #include "Reference.h"
 
@@ -24,7 +26,7 @@ public:
 	template <class T>
 	Reference<T> getComponent() const
 	{
-		for (auto component : components)
+		for (auto& component : components)
 		{
 			auto ref = component.cast<T>();
 			if (ref)
@@ -36,6 +38,7 @@ public:
 	const std::vector<Reference<Component>>& getComponents();
 
 	Vec3 getPosition() const;
+	Matrix4 getTransform() const;
 
 	Reference<Entity> getParent() const;
 	Reference<Entity> getRoot() const;
@@ -54,6 +57,8 @@ public:
 			float x, y, z;
 		};
 	};
+	Quaternion rotation;
+	Vec3 scale;
 
 	UID uid;
 

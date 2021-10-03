@@ -20,5 +20,7 @@ public:
 
 	uint64_t mob_template_id;
 	const MobTemplate * mob_template;
+
+	float angle;
 };
 

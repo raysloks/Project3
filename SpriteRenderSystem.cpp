@@ -40,6 +40,8 @@ Vec2 SpriteRenderSystem::worldToScreen(const Vec2 & world_position) const
 
 void SpriteRenderSystem::tick(float dt)
 {
+	return;
+
 	auto& sprites = level->sprites.components;
 	auto& ui = level->ui_sprites.components;
 

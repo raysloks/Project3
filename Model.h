@@ -23,7 +23,7 @@ public:
 	static std::shared_ptr<Model> load(const std::string & fname);
 
 	static VkVertexInputBindingDescription getBindingDescription();
-	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions();
+	static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
 	void getBufferOffsets(ModelRenderSystem * mrs, size_t& vertex_buffer_offset, size_t& index_buffer_offset);
 
@@ -32,6 +32,9 @@ public:
 	public:
 		Vec3 position;
 		Vec2 uv;
+		Vec3 normal;
+		uint8_t bones[4];
+		float weights[4];
 	};
 
 	class Triangle
@@ -47,4 +50,3 @@ public:
 	size_t vertex_buffer_offset;
 	size_t index_buffer_offset;
 };
-

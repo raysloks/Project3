@@ -2,7 +2,11 @@
 
 #include <stdexcept>
 
-TemporaryCommandBuffer::TemporaryCommandBuffer(VkDevice device, VkCommandPool command_pool) : device(device), command_pool(command_pool)
+TemporaryCommandBuffer::TemporaryCommandBuffer() : device(nullptr), command_pool(nullptr), fence(nullptr), command_buffer(nullptr)
+{
+}
+
+TemporaryCommandBuffer::TemporaryCommandBuffer(VkDevice device, VkCommandPool command_pool, VkFence fence) : device(device), command_pool(command_pool), fence(fence)
 {
 	VkCommandBufferAllocateInfo command_buffer_allocate_info = {
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
@@ -27,7 +31,8 @@ TemporaryCommandBuffer::TemporaryCommandBuffer(VkDevice device, VkCommandPool co
 
 TemporaryCommandBuffer::~TemporaryCommandBuffer()
 {
-	vkFreeCommandBuffers(device, command_pool, 1, &command_buffer);
+	if (command_buffer)
+		vkFreeCommandBuffers(device, command_pool, 1, &command_buffer);
 }
 
 void TemporaryCommandBuffer::submit(VkQueue queue)
@@ -47,7 +52,7 @@ void TemporaryCommandBuffer::submit(VkQueue queue)
 		nullptr
 	};
 
-	vkQueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+	vkQueueSubmit(queue, 1, &submit_info, fence);
 	vkQueueWaitIdle(queue);
 }
 

@@ -7,12 +7,18 @@
 
 ModelRenderer::ModelRenderer()
 {
+	uniform_vma = nullptr;
 }
 
-ModelRenderer::ModelRenderer(const std::string& model, const std::string& texture)
+ModelRenderer::ModelRenderer(const std::string& model, const std::string& texture, const std::string& animation)
 {
 	this->model = Model::get(model);
 	this->texture = SpriteSheet::get(texture);
+	if (animation.size())
+		this->animation = Animation::get(animation);
+	uniform_vma = nullptr;
+
+	animation_time = 0.0f;
 }
 
 ModelRenderer::~ModelRenderer()
@@ -21,7 +27,7 @@ ModelRenderer::~ModelRenderer()
 
 VkCommandBuffer ModelRenderer::getCommandBuffer(ModelRenderSystem * mrs, size_t current_image_index)
 {
-	if (command_buffers.empty() && model->loaded && texture->loaded)
+	if (command_buffers.empty() && model->loaded && texture->loaded && (animation == nullptr || animation->loaded))
 	{
 		command_buffers.resize(mrs->getDescriptorSetCount());
 		mrs->allocateSecondaryCommandBuffers(command_buffers);
@@ -30,6 +36,8 @@ VkCommandBuffer ModelRenderer::getCommandBuffer(ModelRenderSystem * mrs, size_t 
 
 		createUniformBuffers(mrs);
 		createDescriptorSets(mrs);
+
+		dirty.resize(mrs->getDescriptorSetCount(), true);
 
 		size_t vertex_buffer_offset;
 		size_t index_buffer_offset;
@@ -78,26 +86,53 @@ VkCommandBuffer ModelRenderer::getCommandBuffer(ModelRenderSystem * mrs, size_t 
 		}
 	}
 
+	if (command_buffers.empty())
+		return nullptr;
+
 	return command_buffers[current_image_index];
 }
 
 void ModelRenderer::updateUniformBuffer(ModelRenderSystem * mrs, size_t current_image_index)
 {
-	if (uniform_buffers.empty())
+	if (uniform_buffer_offsets.empty())
 		return;
 
-	uniform_buffer_object.model = Matrix4::Translation(entity->getPosition());
-	uniform_buffer_object.view = mrs->getViewMatrix();
-	uniform_buffer_object.proj = Matrix4::Perspective(mrs->getFieldOfView(), mrs->getAspectRatio(), 0.1f, 100.0f);
+	if (dirty[current_image_index])
+	{
+		dirty[current_image_index] = false;
 
-	void * data;
-	vkMapMemory(mrs->getDevice(), uniform_buffer_memories[current_image_index], 0, sizeof(uniform_buffer_object), 0, &data);
-	memcpy(data, &uniform_buffer_object, sizeof(uniform_buffer_object));
-	vkUnmapMemory(mrs->getDevice(), uniform_buffer_memories[current_image_index]);
+		uniform_buffer_object.model = entity->getTransform();
+		uniform_buffer_object.bones[0] = Matrix4();
+		if (animation && animation->loaded)
+		{
+			std::vector<Matrix4> transforms(256);
+			transforms[255] = Matrix4();
+			Animation::Pose pose = animation->base_pose;
+			animation->actions["attack"].getPose(pose, animation->base_pose, animation_time);
+			pose.apply(transforms.data());
+			for (size_t i = 0; i < animation->base_pose_inverse_transforms.size(); ++i)
+			{
+				uniform_buffer_object.bones[i] = animation->base_pose_inverse_transforms[i] * transforms[i];
+			}
+			animation_time += 0.05f;
+			animation_time = fmodf(animation_time, 130.0f);
+		}
+
+		mrs->stageUniformBufferData(&uniform_buffer_object, getUniformBufferObjectSize(), uniform_buffer_offsets[current_image_index]);
+	}
+}
+
+void ModelRenderer::setDirty()
+{
+	for (size_t i = 0; i < dirty.size(); ++i)
+		dirty[i] = true;
 }
 
 void ModelRenderer::createDescriptorSets(ModelRenderSystem * mrs)
 {
+	if (descriptor_sets.size() > 0)
+		return;
+
 	std::vector<VkDescriptorSetLayout> descriptor_set_layouts(mrs->getDescriptorSetCount(), mrs->getDescriptorSetLayout());
 
 	VkDescriptorSetAllocateInfo descriptor_set_allocate_info = {
@@ -112,12 +147,20 @@ void ModelRenderer::createDescriptorSets(ModelRenderSystem * mrs)
 	if (vkAllocateDescriptorSets(mrs->getDevice(), &descriptor_set_allocate_info, descriptor_sets.data()))
 		throw std::runtime_error("failed to allocate descriptor sets.");
 
+	VkDeviceSize uniform_buffer_size = getUniformBufferObjectSize();
+
 	for (size_t i = 0; i < descriptor_sets.size(); ++i)
 	{
-		VkDescriptorBufferInfo descriptor_buffer_info = {
-			uniform_buffers[i],
-			0,
-			sizeof(UniformBufferObject)
+		VkDescriptorBufferInfo ubo_descriptor_buffer_info = {
+			uniform_vma->buffer,
+			uniform_buffer_offsets[i],
+			uniform_buffer_size
+		};
+
+		VkDescriptorBufferInfo vp_descriptor_buffer_info = {
+			uniform_vma->buffer,
+			mrs->getUniformBufferOffset(i),
+			sizeof(ModelRenderSystem::UniformBufferObject)
 		};
 
 		VkDescriptorImageInfo descriptor_image_info = {
@@ -126,7 +169,7 @@ void ModelRenderer::createDescriptorSets(ModelRenderSystem * mrs)
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 		};
 
-		VkWriteDescriptorSet uniform_buffer_object_write_descriptor_set = {
+		VkWriteDescriptorSet ubo_write_descriptor_set = {
 			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 			nullptr,
 			descriptor_sets[i],
@@ -135,7 +178,20 @@ void ModelRenderer::createDescriptorSets(ModelRenderSystem * mrs)
 			1,
 			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			nullptr,
-			&descriptor_buffer_info,
+			&ubo_descriptor_buffer_info,
+			nullptr
+		};
+
+		VkWriteDescriptorSet vp_write_descriptor_set = {
+			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			nullptr,
+			descriptor_sets[i],
+			1,
+			0,
+			1,
+			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			nullptr,
+			&vp_descriptor_buffer_info,
 			nullptr
 		};
 
@@ -143,7 +199,7 @@ void ModelRenderer::createDescriptorSets(ModelRenderSystem * mrs)
 			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 			nullptr,
 			descriptor_sets[i],
-			1,
+			2,
 			0,
 			1,
 			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -152,8 +208,9 @@ void ModelRenderer::createDescriptorSets(ModelRenderSystem * mrs)
 			nullptr
 		};
 
-		std::array<VkWriteDescriptorSet, 2> write_descriptor_sets = {
-			uniform_buffer_object_write_descriptor_set,
+		std::array<VkWriteDescriptorSet, 3> write_descriptor_sets = {
+			ubo_write_descriptor_set,
+			vp_write_descriptor_set,
 			sampler_write_descriptor_set
 		};
 
@@ -163,17 +220,41 @@ void ModelRenderer::createDescriptorSets(ModelRenderSystem * mrs)
 
 void ModelRenderer::createUniformBuffers(ModelRenderSystem * mrs)
 {
-	VkDeviceSize buffer_size = sizeof(UniformBufferObject);
+	if (uniform_vma)
+		return;
 
-	uniform_buffers.resize(mrs->getDescriptorSetCount());
-	uniform_buffer_memories.resize(mrs->getDescriptorSetCount());
+	uniform_vma = mrs->getUniformBufferVideoMemoryAllocator();
 
-	for (size_t i = 0; i < mrs->getDescriptorSetCount(); ++i)
+	VkDeviceSize buffer_size = getUniformBufferObjectSize();
+
+	uniform_buffer_offsets.resize(mrs->getDescriptorSetCount());
+	for (size_t i = 0; i < uniform_buffer_offsets.size(); ++i)
+		uniform_buffer_offsets[i] = uniform_vma->allocate(buffer_size);
+}
+
+void ModelRenderer::freeCommandBuffers(ModelRenderSystem * mrs)
+{
+	if (command_buffers.empty())
+		return;
+	vkFreeCommandBuffers(mrs->getDevice(), mrs->getCommandPool(), command_buffers.size(), command_buffers.data());
+	command_buffers.clear();
+}
+
+size_t ModelRenderer::getUniformBufferObjectSize() const
+{
+	if (animation)
 	{
-		mrs->createBuffer(buffer_size,
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			uniform_buffers[i],
-			uniform_buffer_memories[i]);
+		if (animation->loaded)
+		{
+			return sizeof(uniform_buffer_object) - sizeof(uniform_buffer_object.bones) + sizeof(Matrix4) * animation->base_pose.bones.size();
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		return sizeof(uniform_buffer_object) - sizeof(uniform_buffer_object.bones) + sizeof(Matrix4);
 	}
 }

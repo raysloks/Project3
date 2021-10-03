@@ -17,6 +17,7 @@ public:
 	// static storage of system pointers to allow more convenient access for custom behaviours
 	static Engine * engine;
 	static SpriteRenderSystem * srs;
+	static ModelRenderSystem * mrs;
 	static InputSystem * input;
 	static CustomBehaviourSystem * cbs;
 	static CollisionSystem * cs;

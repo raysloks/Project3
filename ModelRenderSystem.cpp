@@ -41,11 +41,13 @@ ModelRenderSystem::ModelRenderSystem()
 	max_frames_in_flight = 2;
 	current_frame_index = 0;
 
-	staging_offset = 0;
+	present_time_unsafe = SDL_GetPerformanceCounter();
+	present_time_safe = present_time_unsafe;
 
-	time = 0.0f;
+	field_of_view = 70.0f;
 
-	field_of_view = 35.0f;
+	vert_shader_module = nullptr;
+	frag_shader_module = nullptr;
 }
 
 ModelRenderSystem::~ModelRenderSystem()
@@ -77,23 +79,35 @@ void ModelRenderSystem::init(SDL_Window * window)
 
 	createDepthBuffer();
 
-	createStagingBuffer();
+	createStagingBuffers();
 
 	createFramebuffers();
 
 	createCommandPool();
 
-	vma = new VideoMemoryAllocator(device, this, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	VideoMemoryAllocatorSettings vma_settings = {
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		9,
+		4,
+		4096,
+		4
+	};
+	vma = new VideoMemoryAllocator(device, this, vma_settings);
 
-	// temporarily here
-	createModelBuffers();
-	createTextureImage();
-	createTextureImageView();
-	createTextureSampler();
+	VideoMemoryAllocatorSettings uniform_vma_settings = {
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		9,
+		4,
+		4096 * 3,
+		3
+	};
+	uniform_vma = new VideoMemoryAllocator(device, this, uniform_vma_settings);
+
+	createDescriptorPool();
 
 	createUniformBuffers();
-	createDescriptorPool();
-	createDescriptorSets();
 
 	allocateCommandBuffers();
 
@@ -360,7 +374,7 @@ void ModelRenderSystem::createRenderPass()
 
 void ModelRenderSystem::createDescriptorSetLayout()
 {
-	VkDescriptorSetLayoutBinding uniform_buffer_object_layout_binding = {
+	VkDescriptorSetLayoutBinding ubo_layout_binding = {
 		0,
 		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 		1,
@@ -368,15 +382,23 @@ void ModelRenderSystem::createDescriptorSetLayout()
 		nullptr
 	};
 
-	VkDescriptorSetLayoutBinding sampler_layout_binding = {
+	VkDescriptorSetLayoutBinding vp_layout_binding = {
 		1,
+		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+		1,
+		VK_SHADER_STAGE_VERTEX_BIT,
+		nullptr
+	};
+
+	VkDescriptorSetLayoutBinding sampler_layout_binding = {
+		2,
 		VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 		1,
 		VK_SHADER_STAGE_FRAGMENT_BIT,
 		nullptr
 	};
 
-	std::array<VkDescriptorSetLayoutBinding, 2> descriptor_set_layout_bindings = { uniform_buffer_object_layout_binding, sampler_layout_binding };
+	std::array<VkDescriptorSetLayoutBinding, 3> descriptor_set_layout_bindings = { ubo_layout_binding, vp_layout_binding, sampler_layout_binding };
 
 	VkDescriptorSetLayoutCreateInfo descriptor_set_layout_create_info = {
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
@@ -392,14 +414,16 @@ void ModelRenderSystem::createDescriptorSetLayout()
 
 void ModelRenderSystem::createGraphicsPipeline()
 {
-	auto vert_code = Text::get("shaders/vert.spv");
-	auto frag_code = Text::get("shaders/frag.spv");
+	auto vert_code = Text::get("shaders/shader.vert.spv");
+	auto frag_code = Text::get("shaders/shader.frag.spv");
 
 	while (!(vert_code->loaded && frag_code->loaded))
 		std::this_thread::yield();
 
-	vert_shader_module = createShaderModule(*vert_code);
-	frag_shader_module = createShaderModule(*frag_code);
+	if (vert_shader_module == nullptr)
+		vert_shader_module = createShaderModule(*vert_code);
+	if (frag_shader_module == nullptr)
+		frag_shader_module = createShaderModule(*frag_code);
 
 	VkPipelineShaderStageCreateInfo vert_shader_stage_create_info = {
 		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -476,7 +500,7 @@ void ModelRenderSystem::createGraphicsPipeline()
 		VK_FALSE,
 		VK_POLYGON_MODE_FILL,
 		VK_CULL_MODE_BACK_BIT,
-		VK_FRONT_FACE_CLOCKWISE,
+		VK_FRONT_FACE_COUNTER_CLOCKWISE,
 		VK_FALSE,
 		0.0f,
 		0.0f,
@@ -620,25 +644,36 @@ void ModelRenderSystem::createDepthBuffer()
 	createImageView(depth_image, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT, depth_image_view);
 }
 
-void ModelRenderSystem::createStagingBuffer()
+void ModelRenderSystem::createStagingBuffers()
 {
-	createBuffer(16 * 1024 * 1024, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging_buffer, staging_buffer_memory);
+	createBuffer(16 * 1024 * 1024 * 3, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging_buffer, staging_buffer_memory);
+	createBuffer(16 * 1024 * 1024 * 3, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniform_staging_buffer, uniform_staging_buffer_memory);
+
+	staging_offsets.resize(max_frames_in_flight);
+	uniform_staging_offsets.resize(max_frames_in_flight);
+
+	for (size_t i = 0; i < max_frames_in_flight; ++i)
+	{
+		staging_offsets[i] = 16 * 1024 * 1024 * i;
+		uniform_staging_offsets[i] = 16 * 1024 * 1024 * i;
+	}
 }
 
 void ModelRenderSystem::allocateCommandBuffers()
 {
-	command_buffers.resize(swapchain_framebuffers.size());
+	command_buffers.resize(swapchain_framebuffers.size(), std::vector<VkCommandBuffer>(3));
 
 	VkCommandBufferAllocateInfo command_buffer_allocate_info = {
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		nullptr,
 		command_pool,
 		VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-		(uint32_t)command_buffers.size()
+		(uint32_t)command_buffers[0].size()
 	};
 
-	if (vkAllocateCommandBuffers(device, &command_buffer_allocate_info, command_buffers.data()))
-		throw std::runtime_error("failed to allocate command buffers.");
+	for (size_t i = 0; i < command_buffers.size(); ++i)
+		if (vkAllocateCommandBuffers(device, &command_buffer_allocate_info, command_buffers[i].data()))
+			throw std::runtime_error("failed to allocate command buffers.");
 }
 
 void ModelRenderSystem::createSynchronizationPrimitives()
@@ -657,15 +692,19 @@ void ModelRenderSystem::createSynchronizationPrimitives()
 
 	image_available_semaphores.resize(max_frames_in_flight);
 	render_finished_semaphores.resize(max_frames_in_flight);
-	in_flight_fences.resize(max_frames_in_flight);
-	images_in_flight.resize(swapchain_images.size(), VK_NULL_HANDLE);
+	in_flight_fences.resize(max_frames_in_flight, std::vector<VkFence>(3));
+	image_to_frame_index.resize(swapchain_images.size(), -1);
 
 	for (size_t i = 0; i < max_frames_in_flight; ++i)
 	{
 		if (vkCreateSemaphore(device, &semaphore_create_info, nullptr, &image_available_semaphores[i]) ||
-			vkCreateSemaphore(device, &semaphore_create_info, nullptr, &render_finished_semaphores[i]) ||
-			vkCreateFence(device, &fence_create_info, nullptr, &in_flight_fences[i]))
-			throw std::runtime_error("failed to create synchronization primitives.");
+			vkCreateSemaphore(device, &semaphore_create_info, nullptr, &render_finished_semaphores[i]))
+			throw std::runtime_error("failed to create semaphores.");
+		for (size_t j = 0; j < in_flight_fences[i].size(); ++j)
+		{
+			if (vkCreateFence(device, &fence_create_info, nullptr, &in_flight_fences[i][j]))
+				throw std::runtime_error("failed to create fences.");
+		}
 	}
 }
 
@@ -704,43 +743,87 @@ void ModelRenderSystem::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage
 void ModelRenderSystem::stageBufferData(void * source_data, VkDeviceSize size, VkDeviceSize destination_offset)
 {
 	void * intermediate_data;
-	vkMapMemory(device, staging_buffer_memory, staging_offset, size, 0, &intermediate_data);
+	vkMapMemory(device, staging_buffer_memory, staging_offsets[current_frame_index], size, 0, &intermediate_data);
 	memcpy(intermediate_data, source_data, (size_t)size);
 	vkUnmapMemory(device, staging_buffer_memory);
 
 	VkBufferCopy region = {
-		staging_offset,
+		staging_offsets[current_frame_index],
 		destination_offset,
 		size
 	};
 	staging_regions.push_back(region);
 	constexpr size_t alignment = 64;
-	staging_offset += size;
-	staging_offset = (staging_offset + alignment - 1) / alignment * alignment;
+	staging_offsets[current_frame_index] += size;
+	staging_offsets[current_frame_index] = (staging_offsets[current_frame_index] + alignment - 1) / alignment * alignment;
 }
 
-void ModelRenderSystem::copyBuffer(VkBuffer source, VkBuffer destination, VkDeviceSize size)
+void ModelRenderSystem::stageUniformBufferData(void * source_data, VkDeviceSize size, VkDeviceSize destination_offset)
 {
-	TemporaryCommandBuffer command_buffer(device, command_pool);
+	void * intermediate_data;
+	vkMapMemory(device, uniform_staging_buffer_memory, uniform_staging_offsets[current_frame_index], size, 0, &intermediate_data);
+	memcpy(intermediate_data, source_data, (size_t)size);
+	vkUnmapMemory(device, uniform_staging_buffer_memory);
 
 	VkBufferCopy region = {
-		0,
-		0,
+		uniform_staging_offsets[current_frame_index],
+		destination_offset,
 		size
 	};
-
-	vkCmdCopyBuffer(command_buffer, source, destination, 1, &region);
-
-	command_buffer.submit(graphics_queue);
+	uniform_staging_regions.push_back(region);
+	constexpr size_t alignment = 64;
+	uniform_staging_offsets[current_frame_index] += size;
+	uniform_staging_offsets[current_frame_index] = (uniform_staging_offsets[current_frame_index] + alignment - 1) / alignment * alignment;
 }
 
-void ModelRenderSystem::copyBuffers(VkBuffer source, VkBuffer destination, const std::vector<VkBufferCopy>& regions)
+void ModelRenderSystem::copyBuffer(VkBuffer source, VkBuffer destination, VkDeviceSize size, VkCommandBuffer command_buffer, VkFence fence)
 {
-	TemporaryCommandBuffer command_buffer(device, command_pool);
+	//TemporaryCommandBuffer command_buffer(device, command_pool, fence);
+
+	//VkBufferCopy region = {
+	//	0,
+	//	0,
+	//	size
+	//};
+
+	//vkCmdCopyBuffer(command_buffer, source, destination, 1, &region);
+
+	//command_buffer.submit(graphics_queue);
+}
+
+void ModelRenderSystem::copyBuffers(VkBuffer source, VkBuffer destination, const std::vector<VkBufferCopy>& regions, VkCommandBuffer command_buffer, VkFence fence)
+{
+	VkCommandBufferBeginInfo command_buffer_begin_info = {
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		nullptr,
+		0,
+		nullptr
+	};
+
+	if (vkResetCommandBuffer(command_buffer, 0))
+		throw std::runtime_error("failed to reset command buffer.");
+
+	if (vkBeginCommandBuffer(command_buffer, &command_buffer_begin_info))
+		throw std::runtime_error("failed to begin recording command buffer.");
 
 	vkCmdCopyBuffer(command_buffer, source, destination, (uint32_t)regions.size(), regions.data());
 
-	command_buffer.submit(graphics_queue);
+	if (vkEndCommandBuffer(command_buffer))
+		throw std::runtime_error("failed to record command buffer.");
+
+	VkSubmitInfo submit_info = {
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		nullptr,
+		0,
+		nullptr,
+		nullptr,
+		1,
+		&command_buffer,
+		0,
+		nullptr
+	};
+
+	vkQueueSubmit(graphics_queue, 1, &submit_info, fence);
 }
 
 void ModelRenderSystem::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
@@ -874,42 +957,29 @@ void ModelRenderSystem::createImageView(VkImage image, VkFormat format, VkImageA
 		throw std::runtime_error("failed to create image view.");
 }
 
-void ModelRenderSystem::createModelBuffers()
-{
-	model = Model::get("hoodlum.mdl");
-
-	while (!model->loaded)
-		std::this_thread::yield();
-
-	size_t vertex_buffer_offset;
-	size_t index_buffer_offset;
-	model->getBufferOffsets(this, vertex_buffer_offset, index_buffer_offset);
-}
-
 void ModelRenderSystem::createUniformBuffers()
 {
 	VkDeviceSize buffer_size = sizeof(UniformBufferObject);
 
-	uniform_buffers.resize(swapchain_images.size());
-	uniform_buffer_memories.resize(swapchain_images.size());
+	uniform_buffer_offsets.resize(swapchain_images.size());
 
 	for (size_t i = 0; i < swapchain_images.size(); ++i)
 	{
-		createBuffer(buffer_size, 
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-			uniform_buffers[i], 
-			uniform_buffer_memories[i]);
+		uniform_buffer_offsets[i] = uniform_vma->allocate(buffer_size);
 	}
 }
 
 void ModelRenderSystem::recordCommandBuffer(uint32_t image_index)
 {
-	auto& command_buffer = command_buffers[image_index];
+	auto& command_buffer = command_buffers[image_index][0];
 
 	std::vector<VkCommandBuffer> secondary_command_buffers;
 	for (auto& model : level->models.components)
-		secondary_command_buffers.push_back(model.getCommandBuffer(this, image_index));
+	{
+		auto secondary_command_buffer = model.getCommandBuffer(this, image_index);
+		if (secondary_command_buffer != nullptr)
+			secondary_command_buffers.push_back(secondary_command_buffer);
+	}
 
 	VkCommandBufferBeginInfo command_buffer_begin_info = {
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -938,6 +1008,8 @@ void ModelRenderSystem::recordCommandBuffer(uint32_t image_index)
 		clear_values.data()
 	};
 
+	auto wait_d_start = SDL_GetPerformanceCounter();
+
 	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
 
 	vkCmdBeginRenderPass(command_buffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
@@ -945,6 +1017,8 @@ void ModelRenderSystem::recordCommandBuffer(uint32_t image_index)
 	vkCmdExecuteCommands(command_buffer, secondary_command_buffers.size(), secondary_command_buffers.data());
 
 	vkCmdEndRenderPass(command_buffer);
+
+	wait_d = SDL_GetPerformanceCounter() - wait_d_start;
 
 	if (vkEndCommandBuffer(command_buffer))
 		throw std::runtime_error("failed to record command buffer.");
@@ -978,6 +1052,12 @@ void ModelRenderSystem::allocateSecondaryCommandBuffers(std::vector<VkCommandBuf
 		throw std::runtime_error("failed to allocate secondary command buffers.");
 }
 
+void ModelRenderSystem::freeSecondaryCommandBuffers()
+{
+	for (auto& model : level->models.components)
+		model.freeCommandBuffers(this);
+}
+
 void ModelRenderSystem::createTextureImage()
 {
 	sprite_sheet = SpriteSheet::get("hoodlum.png");
@@ -1005,6 +1085,8 @@ void ModelRenderSystem::createTextureImage()
 	copyBufferToImage(staging_buffer, texture_image, width, height);
 
 	transitionImageLayout(texture_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+	vkQueueWaitIdle(graphics_queue);
 
 	vkDestroyBuffer(device, staging_buffer, nullptr);
 	vkFreeMemory(device, staging_buffer_memory, nullptr);
@@ -1048,19 +1130,15 @@ void ModelRenderSystem::createTextureSampler()
 void ModelRenderSystem::updateUniformBuffer(uint32_t current_image_index)
 {
 	UniformBufferObject uniform_buffer_object;
-	uniform_buffer_object.model = Quaternion(time, Vec3(0.0f, 0.0f, 1.0f));
-	uniform_buffer_object.view = Matrix4::Translation(0.0f, 15.0f, -15.0f) * Quaternion(-M_PI * 1.25f, Vec3(1.0f, 0.0f, 0.0f));
-	uniform_buffer_object.proj = Matrix4::Perspective(35.0f, swapchain_extent.width / (float)swapchain_extent.height, 0.1f, 100.0f);
+	uniform_buffer_object.view = getViewMatrix();
+	uniform_buffer_object.proj = Matrix4::Perspective(getFieldOfView(), getAspectRatio(), 0.1f, 100.0f);
 
-	void * data;
-	vkMapMemory(device, uniform_buffer_memories[current_image_index], 0, sizeof(uniform_buffer_object), 0, &data);
-	memcpy(data, &uniform_buffer_object, sizeof(uniform_buffer_object));
-	vkUnmapMemory(device, uniform_buffer_memories[current_image_index]);
+	stageUniformBufferData(&uniform_buffer_object, sizeof(uniform_buffer_object), uniform_buffer_offsets[current_image_index]);
 }
 
 void ModelRenderSystem::createDescriptorPool()
 {
-	uint32_t descriptor_pool_size = 1024 * getDescriptorSetCount();
+	uint32_t descriptor_pool_size = 4096 * getDescriptorSetCount();
 
 	VkDescriptorPoolSize uniform_buffer_object_descriptor_pool_size = {
 		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -1090,71 +1168,6 @@ void ModelRenderSystem::createDescriptorPool()
 		throw std::runtime_error("failed to create descriptor pool.");
 }
 
-void ModelRenderSystem::createDescriptorSets()
-{
-	std::vector<VkDescriptorSetLayout> descriptor_set_layouts(swapchain_images.size(), descriptor_set_layout);
-
-	VkDescriptorSetAllocateInfo descriptor_set_allocate_info = {
-		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-		nullptr,
-		descriptor_pool,
-		(uint32_t)descriptor_set_layouts.size(),
-		descriptor_set_layouts.data()
-	};
-
-	descriptor_sets.resize(descriptor_set_layouts.size());
-	if (vkAllocateDescriptorSets(device, &descriptor_set_allocate_info, descriptor_sets.data()))
-		throw std::runtime_error("failed to allocate descriptor sets.");
-
-	for (size_t i = 0; i < descriptor_sets.size(); ++i)
-	{
-		VkDescriptorBufferInfo descriptor_buffer_info = {
-			uniform_buffers[i],
-			0,
-			sizeof(UniformBufferObject)
-		};
-
-		VkDescriptorImageInfo descriptor_image_info = {
-			texture_sampler,
-			texture_image_view,
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-		};
-
-		VkWriteDescriptorSet uniform_buffer_object_write_descriptor_set = {
-			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			nullptr,
-			descriptor_sets[i],
-			0,
-			0,
-			1,
-			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-			nullptr,
-			&descriptor_buffer_info,
-			nullptr
-		};
-
-		VkWriteDescriptorSet sampler_write_descriptor_set = {
-			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			nullptr,
-			descriptor_sets[i],
-			1,
-			0,
-			1,
-			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			&descriptor_image_info,
-			nullptr,
-			nullptr
-		};
-
-		std::array<VkWriteDescriptorSet, 2> write_descriptor_sets = {
-			uniform_buffer_object_write_descriptor_set,
-			sampler_write_descriptor_set
-		};
-
-		vkUpdateDescriptorSets(device, (uint32_t)write_descriptor_sets.size(), write_descriptor_sets.data(), 0, nullptr);
-	}
-}
-
 void ModelRenderSystem::recreateSwapchain()
 {
 	if (present_thread.joinable())
@@ -1162,6 +1175,7 @@ void ModelRenderSystem::recreateSwapchain()
 	vkDeviceWaitIdle(device);
 
 	releaseSwapchain();
+	freeSecondaryCommandBuffers();
 
 	createSwapchain();
 	createImageViews();
@@ -1189,8 +1203,9 @@ void ModelRenderSystem::release()
 
 	vkDestroyDescriptorSetLayout(device, descriptor_set_layout, nullptr);
 
-	for (auto fence : in_flight_fences)
-		vkDestroyFence(device, fence, nullptr);
+	for (auto& fences : in_flight_fences)
+		for (auto fence : fences)
+			vkDestroyFence(device, fence, nullptr);
 
 	for (auto semaphore : render_finished_semaphores)
 		vkDestroySemaphore(device, semaphore, nullptr);
@@ -1216,7 +1231,8 @@ void ModelRenderSystem::releaseSwapchain()
 	for (auto framebuffer : swapchain_framebuffers)
 		vkDestroyFramebuffer(device, framebuffer, nullptr);
 
-	vkFreeCommandBuffers(device, command_pool, (uint32_t)command_buffers.size(), command_buffers.data());
+	for (auto& command_buffers : command_buffers)
+		vkFreeCommandBuffers(device, command_pool, (uint32_t)command_buffers.size(), command_buffers.data());
 
 	vkDestroyPipeline(device, graphics_pipeline, nullptr);
 	vkDestroyPipelineLayout(device, pipeline_layout, nullptr);
@@ -1236,6 +1252,11 @@ VkDevice ModelRenderSystem::getDevice() const
 VideoMemoryAllocator * ModelRenderSystem::getVideoMemoryAllocator() const
 {
 	return vma;
+}
+
+VideoMemoryAllocator * ModelRenderSystem::getUniformBufferVideoMemoryAllocator() const
+{
+	return uniform_vma;
 }
 
 VkPhysicalDevice ModelRenderSystem::getPhysicalDevice() const
@@ -1266,6 +1287,11 @@ VkPipeline ModelRenderSystem::getGraphicsPipeline() const
 VkDescriptorPool ModelRenderSystem::getDescriptorPool() const
 {
 	return descriptor_pool;
+}
+
+size_t ModelRenderSystem::getUniformBufferOffset(size_t image_index) const
+{
+	return uniform_buffer_offsets[image_index];
 }
 
 uint32_t ModelRenderSystem::findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties)
@@ -1310,6 +1336,11 @@ VkDescriptorSetLayout ModelRenderSystem::getDescriptorSetLayout() const
 	return descriptor_set_layout;
 }
 
+uint64_t ModelRenderSystem::getPresentTime() const
+{
+	return present_time_safe;
+}
+
 float ModelRenderSystem::getAspectRatio() const
 {
 	return swapchain_extent.width / (float)swapchain_extent.height;
@@ -1343,19 +1374,13 @@ Vec2 ModelRenderSystem::screenToWorld(const Vec2& screen_position) const
 
 void ModelRenderSystem::tick(float dt)
 {
-	if (staging_regions.size())
-	{
-		copyBuffers(staging_buffer, vma->buffer, staging_regions);
-		staging_regions.clear();
-		staging_offset = 0;
-	}
-
-	vkWaitForFences(device, 1, &in_flight_fences[current_frame_index], VK_TRUE, UINT64_MAX);
-
-	time += dt;
+	auto wait_a_start = SDL_GetPerformanceCounter();
+	auto& fences = in_flight_fences[current_frame_index];
+	vkWaitForFences(device, fences.size(), fences.data(), VK_TRUE, UINT64_MAX);
+	wait_fences_a = SDL_GetPerformanceCounter() - wait_a_start;
 
 	uint32_t image_index;
-	switch (vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, image_available_semaphores[current_frame_index], VK_NULL_HANDLE, &image_index))
+	switch (vkAcquireNextImageKHR(device, swapchain, 0, image_available_semaphores[current_frame_index], VK_NULL_HANDLE, &image_index))
 	{
 	case VK_SUCCESS:
 		break;
@@ -1365,18 +1390,51 @@ void ModelRenderSystem::tick(float dt)
 		recreateSwapchain();
 		return;
 	default:
-		throw std::runtime_error("failed to acquire next image.");
+		return;
 	}
 
-	if (images_in_flight[image_index] != VK_NULL_HANDLE && images_in_flight[image_index] != in_flight_fences[current_frame_index])
-		vkWaitForFences(device, 1, &images_in_flight[image_index], VK_TRUE, UINT64_MAX);
-	images_in_flight[image_index] = in_flight_fences[current_frame_index];
+	auto wait_b_start = SDL_GetPerformanceCounter();
+	if (image_to_frame_index[image_index] != -1 && image_to_frame_index[image_index] != current_frame_index)
+	{
+		auto& fences = in_flight_fences[image_to_frame_index[image_index]];
+		vkWaitForFences(device, fences.size(), fences.data(), VK_TRUE, UINT64_MAX);
+	}
+	wait_fences_b = SDL_GetPerformanceCounter() - wait_b_start;
+	image_to_frame_index[image_index] = current_frame_index;
 
 	recordCommandBuffer(image_index);
 
 	updateUniformBuffer(image_index);
 	for (auto& model : level->models.components)
 		model.updateUniformBuffer(this, image_index);
+
+	auto wait_c_start = SDL_GetPerformanceCounter();
+	if (present_thread.joinable())
+		present_thread.join();
+	wait_c = SDL_GetPerformanceCounter() - wait_c_start;
+
+	// only reset fence at index 0 (main render fence)
+	vkResetFences(device, 1, &fences[0]);
+
+	TemporaryCommandBuffer tmp_cmdbuf_copy_uniform_buffers;
+	if (uniform_staging_regions.size())
+	{
+		// reset fence at index 1
+		vkResetFences(device, 1, &fences[1]);
+		copyBuffers(uniform_staging_buffer, uniform_vma->buffer, uniform_staging_regions, command_buffers[image_index][1], fences[1]);
+		uniform_staging_regions.clear();
+		uniform_staging_offsets[current_frame_index] = 16 * 1024 * 1024 * current_frame_index;
+	}
+
+	TemporaryCommandBuffer tmp_cmdbuf_copy_buffers;
+	if (staging_regions.size())
+	{
+		// reset fence at index 2
+		vkResetFences(device, 1, &fences[2]);
+		copyBuffers(staging_buffer, vma->buffer, staging_regions, command_buffers[image_index][2], fences[2]);
+		staging_regions.clear();
+		staging_offsets[current_frame_index] = 16 * 1024 * 1024 * current_frame_index;
+	}
 
 	VkSemaphore wait_semaphores[] = { image_available_semaphores[current_frame_index] };
 	VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -1389,18 +1447,15 @@ void ModelRenderSystem::tick(float dt)
 		wait_semaphores,
 		wait_stages,
 		1,
-		&command_buffers[image_index],
+		&command_buffers[image_index][0],
 		1,
 		signal_semaphores
 	};
 
-	vkResetFences(device, 1, &in_flight_fences[current_frame_index]);
-
-	if (present_thread.joinable())
-		present_thread.join();
-
-	if (vkQueueSubmit(graphics_queue, 1, &submit_info, in_flight_fences[current_frame_index]))
+	if (vkQueueSubmit(graphics_queue, 1, &submit_info, in_flight_fences[current_frame_index][0]))
 		throw std::runtime_error("failed to submit draw command buffer.");
+
+	present_time_safe = present_time_unsafe;
 
 	present_thread = std::thread([this, signal_semaphores, image_index]()
 	{
@@ -1418,6 +1473,7 @@ void ModelRenderSystem::tick(float dt)
 		};
 
 		vkQueuePresentKHR(present_queue, &present_info);
+		present_time_unsafe = SDL_GetPerformanceCounter();
 	});
 
 	++current_frame_index %= max_frames_in_flight;

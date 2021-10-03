@@ -77,6 +77,11 @@ Engine::Engine()
 	cursor_sheet_new = nullptr;
 	cursor_sheet = nullptr;
 	cursor = nullptr;
+
+	profiling_counter = 1000;
+	profiling_accumulator = 0.0f;
+	profiling_low = std::numeric_limits<float>::infinity();
+	profiling_high = 0.0f;
 }
 
 Engine::~Engine()
@@ -172,11 +177,33 @@ void Engine::run()
 
 		//SDL_RenderPresent(render);
 
-		end = SDL_GetPerformanceCounter();
+		//end = SDL_GetPerformanceCounter();
+		end = mrs->getPresentTime();
 		uint64_t diff = end - start;
 		start = end;
 
 		full = double(diff) / freq;
+
+		profiling_accumulator += full;
+		profiling_low = fminf(profiling_low, full);
+		profiling_high = fmaxf(profiling_high, full);
+
+		if (--profiling_counter == 0)
+		{
+			std::cout << "avg: " << 1000.0f / profiling_accumulator << std::endl;
+			std::cout << "min: " << 1.0f / profiling_high << std::endl;
+			std::cout << "max: " << 1.0f / profiling_low << std::endl;
+
+			profiling_counter = 1000;
+			profiling_accumulator = 0.0f;
+			profiling_low = std::numeric_limits<float>::infinity();
+			profiling_high = 0.0f;
+
+			std::cout << double(mrs->wait_fences_a) / freq * 1000.0 << std::endl;
+			std::cout << double(mrs->wait_fences_b) / freq * 1000.0 << std::endl;
+			std::cout << double(mrs->wait_c) / freq * 1000.0 << std::endl;
+			std::cout << double(mrs->wait_d) / freq * 1000.0 << std::endl;
+		}
 	}
 }
 
@@ -247,6 +274,7 @@ void Engine::updateConveniencePointers()
 	CustomBehaviour::input = input;
 	CustomBehaviour::cbs = cbs;
 	CustomBehaviour::srs = srs;
+	CustomBehaviour::mrs = mrs;
 
 	CustomBehaviour::level = level;
 	CustomBehaviour::tm = &level->tilemap;

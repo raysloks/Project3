@@ -75,16 +75,15 @@ void Tilemap::depositEffect(size_t type, size_t & effect, const Vec2 & p)
 	tile.effects.dirty = true;
 }
 
-float Tilemap::getZ(const Vec2 & p) const
+float Tilemap::getZ(const Vec2& p) const
 {
-	auto tile_p = p / tile_size;
-	intmax_t x = llroundf(tile_p.x);
-	intmax_t y = llroundf(tile_p.y);
+	intmax_t x = floorf(p.x);
+	intmax_t y = floorf(p.y);
 	auto& tile = at(x, y);
 	if (tile.tile == 980)
-		return (y + 0.5f) * tile_size.y - p.y;
+		return 1.0f + y - p.y;
 	if (tile.tile == 990)
-		return (y - 0.5f) * tile_size.y - p.y;
+		return y - p.y;
 	return 0.0f;
 }
 

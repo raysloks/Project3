@@ -2,6 +2,7 @@
 
 Engine * CustomBehaviour::engine;
 SpriteRenderSystem * CustomBehaviour::srs;
+ModelRenderSystem * CustomBehaviour::mrs;
 InputSystem * CustomBehaviour::input;
 CustomBehaviourSystem * CustomBehaviour::cbs;
 CollisionSystem * CustomBehaviour::cs;
