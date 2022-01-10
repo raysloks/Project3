@@ -8,7 +8,7 @@
 class MpMobStateUpdate
 {
 public:
-	uint64_t sprite;
+	uint64_t uid;
 	uint32_t team;
 
 	void serialize(std::ostream& os) const;

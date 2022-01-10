@@ -214,6 +214,7 @@
     <ClCompile Include="FloatingText.cpp" />
     <ClCompile Include="FollowCursor.cpp" />
     <ClCompile Include="FrameRate.cpp" />
+    <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="GroundEffectChunk.cpp" />
     <ClCompile Include="MobPath.cpp" />
     <ClCompile Include="MobPos\MpActionCommand.cpp" />
@@ -242,7 +243,14 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="ModelRenderSystem.cpp" />
+    <ClCompile Include="PipelineTemplate.cpp" />
+    <ClCompile Include="RenderContext.cpp" />
+    <ClCompile Include="RenderingModel.cpp" />
+    <ClCompile Include="RenderPass.cpp" />
+    <ClCompile Include="RenderPassTemplate.cpp" />
     <ClCompile Include="TemporaryCommandBuffer.cpp" />
+    <ClCompile Include="TextArea.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="UID.cpp" />
     <ClCompile Include="HealthDisplay.cpp" />
     <ClCompile Include="InputSystem.cpp" />
@@ -310,6 +318,7 @@
     <ClInclude Include="FollowCursor.h" />
     <ClInclude Include="FrameRate.h" />
     <ClInclude Include="GameKeyBinding.h" />
+    <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="GroundEffectChunk.h" />
     <ClInclude Include="MobPath.h" />
     <ClInclude Include="MobPos\MpActionCommand.h" />
@@ -338,7 +347,14 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="ModelRenderSystem.h" />
+    <ClInclude Include="PipelineTemplate.h" />
+    <ClInclude Include="RenderContext.h" />
+    <ClInclude Include="RenderingModel.h" />
+    <ClInclude Include="RenderPass.h" />
+    <ClInclude Include="RenderPassTemplate.h" />
     <ClInclude Include="TemporaryCommandBuffer.h" />
+    <ClInclude Include="TextArea.h" />
+    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="UID.h" />
     <ClInclude Include="HealthDisplay.h" />
     <ClInclude Include="InputSystem.h" />

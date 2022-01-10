@@ -34,10 +34,10 @@ std::shared_ptr<Animation> Animation::load(const std::string & fname)
 
 				std::stringstream ss(buffer);
 
-				uint8_t flags;
+				uint8_t flags = 0;
 				ss.read((char*)&flags, sizeof(uint8_t));
 
-				size_t bone_count;
+				size_t bone_count = 0;
 				ss.read((char*)&bone_count, sizeof(uint8_t));
 				animation->base_pose.bones.resize(bone_count);
 
@@ -64,11 +64,11 @@ std::shared_ptr<Animation> Animation::load(const std::string & fname)
 				};
 
 				
-				uint64_t action_count;
+				uint64_t action_count = 0;
 				ss.read((char*)&action_count, sizeof(uint64_t));
 				for (size_t i = 0; i < action_count; ++i)
 				{
-					uint64_t name_length;
+					uint64_t name_length = 0;
 					ss.read((char*)&name_length, sizeof(uint64_t));
 					std::string name;
 					name.resize(name_length);
@@ -83,11 +83,12 @@ std::shared_ptr<Animation> Animation::load(const std::string & fname)
 						for (size_t i = 0; i < 10; ++i)
 						{
 							auto&& channel = group[i];
-							uint64_t keyframe_count;
+							uint64_t keyframe_count = 0;
 							ss.read((char*)&keyframe_count, sizeof(uint64_t));
 							for (size_t i = 0; i < keyframe_count; ++i)
 							{
-								float time, value;
+								float time = 0.0f;
+								float value = 0.0f;
 								ss.read((char*)&time, sizeof(float));
 								ss.read((char*)&value, sizeof(float));
 								channel.keyframes.emplace(std::make_pair(time, value));

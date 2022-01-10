@@ -78,10 +78,11 @@ Engine::Engine()
 	cursor_sheet = nullptr;
 	cursor = nullptr;
 
-	profiling_counter = 1000;
-	profiling_accumulator = 0.0f;
-	profiling_low = std::numeric_limits<float>::infinity();
-	profiling_high = 0.0f;
+	profiling_frame_window = 2000;
+	profiling_counter = profiling_frame_window;
+	profiling_accumulator = 0.0;
+	profiling_low = std::numeric_limits<double>::infinity();
+	profiling_high = 0.0;
 }
 
 Engine::~Engine()
@@ -185,19 +186,19 @@ void Engine::run()
 		full = double(diff) / freq;
 
 		profiling_accumulator += full;
-		profiling_low = fminf(profiling_low, full);
-		profiling_high = fmaxf(profiling_high, full);
+		profiling_low = fmin(profiling_low, full);
+		profiling_high = fmax(profiling_high, full);
 
 		if (--profiling_counter == 0)
 		{
-			std::cout << "avg: " << 1000.0f / profiling_accumulator << std::endl;
-			std::cout << "min: " << 1.0f / profiling_high << std::endl;
-			std::cout << "max: " << 1.0f / profiling_low << std::endl;
+			std::cout << "avg: " << double(profiling_frame_window) / profiling_accumulator << " fps" << std::endl;
+			std::cout << "min: " << 1.0 / profiling_high << " fps" << std::endl;
+			std::cout << "max: " << 1.0 / profiling_low << " fps" << std::endl;
 
-			profiling_counter = 1000;
-			profiling_accumulator = 0.0f;
-			profiling_low = std::numeric_limits<float>::infinity();
-			profiling_high = 0.0f;
+			profiling_counter = profiling_frame_window;
+			profiling_accumulator = 0.0;
+			profiling_low = std::numeric_limits<double>::infinity();
+			profiling_high = 0.0;
 
 			std::cout << double(mrs->wait_fences_a) / freq * 1000.0 << std::endl;
 			std::cout << double(mrs->wait_fences_b) / freq * 1000.0 << std::endl;

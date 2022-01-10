@@ -14,28 +14,29 @@
 #include "TemporaryCommandBuffer.h"
 #include "VideoMemoryAllocator.h"
 
+#include "RenderContext.h"
+#include "RenderPass.h"
+
 #include <set>
 #include <iostream>
 #include <thread>
+#include <latch>
 
 const std::vector<const char*> validation_layer_names = {
-	/*"VK_LAYER_KHRONOS_validation"*/
+	"VK_LAYER_KHRONOS_validation"
 };
 
 const std::vector<const char*> device_extensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-ModelRenderSystem::ModelRenderSystem()
+ModelRenderSystem::ModelRenderSystem() : render_pass_template(this), ui_render_pass_template(this), graphics_pipeline_template(this), ui_graphics_pipeline_template(this)
 {
 	window = nullptr;
 	instance = nullptr;
 	device = nullptr;
 	surface = nullptr;
 	swapchain = nullptr;
-	render_pass = nullptr;
-	pipeline_layout = nullptr;
-	graphics_pipeline = nullptr;
 	command_pool = nullptr;
 
 	max_frames_in_flight = 2;
@@ -48,6 +49,8 @@ ModelRenderSystem::ModelRenderSystem()
 
 	vert_shader_module = nullptr;
 	frag_shader_module = nullptr;
+
+	camera_count = 2;
 }
 
 ModelRenderSystem::~ModelRenderSystem()
@@ -72,10 +75,13 @@ void ModelRenderSystem::init(SDL_Window * window)
 	createImageViews();
 
 	createRenderPass();
+	createUIRenderPass();
 
 	createDescriptorSetLayout();
 
-	createGraphicsPipeline();
+	setupGraphicsPipelineTemplates();
+	graphics_pipeline_template.setRenderPass(render_pass_template.getRenderPass());
+	ui_graphics_pipeline_template.setRenderPass(ui_render_pass_template.getRenderPass());
 
 	createDepthBuffer();
 
@@ -112,6 +118,9 @@ void ModelRenderSystem::init(SDL_Window * window)
 	allocateCommandBuffers();
 
 	createSynchronizationPrimitives();
+
+	ui_window.reset(new Window());
+	ui_window->model.reset(new ModelRenderer("hoodlum.mdl", "hoodlum.png", "", 1));
 }
 
 void ModelRenderSystem::createVulkanInstance()
@@ -297,6 +306,8 @@ void ModelRenderSystem::createImageViews()
 
 void ModelRenderSystem::createRenderPass()
 {
+	RenderPassTemplate::Settings settings;
+
 	VkAttachmentDescription color_attachment = {
 		0,
 		swapchain_format,
@@ -306,6 +317,51 @@ void ModelRenderSystem::createRenderPass()
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 		VK_ATTACHMENT_STORE_OP_DONT_CARE,
 		VK_IMAGE_LAYOUT_UNDEFINED,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+	};
+
+	VkAttachmentDescription depth_attachment = {
+		0,
+		VK_FORMAT_D24_UNORM_S8_UINT,
+		VK_SAMPLE_COUNT_1_BIT,
+		VK_ATTACHMENT_LOAD_OP_CLEAR,
+		VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		VK_IMAGE_LAYOUT_UNDEFINED,
+		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+	};
+
+	VkAttachmentReference color_attachment_reference = {
+		0,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+	};
+
+	VkAttachmentReference depth_attachment_reference = {
+		1,
+		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+	};
+
+	settings.attachment_descriptions = { color_attachment, depth_attachment };
+	settings.color_attachment_references = { color_attachment_reference };
+	settings.depth_stencil_attachment_reference = depth_attachment_reference;
+
+	render_pass_template.setSettings(settings);
+}
+
+void ModelRenderSystem::createUIRenderPass()
+{
+	RenderPassTemplate::Settings settings;
+
+	VkAttachmentDescription color_attachment = {
+		0,
+		swapchain_format,
+		VK_SAMPLE_COUNT_1_BIT,
+		VK_ATTACHMENT_LOAD_OP_LOAD,
+		VK_ATTACHMENT_STORE_OP_STORE,
+		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 		VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 	};
 
@@ -331,45 +387,11 @@ void ModelRenderSystem::createRenderPass()
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 	};
 
-	VkSubpassDescription subpass = {
-		0,
-		VK_PIPELINE_BIND_POINT_GRAPHICS,
-		0,
-		nullptr,
-		1,
-		&color_attachment_reference,
-		nullptr,
-		&depth_attachment_reference,
-		0,
-		nullptr
-	};
+	settings.attachment_descriptions = { color_attachment, depth_attachment };
+	settings.color_attachment_references = { color_attachment_reference };
+	settings.depth_stencil_attachment_reference = depth_attachment_reference;
 
-	VkSubpassDependency subpass_dependency = {
-		VK_SUBPASS_EXTERNAL,
-		0,
-		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-		0,
-		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-		0
-	};
-
-	std::array<VkAttachmentDescription, 2> attachments = { color_attachment, depth_attachment };
-
-	VkRenderPassCreateInfo render_pass_create_info = {
-		VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-		nullptr,
-		0,
-		(uint32_t)attachments.size(),
-		attachments.data(),
-		1,
-		&subpass,
-		1,
-		&subpass_dependency
-	};
-
-	if (vkCreateRenderPass(device, &render_pass_create_info, nullptr, &render_pass))
-		throw std::runtime_error("failed to create render pass.");
+	ui_render_pass_template.setSettings(settings);
 }
 
 void ModelRenderSystem::createDescriptorSetLayout()
@@ -412,190 +434,6 @@ void ModelRenderSystem::createDescriptorSetLayout()
 		throw std::runtime_error("failed to create descriptor set layout.");
 }
 
-void ModelRenderSystem::createGraphicsPipeline()
-{
-	auto vert_code = Text::get("shaders/shader.vert.spv");
-	auto frag_code = Text::get("shaders/shader.frag.spv");
-
-	while (!(vert_code->loaded && frag_code->loaded))
-		std::this_thread::yield();
-
-	if (vert_shader_module == nullptr)
-		vert_shader_module = createShaderModule(*vert_code);
-	if (frag_shader_module == nullptr)
-		frag_shader_module = createShaderModule(*frag_code);
-
-	VkPipelineShaderStageCreateInfo vert_shader_stage_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-		nullptr,
-		0,
-		VK_SHADER_STAGE_VERTEX_BIT,
-		vert_shader_module,
-		"main",
-		nullptr
-	};
-
-	VkPipelineShaderStageCreateInfo frag_shader_stage_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-		nullptr,
-		0,
-		VK_SHADER_STAGE_FRAGMENT_BIT,
-		frag_shader_module,
-		"main",
-		nullptr
-	};
-
-	VkPipelineShaderStageCreateInfo shader_stages[] = { vert_shader_stage_create_info, frag_shader_stage_create_info };
-
-	auto vertex_input_binding_description = Model::getBindingDescription();
-	auto vertex_input_attribute_descriptions = Model::getAttributeDescriptions();
-
-	VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-		nullptr,
-		0,
-		1,
-		&vertex_input_binding_description,
-		(uint32_t)vertex_input_attribute_descriptions.size(),
-		vertex_input_attribute_descriptions.data()
-	};
-
-	VkPipelineInputAssemblyStateCreateInfo input_assembly_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-		nullptr,
-		0,
-		VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-		VK_FALSE
-	};
-
-	VkViewport viewport = {
-		0.0f,
-		0.0f,
-		(float)swapchain_extent.width,
-		(float)swapchain_extent.height,
-		0.0f,
-		1.0f
-	};
-
-	VkRect2D scissor = {
-		{0, 0},
-		swapchain_extent
-	};
-
-	VkPipelineViewportStateCreateInfo viewport_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
-		nullptr,
-		0,
-		1,
-		&viewport,
-		1,
-		&scissor
-	};
-
-	VkPipelineRasterizationStateCreateInfo rasterization_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
-		nullptr,
-		0,
-		VK_FALSE,
-		VK_FALSE,
-		VK_POLYGON_MODE_FILL,
-		VK_CULL_MODE_BACK_BIT,
-		VK_FRONT_FACE_COUNTER_CLOCKWISE,
-		VK_FALSE,
-		0.0f,
-		0.0f,
-		0.0f,
-		1.0f
-	};
-
-	VkPipelineMultisampleStateCreateInfo multisample_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
-		nullptr,
-		0,
-		VK_SAMPLE_COUNT_1_BIT,
-		VK_FALSE,
-		1.0f,
-		nullptr,
-		VK_FALSE,
-		VK_FALSE
-	};
-
-	VkPipelineColorBlendAttachmentState color_blend_attachment_state = {
-		VK_FALSE,
-		VK_BLEND_FACTOR_ONE,
-		VK_BLEND_FACTOR_ZERO,
-		VK_BLEND_OP_ADD,
-		VK_BLEND_FACTOR_ONE,
-		VK_BLEND_FACTOR_ZERO,
-		VK_BLEND_OP_ADD,
-		VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
-	};
-
-	VkPipelineDepthStencilStateCreateInfo depth_stencil_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-		nullptr,
-		0,
-		VK_TRUE,
-		VK_TRUE,
-		VK_COMPARE_OP_LESS,
-		VK_FALSE,
-		VK_FALSE,
-		{},
-		{},
-		0.0f,
-		1.0f
-	};
-
-	VkPipelineColorBlendStateCreateInfo color_blend_state_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
-		nullptr,
-		0,
-		VK_FALSE,
-		VK_LOGIC_OP_COPY,
-		1,
-		&color_blend_attachment_state,
-		{0.0f, 0.0f, 0.0f, 0.0f}
-	};
-
-	VkPipelineLayoutCreateInfo pipeline_layout_create_info = {
-		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-		nullptr,
-		0,
-		1,
-		&descriptor_set_layout,
-		0,
-		nullptr
-	};
-
-	if (vkCreatePipelineLayout(device, &pipeline_layout_create_info, nullptr, &pipeline_layout))
-		throw std::runtime_error("failed to create pipeline layout.");
-
-	VkGraphicsPipelineCreateInfo graphics_pipeline_create_info = {
-		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-		nullptr,
-		0,
-		2,
-		shader_stages,
-		&vertex_input_state_create_info,
-		&input_assembly_state_create_info,
-		nullptr,
-		&viewport_state_create_info,
-		&rasterization_state_create_info,
-		&multisample_state_create_info,
-		&depth_stencil_state_create_info,
-		&color_blend_state_create_info,
-		nullptr,
-		pipeline_layout,
-		render_pass,
-		0,
-		VK_NULL_HANDLE,
-		-1
-	};
-
-	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &graphics_pipeline_create_info, nullptr, &graphics_pipeline))
-		throw std::runtime_error("failed to create graphics pipeline.");
-}
-
 void ModelRenderSystem::createFramebuffers()
 {
 	swapchain_framebuffers.resize(swapchain_image_views.size());
@@ -611,7 +449,7 @@ void ModelRenderSystem::createFramebuffers()
 			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
 			nullptr,
 			0,
-			render_pass,
+			*render_pass_template.getRenderPass(), // need to examine render pass compatibility more closely
 			(uint32_t)attachments.size(),
 			attachments.data(),
 			swapchain_extent.width,
@@ -706,6 +544,48 @@ void ModelRenderSystem::createSynchronizationPrimitives()
 				throw std::runtime_error("failed to create fences.");
 		}
 	}
+}
+
+void ModelRenderSystem::setupGraphicsPipelineTemplates()
+{
+	auto vert_code = Text::get("shaders/shader.vert.spv");
+	auto frag_code = Text::get("shaders/shader.frag.spv");
+
+	while (!(vert_code->loaded && frag_code->loaded))
+		std::this_thread::yield();
+
+	if (vert_shader_module == nullptr)
+		vert_shader_module = createShaderModule(*vert_code);
+	if (frag_shader_module == nullptr)
+		frag_shader_module = createShaderModule(*frag_code);
+
+	VkPipelineShaderStageCreateInfo vert_shader_stage_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		nullptr,
+		0,
+		VK_SHADER_STAGE_VERTEX_BIT,
+		vert_shader_module,
+		"main",
+		nullptr
+	};
+
+	VkPipelineShaderStageCreateInfo frag_shader_stage_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		nullptr,
+		0,
+		VK_SHADER_STAGE_FRAGMENT_BIT,
+		frag_shader_module,
+		"main",
+		nullptr
+	};
+
+	PipelineTemplate::Settings pipeline_settings;
+
+	pipeline_settings.shader_stages = { vert_shader_stage_create_info, frag_shader_stage_create_info };
+	pipeline_settings.descriptor_set_layouts = { descriptor_set_layout };
+
+	graphics_pipeline_template.setSettings(pipeline_settings);
+	ui_graphics_pipeline_template.setSettings(pipeline_settings);
 }
 
 void ModelRenderSystem::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memory_properties, VkBuffer& buffer, VkDeviceMemory& buffer_memory)
@@ -961,25 +841,36 @@ void ModelRenderSystem::createUniformBuffers()
 {
 	VkDeviceSize buffer_size = sizeof(UniformBufferObject);
 
-	uniform_buffer_offsets.resize(swapchain_images.size());
+	uniform_buffer_offsets.resize(swapchain_images.size() * camera_count);
 
-	for (size_t i = 0; i < swapchain_images.size(); ++i)
+	for (size_t i = 0; i < swapchain_images.size() * camera_count; ++i)
 	{
 		uniform_buffer_offsets[i] = uniform_vma->allocate(buffer_size);
 	}
 }
 
-void ModelRenderSystem::recordCommandBuffer(uint32_t image_index)
+std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuffer(uint32_t image_index)
 {
 	auto& command_buffer = command_buffers[image_index][0];
 
-	std::vector<VkCommandBuffer> secondary_command_buffers;
+	std::latch latch(1);
+
+	thread_pool.push([&]()
+		{
+			latch.count_down();
+		}
+	);
+
+	std::shared_ptr<RenderContext> render_context(new RenderContext(this, image_index, render_pass_template.getRenderPass(), graphics_pipeline_template.getGraphicsPipeline()));
 	for (auto& model : level->models.components)
-	{
-		auto secondary_command_buffer = model.getCommandBuffer(this, image_index);
-		if (secondary_command_buffer != nullptr)
-			secondary_command_buffers.push_back(secondary_command_buffer);
-	}
+		render_context->addRenderingModel(model.getRenderingModel(*render_context));
+	render_context->collectCommandBuffers();
+
+	std::shared_ptr<RenderContext> ui_render_context(new RenderContext(this, image_index, ui_render_pass_template.getRenderPass(), ui_graphics_pipeline_template.getGraphicsPipeline()));
+	ui_window->getRenderingModels(*ui_render_context);
+	ui_render_context->collectCommandBuffers();
+
+	latch.wait();
 
 	VkCommandBufferBeginInfo command_buffer_begin_info = {
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -1001,7 +892,17 @@ void ModelRenderSystem::recordCommandBuffer(uint32_t image_index)
 	VkRenderPassBeginInfo render_pass_begin_info = {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
-		render_pass,
+		*render_context->getRenderPass(),
+		swapchain_framebuffers[image_index],
+		{ { 0, 0 }, swapchain_extent },
+		(uint32_t)clear_values.size(),
+		clear_values.data()
+	};
+
+	VkRenderPassBeginInfo ui_render_pass_begin_info = {
+		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		nullptr,
+		*ui_render_context->getRenderPass(),
 		swapchain_framebuffers[image_index],
 		{ { 0, 0 }, swapchain_extent },
 		(uint32_t)clear_values.size(),
@@ -1010,11 +911,15 @@ void ModelRenderSystem::recordCommandBuffer(uint32_t image_index)
 
 	auto wait_d_start = SDL_GetPerformanceCounter();
 
-	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
-
 	vkCmdBeginRenderPass(command_buffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
-	vkCmdExecuteCommands(command_buffer, secondary_command_buffers.size(), secondary_command_buffers.data());
+	render_context->executeCommands(command_buffer);
+
+	vkCmdEndRenderPass(command_buffer);
+
+	vkCmdBeginRenderPass(command_buffer, &ui_render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+	
+	ui_render_context->executeCommands(command_buffer);
 
 	vkCmdEndRenderPass(command_buffer);
 
@@ -1022,6 +927,8 @@ void ModelRenderSystem::recordCommandBuffer(uint32_t image_index)
 
 	if (vkEndCommandBuffer(command_buffer))
 		throw std::runtime_error("failed to record command buffer.");
+
+	return { render_context, ui_render_context };
 }
 
 void ModelRenderSystem::allocateSecondaryCommandBuffer(VkCommandBuffer& command_buffer)
@@ -1050,12 +957,6 @@ void ModelRenderSystem::allocateSecondaryCommandBuffers(std::vector<VkCommandBuf
 
 	if (vkAllocateCommandBuffers(device, &command_buffer_allocate_info, command_buffers.data()))
 		throw std::runtime_error("failed to allocate secondary command buffers.");
-}
-
-void ModelRenderSystem::freeSecondaryCommandBuffers()
-{
-	for (auto& model : level->models.components)
-		model.freeCommandBuffers(this);
 }
 
 void ModelRenderSystem::createTextureImage()
@@ -1129,11 +1030,23 @@ void ModelRenderSystem::createTextureSampler()
 
 void ModelRenderSystem::updateUniformBuffer(uint32_t current_image_index)
 {
-	UniformBufferObject uniform_buffer_object;
-	uniform_buffer_object.view = getViewMatrix();
-	uniform_buffer_object.proj = Matrix4::Perspective(getFieldOfView(), getAspectRatio(), 0.1f, 100.0f);
+	// camera 0
+	{
+		UniformBufferObject uniform_buffer_object;
+		uniform_buffer_object.view = getViewMatrix();
+		uniform_buffer_object.proj = Matrix4::Perspective(getFieldOfView(), getAspectRatio(), 0.1f, 100.0f);
 
-	stageUniformBufferData(&uniform_buffer_object, sizeof(uniform_buffer_object), uniform_buffer_offsets[current_image_index]);
+		stageUniformBufferData(&uniform_buffer_object, sizeof(uniform_buffer_object), uniform_buffer_offsets[current_image_index]);
+	}
+
+	// camera 1
+	{
+		UniformBufferObject uniform_buffer_object;
+		uniform_buffer_object.view = Matrix4();
+		uniform_buffer_object.proj = Matrix4::Scale(Vec3(2.0f / 10.0f, 2.0f / 10.0f, 2.0f / 10.0f));
+
+		stageUniformBufferData(&uniform_buffer_object, sizeof(uniform_buffer_object), uniform_buffer_offsets[current_image_index + 1 * swapchain_images.size()]);
+	}
 }
 
 void ModelRenderSystem::createDescriptorPool()
@@ -1158,7 +1071,7 @@ void ModelRenderSystem::createDescriptorPool()
 	VkDescriptorPoolCreateInfo descriptor_pool_create_info = {
 		VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
 		nullptr,
-		0,
+		VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
 		descriptor_pool_size,
 		(uint32_t)descriptor_pool_sizes.size(),
 		descriptor_pool_sizes.data()
@@ -1170,17 +1083,18 @@ void ModelRenderSystem::createDescriptorPool()
 
 void ModelRenderSystem::recreateSwapchain()
 {
-	if (present_thread.joinable())
-		present_thread.join();
+	std::lock_guard<std::mutex> lock(present_mutex);
 	vkDeviceWaitIdle(device);
 
 	releaseSwapchain();
-	freeSecondaryCommandBuffers();
 
 	createSwapchain();
 	createImageViews();
 	createRenderPass();
-	createGraphicsPipeline();
+	createUIRenderPass();
+	graphics_pipeline_template.setRenderPass(render_pass_template.getRenderPass());
+	ui_graphics_pipeline_template.setRenderPass(ui_render_pass_template.getRenderPass());
+
 	createDepthBuffer();
 	createFramebuffers();
 	allocateCommandBuffers();
@@ -1234,10 +1148,6 @@ void ModelRenderSystem::releaseSwapchain()
 	for (auto& command_buffers : command_buffers)
 		vkFreeCommandBuffers(device, command_pool, (uint32_t)command_buffers.size(), command_buffers.data());
 
-	vkDestroyPipeline(device, graphics_pipeline, nullptr);
-	vkDestroyPipelineLayout(device, pipeline_layout, nullptr);
-	vkDestroyRenderPass(device, render_pass, nullptr);
-
 	for (auto image_view : swapchain_image_views)
 		vkDestroyImageView(device, image_view, nullptr);
 
@@ -1269,29 +1179,14 @@ VkCommandPool ModelRenderSystem::getCommandPool() const
 	return command_pool;
 }
 
-VkRenderPass ModelRenderSystem::getRenderPass() const
-{
-	return render_pass;
-}
-
-VkPipelineLayout ModelRenderSystem::getPipelineLayout() const
-{
-	return pipeline_layout;
-}
-
-VkPipeline ModelRenderSystem::getGraphicsPipeline() const
-{
-	return graphics_pipeline;
-}
-
 VkDescriptorPool ModelRenderSystem::getDescriptorPool() const
 {
 	return descriptor_pool;
 }
 
-size_t ModelRenderSystem::getUniformBufferOffset(size_t image_index) const
+size_t ModelRenderSystem::getUniformBufferOffset(size_t camera_index, size_t image_index) const
 {
-	return uniform_buffer_offsets[image_index];
+	return uniform_buffer_offsets[image_index + camera_index * swapchain_images.size()];
 }
 
 uint32_t ModelRenderSystem::findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties)
@@ -1356,6 +1251,16 @@ Matrix4 ModelRenderSystem::getViewMatrix() const
 	return Matrix4::Translation(-camera_position) * camera_rotation.getConj();
 }
 
+uint32_t ModelRenderSystem::getWidth() const
+{
+	return swapchain_extent.width;
+}
+
+uint32_t ModelRenderSystem::getHeight() const
+{
+	return swapchain_extent.height;
+}
+
 Vec2 ModelRenderSystem::screenToWorld(const Vec2& screen_position) const
 {
 	Matrix4 view_proj = getViewMatrix() * Matrix4::Perspective(field_of_view, getAspectRatio(), 0.1f, 100.0f);
@@ -1402,15 +1307,17 @@ void ModelRenderSystem::tick(float dt)
 	wait_fences_b = SDL_GetPerformanceCounter() - wait_b_start;
 	image_to_frame_index[image_index] = current_frame_index;
 
-	recordCommandBuffer(image_index);
+	auto render_contexts = recordCommandBuffer(image_index);
 
 	updateUniformBuffer(image_index);
+
+	// this is horribly hacky rn
 	for (auto& model : level->models.components)
-		model.updateUniformBuffer(this, image_index);
+		model.updateUniformBuffer(*render_contexts[0]);
+	ui_window->updateUniformBuffers(*render_contexts[1]);
 
 	auto wait_c_start = SDL_GetPerformanceCounter();
-	if (present_thread.joinable())
-		present_thread.join();
+	std::lock_guard<std::mutex> lock(present_mutex);
 	wait_c = SDL_GetPerformanceCounter() - wait_c_start;
 
 	// only reset fence at index 0 (main render fence)
@@ -1457,24 +1364,26 @@ void ModelRenderSystem::tick(float dt)
 
 	present_time_safe = present_time_unsafe;
 
-	present_thread = std::thread([this, signal_semaphores, image_index]()
-	{
-		VkSwapchainKHR swapchains[] = { swapchain };
+	thread_pool.push([this, signal_semaphores, image_index, render_contexts]()
+		{
+			std::lock_guard<std::mutex> lock(present_mutex);
+			VkSwapchainKHR swapchains[] = { swapchain };
 
-		VkPresentInfoKHR present_info = {
-			VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-			nullptr,
-			1,
-			signal_semaphores,
-			1,
-			swapchains,
-			&image_index,
-			nullptr
-		};
+			VkPresentInfoKHR present_info = {
+				VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+				nullptr,
+				1,
+				signal_semaphores,
+				1,
+				swapchains,
+				&image_index,
+				nullptr
+			};
 
-		vkQueuePresentKHR(present_queue, &present_info);
-		present_time_unsafe = SDL_GetPerformanceCounter();
-	});
+			vkQueuePresentKHR(present_queue, &present_info);
+			present_time_unsafe = SDL_GetPerformanceCounter();
+		}
+	);
 
 	++current_frame_index %= max_frames_in_flight;
 }

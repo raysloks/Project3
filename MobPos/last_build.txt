@@ -50,7 +50,7 @@ MpMobSpriteUpdate
 uint64 id
 uint64 sprite
 MpMobStateUpdate
-uint64 sprite
+uint64 uid
 uint32 team
 MpMobStatsUpdate
 uint64 id

@@ -13,6 +13,12 @@
 #include "Matrix4.h"
 
 #include "TemporaryCommandBuffer.h"
+#include "ThreadPool.h"
+
+#include "Window.h"
+
+#include "RenderPassTemplate.h"
+#include "PipelineTemplate.h"
 
 class Model;
 class SpriteSheet;
@@ -35,14 +41,16 @@ public:
 	void createSwapchain();
 	void createImageViews();
 	void createRenderPass();
+	void createUIRenderPass();
 	void createDescriptorSetLayout();
-	void createGraphicsPipeline();
 	void createFramebuffers();
 	void createCommandPool();
 	void createDepthBuffer();
 	void createStagingBuffers();
 	void allocateCommandBuffers();
 	void createSynchronizationPrimitives();
+
+	void setupGraphicsPipelineTemplates();
 
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memory_properties, VkBuffer& buffer, VkDeviceMemory& buffer_memory);
 
@@ -62,12 +70,10 @@ public:
 
 	void createUniformBuffers();
 
-	void recordCommandBuffer(uint32_t image_index);
+	std::vector<std::shared_ptr<RenderContext>> recordCommandBuffer(uint32_t image_index);
 
 	void allocateSecondaryCommandBuffer(VkCommandBuffer& command_buffer);
 	void allocateSecondaryCommandBuffers(std::vector<VkCommandBuffer>& command_buffers);
-
-	void freeSecondaryCommandBuffers();
 
 	void createTextureImage();
 	void createTextureImageView();
@@ -90,14 +96,10 @@ public:
 	VideoMemoryAllocator * getUniformBufferVideoMemoryAllocator() const;
 
 	VkCommandPool getCommandPool() const;
-	VkRenderPass getRenderPass() const;
-
-	VkPipelineLayout getPipelineLayout() const;
-	VkPipeline getGraphicsPipeline() const;
 
 	VkDescriptorPool getDescriptorPool() const;
 
-	size_t getUniformBufferOffset(size_t image_index) const;
+	size_t getUniformBufferOffset(size_t camera_index, size_t image_index) const;
 
 	uint32_t findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties);
 
@@ -111,6 +113,8 @@ public:
 	float getAspectRatio() const;
 	float getFieldOfView() const;
 	Matrix4 getViewMatrix() const;
+	uint32_t getWidth() const;
+	uint32_t getHeight() const;
 
 	Vec2 screenToWorld(const Vec2& screen_position) const;
 
@@ -148,11 +152,10 @@ private:
 	VkShaderModule vert_shader_module;
 	VkShaderModule frag_shader_module;
 
-	VkRenderPass render_pass;
-	VkDescriptorSetLayout descriptor_set_layout;
-	VkPipelineLayout pipeline_layout;
+	RenderPassTemplate render_pass_template, ui_render_pass_template;
+	PipelineTemplate graphics_pipeline_template, ui_graphics_pipeline_template;
 
-	VkPipeline graphics_pipeline;
+	VkDescriptorSetLayout descriptor_set_layout;
 
 	std::vector<VkFramebuffer> swapchain_framebuffers;
 
@@ -189,6 +192,7 @@ private:
 	VkImageView depth_image_view;
 
 	std::vector<size_t> uniform_buffer_offsets;
+	size_t camera_count;
 
 	std::shared_ptr<Model> model;
 	std::shared_ptr<SpriteSheet> sprite_sheet;
@@ -205,8 +209,11 @@ private:
 	VkBuffer uniform_staging_buffer;
 	VkDeviceMemory uniform_staging_buffer_memory;
 
-	std::thread present_thread;
+	ThreadPool thread_pool;
+
+	std::mutex present_mutex;
 
 	uint64_t present_time_unsafe, present_time_safe;
-};
 
+	std::shared_ptr<Window> ui_window;
+};

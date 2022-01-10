@@ -119,7 +119,7 @@ void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint,
 	if (message.state)
 	{
 		mob.team = message.state->team;
-		mob.getComponent<Sprite>()->sheet = SpriteSheet::get(temp[message.state->sprite]);
+		//mob.getComponent<Sprite>()->sheet = SpriteSheet::get(temp[message.state->sprite]);
 	}
 }
 

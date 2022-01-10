@@ -9,7 +9,7 @@ Component::~Component()
 {
 }
 
-void Component::attach(const Reference<Component> & component, const Reference<Entity>& entity)
+void Component::attach(const Reference<Component>& component, const Reference<Entity>& entity)
 {
 	if (component->entity)
 		return;
@@ -18,7 +18,7 @@ void Component::attach(const Reference<Component> & component, const Reference<E
 	entity->components.push_back(component);
 }
 
-void Component::detach(const Reference<Component> & component, const Reference<Entity>& entity)
+void Component::detach(const Reference<Component>& component, const Reference<Entity>& entity)
 {
 	if (component->entity != entity)
 		return;

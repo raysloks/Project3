@@ -12,26 +12,22 @@
 #include <vulkan/vulkan.h>
 
 class ModelRenderSystem;
+class RenderingModel;
+class RenderContext;
 
 class ModelRenderer :
 	public Component
 {
 public:
 	ModelRenderer();
-	ModelRenderer(const std::string& model, const std::string& texture, const std::string& animation = "");
+	ModelRenderer(const std::string& model, const std::string& texture, const std::string& animation = "", size_t camera_index = 0);
 	~ModelRenderer();
 
-	VkCommandBuffer getCommandBuffer(ModelRenderSystem * mrs, size_t current_image_index);
+	std::shared_ptr<RenderingModel> getRenderingModel(const RenderContext& render_context);
 
-	void updateUniformBuffer(ModelRenderSystem * mrs, size_t current_image_index);
+	void updateUniformBuffer(const RenderContext& render_context);
 
 	void setDirty();
-
-	void createDescriptorSets(ModelRenderSystem * mrs);
-
-	void createUniformBuffers(ModelRenderSystem * mrs);
-
-	void freeCommandBuffers(ModelRenderSystem * mrs);
 
 	struct UniformBufferObject
 	{
@@ -39,16 +35,18 @@ public:
 		Matrix4 bones[256];
 	};
 
-	float animation_time;
-
 	UniformBufferObject uniform_buffer_object;
 
 	size_t getUniformBufferObjectSize() const;
+
+	Animation::Pose pose;
 
 private:
 	std::shared_ptr<Model> model;
 	std::shared_ptr<SpriteSheet> texture;
 	std::shared_ptr<Animation> animation;
+
+	std::shared_ptr<RenderingModel> rendering_model;
 
 	std::vector<VkCommandBuffer> command_buffers;
 
@@ -59,5 +57,7 @@ private:
 	std::vector<VkDescriptorSet> descriptor_sets;
 
 	std::vector<bool> dirty;
+
+	size_t camera_index;
 };
 

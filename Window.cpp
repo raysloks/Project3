@@ -1,8 +1,7 @@
 #include "Window.h"
 
-void Window::onRender(SpriteRenderSystem * srs)
-{
-}
+#include "ModelRenderer.h"
+#include "RenderContext.h"
 
 bool Window::onKeyDown(uint64_t key)
 {
@@ -42,4 +41,24 @@ Vec2 Window::getMax() const
 	{
 		return maxOffset;
 	}
+}
+
+void Window::getRenderingModels(RenderContext& render_context)
+{
+	for (auto& child : children)
+		child->getRenderingModels(render_context);
+	if (model)
+	{
+		auto rendering_model = model->getRenderingModel(render_context);
+		if (rendering_model)
+			render_context.addRenderingModel(rendering_model);
+	}
+}
+
+void Window::updateUniformBuffers(const RenderContext& render_context)
+{
+	for (auto& child : children)
+		child->updateUniformBuffers(render_context);
+	if (model)
+		model->updateUniformBuffer(render_context);
 }

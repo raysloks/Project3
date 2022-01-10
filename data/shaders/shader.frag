@@ -10,6 +10,7 @@ layout(location = 2) in vec3 fragNormal;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    float light = step(0.35, dot(normalize(fragNormal), normalize(vec3(1.0, 0.0, 1.0)))) * 0.5 + 0.5;
-    outColor = vec4(sqrt(fragColor * light * texture(texSampler, fragTexCoord).rgb), 1.0);
+    float light = max(0.0, dot(normalize(fragNormal), normalize(vec3(1.0, -1.5, 1.0))));
+    vec3 lightColor = mix(vec3(0.4, 0.4, 0.7), vec3(1.1, 1.1, 0.8), light);
+    outColor = vec4(sqrt(fragColor * lightColor * texture(texSampler, fragTexCoord).rgb), 1.0);
 }

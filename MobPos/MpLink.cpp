@@ -5,7 +5,7 @@
 // Application should implement this class using the prototypes in HandlerPrototypes.h
 #include "../MobPosHandler.h"
 
-const uint32_t MpLink::crc = 0xa7e7de5f;
+const uint32_t MpLink::crc = 0x4aa5c169;
 MpLink::MpLink() : io_context(), socket(io_context)
 {
 }
@@ -124,68 +124,61 @@ void MpLink::Dispatch(asio::streambuf& buffer, const asio::ip::udp::endpoint& en
 	}
 	case 12:
 	{
-		MpMobStateUpdate message;
-		message.deserialize(is);
-		handler->MpMobStateUpdateHandler(endpoint, message);
-		break;
-	}
-	case 13:
-	{
 		MpMobStatsUpdate message;
 		message.deserialize(is);
 		handler->MpMobStatsUpdateHandler(endpoint, message);
 		break;
 	}
-	case 14:
+	case 13:
 	{
 		MpMobTeamUpdate message;
 		message.deserialize(is);
 		handler->MpMobTeamUpdateHandler(endpoint, message);
 		break;
 	}
-	case 15:
+	case 14:
 	{
 		MpMobTypeUpdate message;
 		message.deserialize(is);
 		handler->MpMobTypeUpdateHandler(endpoint, message);
 		break;
 	}
-	case 16:
+	case 15:
 	{
 		MpMobUpdate message;
 		message.deserialize(is);
 		handler->MpMobUpdateHandler(endpoint, message);
 		break;
 	}
-	case 17:
+	case 16:
 	{
 		MpMobUpdateData message;
 		message.deserialize(is);
 		handler->MpMobUpdateDataHandler(endpoint, message);
 		break;
 	}
-	case 19:
+	case 18:
 	{
 		MpPlayerMobAbilitiesUpdate message;
 		message.deserialize(is);
 		handler->MpPlayerMobAbilitiesUpdateHandler(endpoint, message);
 		break;
 	}
-	case 20:
+	case 19:
 	{
 		MpPlayerMobCreated message;
 		message.deserialize(is);
 		handler->MpPlayerMobCreatedHandler(endpoint, message);
 		break;
 	}
-	case 22:
+	case 21:
 	{
 		MpSound message;
 		message.deserialize(is);
 		handler->MpSoundHandler(endpoint, message);
 		break;
 	}
-	case 25:
+	case 24:
 	{
 		MpUpdate message;
 		message.deserialize(is);
@@ -273,7 +266,7 @@ void MpLink::Send(const asio::ip::udp::endpoint& endpoint, const MpMoveCommand& 
 {
 	std::shared_ptr<asio::streambuf> buffer = std::make_shared<asio::streambuf>();
 	std::ostream os(buffer.get());
-	os.put(18);
+	os.put(17);
 	message.serialize(os);
 	socket.async_send_to(buffer->data(), endpoint, [buffer](const asio::error_code&, size_t) {});
 }
@@ -282,7 +275,7 @@ void MpLink::Send(const asio::ip::udp::endpoint& endpoint, const MpPointTargetAc
 {
 	std::shared_ptr<asio::streambuf> buffer = std::make_shared<asio::streambuf>();
 	std::ostream os(buffer.get());
-	os.put(21);
+	os.put(20);
 	message.serialize(os);
 	socket.async_send_to(buffer->data(), endpoint, [buffer](const asio::error_code&, size_t) {});
 }
@@ -291,7 +284,7 @@ void MpLink::Send(const asio::ip::udp::endpoint& endpoint, const MpStopCommand& 
 {
 	std::shared_ptr<asio::streambuf> buffer = std::make_shared<asio::streambuf>();
 	std::ostream os(buffer.get());
-	os.put(23);
+	os.put(22);
 	message.serialize(os);
 	socket.async_send_to(buffer->data(), endpoint, [buffer](const asio::error_code&, size_t) {});
 }
@@ -300,7 +293,7 @@ void MpLink::Send(const asio::ip::udp::endpoint& endpoint, const MpUnitTargetAct
 {
 	std::shared_ptr<asio::streambuf> buffer = std::make_shared<asio::streambuf>();
 	std::ostream os(buffer.get());
-	os.put(24);
+	os.put(23);
 	message.serialize(os);
 	socket.async_send_to(buffer->data(), endpoint, [buffer](const asio::error_code&, size_t) {});
 }
@@ -309,7 +302,7 @@ void MpLink::Send(const asio::ip::udp::endpoint& endpoint, const MpUpdate& messa
 {
 	std::shared_ptr<asio::streambuf> buffer = std::make_shared<asio::streambuf>();
 	std::ostream os(buffer.get());
-	os.put(25);
+	os.put(24);
 	message.serialize(os);
 	socket.async_send_to(buffer->data(), endpoint, [buffer](const asio::error_code&, size_t) {});
 }
