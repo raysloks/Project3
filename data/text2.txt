@@ -1,0 +1,17 @@
+dynamic class Main : Window
+{
+	void Main()
+	{
+	};
+
+	void ~Main()
+	{
+	};
+
+	uint onKeyDown(uint key)
+	{
+		maxOffset.x = 100f;
+		maxOffset.y = 100f;
+		return 0;
+	};
+};

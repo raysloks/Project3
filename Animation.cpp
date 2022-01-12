@@ -75,6 +75,7 @@ std::shared_ptr<Animation> Animation::load(const std::string & fname)
 					ss.read(name.data(), name.size());
 
 					Action action;
+					action.length = 0.0f;
 					action.channels.resize(bone_count);
 
 					for (size_t i = 0; i < bone_count; ++i)
@@ -92,6 +93,8 @@ std::shared_ptr<Animation> Animation::load(const std::string & fname)
 								ss.read((char*)&time, sizeof(float));
 								ss.read((char*)&value, sizeof(float));
 								channel.keyframes.emplace(std::make_pair(time, value));
+								if (time > action.length)
+									action.length = time;
 							}
 							if (keyframe_count == 0)
 								channel.keyframes.emplace(std::make_pair(0.0f, default_channel_values[i]));

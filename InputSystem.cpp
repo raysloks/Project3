@@ -2,6 +2,9 @@
 
 #include <SDL.h>
 
+#include "Engine.h"
+#include "ModelRenderSystem.h"
+
 void InputSystem::processKeyDownEvent(SDL_KeyboardEvent & event)
 {
 	processUnfilteredKeyDown(event.keysym.sym);
@@ -33,6 +36,7 @@ void InputSystem::processButtonDownEvent(SDL_MouseButtonEvent & event)
 {
 	processKeyDown(-event.button);
 	processKeyDown(keyBindings.getAction(-event.button));
+	engine->mrs->ui->onKeyDown(0);
 }
 
 void InputSystem::processButtonUpEvent(SDL_MouseButtonEvent & event)
@@ -44,7 +48,7 @@ void InputSystem::processButtonUpEvent(SDL_MouseButtonEvent & event)
 void InputSystem::processTextInputEvent(SDL_TextInputEvent & event)
 {
 	std::string text(event.text);
-	for (auto func : onTextInput)
+	for (auto& func : onTextInput)
 		func(text);
 }
 
@@ -101,7 +105,7 @@ void InputSystem::processKeyDown(uint64_t sym)
 	auto range = onKeyDown.equal_range(sym);
 	for (auto i = range.first; i != range.second;)
 	{
-		auto callback = i->second;
+		auto& callback = i->second;
 		if (callback)
 		{
 			callback();
@@ -121,7 +125,7 @@ void InputSystem::processKeyUp(uint64_t sym)
 	auto range = onKeyUp.equal_range(sym);
 	for (auto i = range.first; i != range.second;)
 	{
-		auto callback = i->second;
+		auto& callback = i->second;
 		if (callback)
 		{
 			callback();
@@ -141,7 +145,7 @@ void InputSystem::processUnfilteredKeyDown(uint64_t sym)
 	auto range = onUnfilteredKeyDown.equal_range(sym);
 	for (auto i = range.first; i != range.second;)
 	{
-		auto callback = i->second;
+		auto& callback = i->second;
 		if (callback)
 		{
 			callback();

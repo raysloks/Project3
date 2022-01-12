@@ -13,6 +13,8 @@
 #include "Inspector.h"
 #include "TextBox.h"
 
+#include "ModelRenderSystem.h"
+
 #include "Tilemap.h"
 
 #include "GameKeyBinding.h"
@@ -424,6 +426,14 @@ Level * create_level(int floor)
 
 #include "Blueprint.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include "ScriptCode.h"
+
+#include <thread>
+
+#include "Window.h"
+
 int main(int argc, char* args[])
 {
 	/*auto bp = Blueprint::load("test.bp");
@@ -433,6 +443,111 @@ int main(int argc, char* args[])
 	MobTemplate::load();
 
 	Engine engine;
+
+	size_t max_mem_size = 65536;
+	void * mem = VirtualAlloc(nullptr, max_mem_size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+
+	//while (true)
+	{
+		//try
+		{
+			auto file = Text::get("text2.txt");
+			while (!file->loaded)
+				std::this_thread::yield();
+			std::cout << *file << std::endl;
+
+			auto iss = std::istringstream(*file);
+			ScriptCode code(iss);
+
+			ScriptCompile comp(mem);
+
+			ScriptTypeData float_data = NewScriptTypeData<float>();
+
+			std::shared_ptr<ScriptClassData> test_class_data(new ScriptClassData("Window", sizeof(Window), true));
+
+			std::shared_ptr<ScriptClassData> vec2_class_data(new ScriptClassData("Vec2", sizeof(Vec2)));
+			vec2_class_data->AddMember("x", float_data, offsetof(Vec2, x));
+			vec2_class_data->AddMember("y", float_data, offsetof(Vec2, y));
+
+			ScriptTypeData vec2_data;
+			vec2_data.type = ST_CLASS;
+			vec2_data.class_data = vec2_class_data;
+
+			ScriptTypeData parent_data;
+			parent_data.type = ST_CLASS;
+			parent_data.indirection = 1;
+			parent_data.class_data = test_class_data;
+
+			test_class_data->AddMember("minAnchor", vec2_data, offsetof(Window, minAnchor));
+			test_class_data->AddMember("maxAnchor", vec2_data, offsetof(Window, maxAnchor));
+			test_class_data->AddMember("minOffset", vec2_data, offsetof(Window, minOffset));
+			test_class_data->AddMember("maxOffset", vec2_data, offsetof(Window, maxOffset));
+
+			ScriptFunctionPrototype get_parent_prototype;
+			get_parent_prototype.cc = CC_MICROSOFT_X64;
+			get_parent_prototype.ret = parent_data;
+			test_class_data->AddFunction("getParent", get_parent_prototype, &Window::getParent);
+
+			ScriptFunctionPrototype destructor_data;
+			destructor_data.cc = CC_MICROSOFT_X64;
+			test_class_data->AddVirtualFunction("~", destructor_data);
+
+			ScriptFunctionPrototype func_data;
+			func_data.cc = CC_MICROSOFT_X64;
+			func_data.ret = NewScriptTypeData<bool>();
+			func_data.params.push_back(NewScriptTypeData<uint64_t>());
+			test_class_data->AddVirtualFunction("onKeyDown", func_data, &Window::onKeyDown);
+			test_class_data->AddVirtualFunction("onKeyUp", func_data, &Window::onKeyUp);
+
+			ScriptFunctionPrototype get_func_data;
+			get_func_data.cc = CC_MICROSOFT_X64;
+			get_func_data.ret = vec2_data;
+			test_class_data->AddFunction("getMin", get_func_data, &Window::getMin);
+			test_class_data->AddFunction("getMax", get_func_data, &Window::getMax);
+
+			comp.classes.insert(std::make_pair("Window", test_class_data));
+
+			for (auto i = code.statements.begin(); i != code.statements.end(); ++i)
+			{
+				std::cout << i->output() << std::endl;
+				i->compile(comp);
+			}
+
+			comp.Compile();
+			comp.Link();
+
+			size_t mem_size = comp.ss.tellp();
+
+			std::cout << "code bytes: " << mem_size << std::endl;
+
+			comp.ss.read((char*)mem, mem_size);
+
+			std::string class_name = "Main";
+			auto found_class = comp.classes.find(class_name);
+			if (found_class != comp.classes.end())
+			{
+				auto found_constructor = found_class->second->functions.find(class_name + "::" + class_name);
+				if (found_constructor != found_class->second->functions.end())
+				{
+					Window * t = (Window*)operator new(found_class->second->size);
+					memset(t, 0, found_class->second->size);
+
+					void (*func)(Window*) = (void(*)(Window*))found_constructor->second.second;
+					func(t);
+
+					std::shared_ptr<Window> window(t);
+					engine.mrs->ui->addChild(window);
+
+					window->model = std::make_shared<ModelRenderer>("offset_plane.mdl", "slot.png", "", 1);
+				}
+			}
+
+		}
+		/*catch (std::runtime_error& e)
+		{
+			std::cout << e.what() << std::endl;
+		}*/
+	}
 
 	/*engine.input->keyBindings.set(KB_UP, SDLK_w);
 	engine.input->keyBindings.set(KB_LEFT, SDLK_a);
@@ -510,6 +625,9 @@ int main(int argc, char* args[])
 	engine.setLevel(level);
 
 	engine.run();
+
+	if (mem)
+		VirtualFree(mem, 0, MEM_RELEASE);
 
 	return 0;
 }

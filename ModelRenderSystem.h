@@ -125,6 +125,8 @@ public:
 	Vec3 camera_position;
 	Quaternion camera_rotation;
 
+	std::shared_ptr<Window> ui;
+
 	struct UniformBufferObject
 	{
 		Matrix4 view;
@@ -214,6 +216,4 @@ private:
 	std::mutex present_mutex;
 
 	uint64_t present_time_unsafe, present_time_safe;
-
-	std::shared_ptr<Window> ui_window;
 };

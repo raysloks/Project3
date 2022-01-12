@@ -44,6 +44,7 @@ public:
 	{
 	public:
 		std::vector<std::array<Channel, 10>> channels;
+		float length;
 
 		void getPose(Pose& pose, Pose& base_pose, float time) const;
 	};

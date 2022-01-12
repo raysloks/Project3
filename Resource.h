@@ -26,7 +26,7 @@ public:
 		return resource;
 	}
 
-	bool loaded;
+	bool loaded = false;
 	//std::vector<std::function<void(void)>> on_loaded;
 };
 

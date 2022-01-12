@@ -13,6 +13,7 @@ layout(location = 2) out vec3 fragNormal;
 
 layout(binding = 0) uniform UniformBufferObject {
 	mat4 model;
+	vec4 color;
 	mat4 bones[256];
 } ubo;
 
@@ -29,6 +30,6 @@ void main() {
 	bone_transform /= inWeights.x + inWeights.y + inWeights.z + inWeights.w;
 	gl_Position = vp.proj * vp.view * ubo.model * bone_transform * vec4(inPosition, 1.0);
 	fragNormal = (ubo.model * bone_transform * vec4(inNormal, 0.0)).xyz;
-	fragColor = vec3(1.0);
+	fragColor = ubo.color.rgb;
 	fragTexCoord = inUV;
 }

@@ -4,6 +4,7 @@
 
 #include "GameKeyBinding.h"
 #include "SpriteAnimator.h"
+#include "ModelAnimator.h"
 #include "HealthDisplay.h"
 #include "ActionBar.h"
 
@@ -140,8 +141,8 @@ void MobPosHandler::MpPlayerMobAbilitiesUpdateHandler(const asio::ip::udp::endpo
 void MobPosHandler::MpPlayerMobCreatedHandler(const asio::ip::udp::endpoint & endpoint, const MpPlayerMobCreated & message)
 {
 	player_mob_id = message.id;
-	level->get<HealthDisplay>()->player = getMob(message.id)->second.mob;
-	level->get<ActionBar>()->player = getMob(message.id)->second.mob;
+	/*level->get<HealthDisplay>()->player = getMob(message.id)->second.mob;
+	level->get<ActionBar>()->player = getMob(message.id)->second.mob;*/
 }
 
 void MobPosHandler::MpSoundHandler(const asio::ip::udp::endpoint & endpoint, const MpSound & message)
@@ -237,21 +238,27 @@ void MobPosHandler::tick(float dt)
 						{
 							path.points.push_back(mob.mob->entity->xy);
 						}
-					}
 
-					// create poof
-					{
-						auto entity = level->add_entity();
-						entity->xy = target;
+						// create poof
+						{
+							auto entity = level->add_entity();
+							entity->xy = path.points.back();
 
-						auto sprite = level->sprites.add("blink.png");
-						sprite->sort = 256;
-						sprite->sheet->columns = 4;
-						Component::attach(sprite, entity);
+							size_t size = path.points.size();
+							if (size >= 2)
+							{
+								auto diff = path.points[size - 1] - path.points[size - 2];
+								entity->rotation = Quaternion(atan2f(diff.y, diff.x), Vec3(0.0f, 0.0f, 1.0f));
+							}
 
-						auto animator = level->add<SpriteAnimator>(15.0f);
-						animator->destroy = true;
-						Component::attach(animator, entity);
+							auto model = level->models.add("movement_indicator.mdl", "pixel.png", "movement_indicator.anm");
+							model->uniform_buffer_object.color = Vec4(0.05f, 0.75f, 0.05f, 1.0f);
+							Component::attach(model, entity);
+
+							auto animator = level->add<ModelAnimator>("move", 112.5f, 0.0f, true);
+							Component::attach(animator, entity);
+							animator->tick(0.0f);
+						}
 					}
 				}
 			});

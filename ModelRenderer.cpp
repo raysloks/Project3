@@ -12,6 +12,7 @@ ModelRenderer::ModelRenderer()
 {
 	uniform_vma = nullptr;
 	camera_index = 0;
+	uniform_buffer_object.color = Vec4(1.0f);
 }
 
 ModelRenderer::ModelRenderer(const std::string& model, const std::string& texture, const std::string& animation, size_t camera_index)
@@ -22,6 +23,7 @@ ModelRenderer::ModelRenderer(const std::string& model, const std::string& textur
 		this->animation = Animation::get(animation);
 	uniform_vma = nullptr;
 	this->camera_index = camera_index;
+	uniform_buffer_object.color = Vec4(1.0f);
 }
 
 ModelRenderer::~ModelRenderer()
@@ -33,7 +35,7 @@ std::shared_ptr<RenderingModel> ModelRenderer::getRenderingModel(const RenderCon
 	if (!rendering_model || rendering_model->getGraphicsPipeline() != render_context.getGraphicsPipeline())
 		if (model->loaded && texture->loaded && (animation == nullptr || animation->loaded))
 		{
-			rendering_model.reset(new RenderingModel(model, texture, getUniformBufferObjectSize(), render_context.getModelRenderSystem(), render_context.getGraphicsPipeline()));
+			rendering_model.reset(new RenderingModel(model, texture, getUniformBufferObjectSize(), render_context.getModelRenderSystem(), render_context.getGraphicsPipeline(), camera_index));
 			dirty.clear();
 			dirty.resize(render_context.getModelRenderSystem()->getDescriptorSetCount(), true);
 		}
@@ -53,15 +55,14 @@ void ModelRenderer::updateUniformBuffer(const RenderContext& render_context)
 
 		if (entity)
 			uniform_buffer_object.model = entity->getTransform();
-		else
-			uniform_buffer_object.model = Matrix4();
 
 		if (animation)
 		{
 			uniform_buffer_object.bones[0] = Matrix4();
 			if (animation->loaded)
 			{
-				pose = animation->base_pose;
+				if (pose.bones.empty())
+					pose = animation->base_pose;
 
 				std::vector<Matrix4> transforms(256);
 				transforms[255] = Matrix4();

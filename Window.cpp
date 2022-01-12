@@ -3,8 +3,43 @@
 #include "ModelRenderer.h"
 #include "RenderContext.h"
 
+Window::~Window()
+{
+	for (auto& child : children)
+		child->parent = nullptr;
+}
+
+void Window::addChild(const std::shared_ptr<Window>& child)
+{
+	if (child->parent)
+	{
+		auto it = std::find(child->parent->children.begin(), child->parent->children.end(), child);
+		if (it != child->parent->children.end())
+			child->parent->children.erase(it);
+	}
+	children.push_back(child);
+	child->parent = this;
+}
+
+void Window::removeChild(const std::shared_ptr<Window>& child)
+{
+	auto it = std::find(children.begin(), children.end(), child);
+	if (it != children.end())
+	{
+		children.erase(it);
+		child->parent = nullptr;
+	}
+}
+
+Window * Window::getParent() const
+{
+	return parent;
+}
+
 bool Window::onKeyDown(uint64_t key)
 {
+	for (auto& child : children)
+		child->onKeyDown(key);
 	return false;
 }
 
@@ -15,11 +50,10 @@ bool Window::onKeyUp(uint64_t key)
 
 Vec2 Window::getMin() const
 {
-	auto locked = parent.lock();
-	if (locked)
+	if (parent)
 	{
-		auto min = locked->getMin();
-		auto max = locked->getMax();
+		auto min = parent->getMin();
+		auto max = parent->getMax();
 		return max * minAnchor + min * (Vec2(1.0f) - minAnchor) + minOffset;
 	}
 	else
@@ -30,11 +64,10 @@ Vec2 Window::getMin() const
 
 Vec2 Window::getMax() const
 {
-	auto locked = parent.lock();
-	if (locked)
+	if (parent)
 	{
-		auto min = locked->getMin();
-		auto max = locked->getMax();
+		auto min = parent->getMin();
+		auto max = parent->getMax();
 		return max * maxAnchor + min * (Vec2(1.0f) - maxAnchor) + maxOffset;
 	}
 	else
@@ -60,5 +93,13 @@ void Window::updateUniformBuffers(const RenderContext& render_context)
 	for (auto& child : children)
 		child->updateUniformBuffers(render_context);
 	if (model)
+	{
+		model->setDirty(); // nasty tmp
+
+		auto min = getMin();
+		auto max = getMax();
+		auto size = max - min;
+		model->uniform_buffer_object.model = Matrix4::Scale(Vec3(size.x, -size.y, 1.0f)) * Matrix4::Translation(Vec3(min.x, -min.y));
 		model->updateUniformBuffer(render_context);
+	}
 }

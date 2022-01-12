@@ -7,6 +7,7 @@
 #include "Animation.h"
 
 #include "Matrix4.h"
+#include "Vec4.h"
 #include "Quaternion.h"
 
 #include <vulkan/vulkan.h>
@@ -32,6 +33,7 @@ public:
 	struct UniformBufferObject
 	{
 		Matrix4 model;
+		Vec4 color;
 		Matrix4 bones[256];
 	};
 
@@ -41,11 +43,11 @@ public:
 
 	Animation::Pose pose;
 
-private:
 	std::shared_ptr<Model> model;
 	std::shared_ptr<SpriteSheet> texture;
 	std::shared_ptr<Animation> animation;
 
+private:
 	std::shared_ptr<RenderingModel> rendering_model;
 
 	std::vector<VkCommandBuffer> command_buffers;

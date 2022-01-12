@@ -4,7 +4,7 @@
 #include "VideoMemoryAllocator.h"
 #include "GraphicsPipeline.h"
 
-RenderingModel::RenderingModel(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, size_t uniform_buffer_size, ModelRenderSystem * mrs, const std::shared_ptr<GraphicsPipeline>& graphics_pipeline) : model(model), texture(texture), uniform_buffer_size(uniform_buffer_size), mrs(mrs), uniform_vma(mrs->getUniformBufferVideoMemoryAllocator()), graphics_pipeline(graphics_pipeline)
+RenderingModel::RenderingModel(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, size_t uniform_buffer_size, ModelRenderSystem * mrs, const std::shared_ptr<GraphicsPipeline>& graphics_pipeline, size_t camera_index) : model(model), texture(texture), uniform_buffer_size(uniform_buffer_size), mrs(mrs), uniform_vma(mrs->getUniformBufferVideoMemoryAllocator()), graphics_pipeline(graphics_pipeline), camera_index(camera_index)
 {
 	createUniformBuffers();
 	createDescriptorSets();
@@ -69,7 +69,7 @@ void RenderingModel::createDescriptorSets()
 
 		VkDescriptorBufferInfo vp_descriptor_buffer_info = {
 			uniform_vma->buffer,
-			mrs->getUniformBufferOffset(0, i),
+			mrs->getUniformBufferOffset(camera_index, i),
 			sizeof(ModelRenderSystem::UniformBufferObject)
 		};
 

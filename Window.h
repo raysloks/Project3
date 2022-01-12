@@ -14,6 +14,13 @@ class RenderContext;
 class Window
 {
 public:
+	virtual ~Window();
+
+	void addChild(const std::shared_ptr<Window>& child);
+	void removeChild(const std::shared_ptr<Window>& child);
+
+	Window * getParent() const;
+
 	virtual bool onKeyDown(uint64_t key);
 	virtual bool onKeyUp(uint64_t key);
 
@@ -26,8 +33,9 @@ public:
 	Vec2 minAnchor, maxAnchor;
 	Vec2 minOffset, maxOffset;
 
-	std::vector<std::shared_ptr<Window>> children;
-	std::weak_ptr<Window> parent;
-
 	std::shared_ptr<ModelRenderer> model;
+
+private:
+	std::vector<std::shared_ptr<Window>> children;
+	Window * parent;
 };

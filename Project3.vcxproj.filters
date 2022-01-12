@@ -341,6 +341,9 @@
     <ClCompile Include="RenderContext.cpp">
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="ModelAnimator.cpp">
+      <Filter>Source Files\Custom Behaviours</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -660,6 +663,9 @@
     </ClInclude>
     <ClInclude Include="RenderContext.h">
       <Filter>Source Files\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelAnimator.h">
+      <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

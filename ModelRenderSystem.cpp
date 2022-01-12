@@ -23,7 +23,7 @@
 #include <latch>
 
 const std::vector<const char*> validation_layer_names = {
-	"VK_LAYER_KHRONOS_validation"
+	/*"VK_LAYER_KHRONOS_validation"*/
 };
 
 const std::vector<const char*> device_extensions = {
@@ -119,8 +119,27 @@ void ModelRenderSystem::init(SDL_Window * window)
 
 	createSynchronizationPrimitives();
 
-	ui_window.reset(new Window());
-	ui_window->model.reset(new ModelRenderer("hoodlum.mdl", "hoodlum.png", "", 1));
+	ui.reset(new Window());
+
+	{
+		auto ui_element = std::make_shared<Window>();
+		ui->addChild(ui_element);
+		ui_element->model.reset(new ModelRenderer("offset_plane.mdl", "slot.png", "", 1));
+		ui_element->minAnchor = Vec2(0.5f, 0.0f);
+		ui_element->maxAnchor = Vec2(0.5f, 0.0f);
+		ui_element->minOffset = Vec2(-128.0f, 0.0f);
+		ui_element->maxOffset = Vec2(0.0f, 128.0f);
+	}
+
+	{
+		auto ui_element = std::make_shared<Window>();
+		ui->addChild(ui_element);
+		ui_element->model.reset(new ModelRenderer("offset_plane.mdl", "slot.png", "", 1));
+		ui_element->minAnchor = Vec2(0.5f, 0.0f);
+		ui_element->maxAnchor = Vec2(0.5f, 0.0f);
+		ui_element->minOffset = Vec2(0.0f, 0.0f);
+		ui_element->maxOffset = Vec2(128.0f, 128.0f);
+	}
 }
 
 void ModelRenderSystem::createVulkanInstance()
@@ -262,6 +281,8 @@ void ModelRenderSystem::createSwapchain()
 
 	int width, height;
 	SDL_Vulkan_GetDrawableSize(window, &width, &height);
+	width = std::max(surface_capabilities.maxImageExtent.width, std::min(surface_capabilities.minImageExtent.width, (uint32_t)width));
+	height = std::max(surface_capabilities.maxImageExtent.height, std::min(surface_capabilities.minImageExtent.height, (uint32_t)height));
 	VkExtent2D extent = { width, height };
 
 	VkSwapchainCreateInfoKHR swapchain_create_info = {
@@ -862,12 +883,29 @@ std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuff
 	);
 
 	std::shared_ptr<RenderContext> render_context(new RenderContext(this, image_index, render_pass_template.getRenderPass(), graphics_pipeline_template.getGraphicsPipeline()));
-	for (auto& model : level->models.components)
-		render_context->addRenderingModel(model.getRenderingModel(*render_context));
+	auto& models = level->models.components;
+	for (size_t i = 0; i < models.size(); ++i)
+	{
+		auto& model = models[i];
+		if (model.entity)
+		{
+			auto rendering_model = model.getRenderingModel(*render_context);
+			if (rendering_model)
+				render_context->addRenderingModel(rendering_model);
+		}
+		else
+		{
+			if (model.entity == nullptr)
+			{
+				model.entity = Reference<Entity>(nullptr, 1); // hacky way to keep track of which components have been removed
+				level->models.remove(i);
+			}
+		}
+	}
 	render_context->collectCommandBuffers();
 
 	std::shared_ptr<RenderContext> ui_render_context(new RenderContext(this, image_index, ui_render_pass_template.getRenderPass(), ui_graphics_pipeline_template.getGraphicsPipeline()));
-	ui_window->getRenderingModels(*ui_render_context);
+	ui->getRenderingModels(*ui_render_context);
 	ui_render_context->collectCommandBuffers();
 
 	latch.wait();
@@ -909,8 +947,6 @@ std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuff
 		clear_values.data()
 	};
 
-	auto wait_d_start = SDL_GetPerformanceCounter();
-
 	vkCmdBeginRenderPass(command_buffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
 	render_context->executeCommands(command_buffer);
@@ -922,8 +958,6 @@ std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuff
 	ui_render_context->executeCommands(command_buffer);
 
 	vkCmdEndRenderPass(command_buffer);
-
-	wait_d = SDL_GetPerformanceCounter() - wait_d_start;
 
 	if (vkEndCommandBuffer(command_buffer))
 		throw std::runtime_error("failed to record command buffer.");
@@ -1043,7 +1077,10 @@ void ModelRenderSystem::updateUniformBuffer(uint32_t current_image_index)
 	{
 		UniformBufferObject uniform_buffer_object;
 		uniform_buffer_object.view = Matrix4();
-		uniform_buffer_object.proj = Matrix4::Scale(Vec3(2.0f / 10.0f, 2.0f / 10.0f, 2.0f / 10.0f));
+		uniform_buffer_object.proj = Matrix4::Scale(Vec3(2.0f / getWidth(), 2.0f / getHeight(), 1.0f));
+
+		ui->maxOffset = Vec2(getWidth() / 2.0f, getHeight() / 2.0f);
+		ui->minOffset = -ui->maxOffset;
 
 		stageUniformBufferData(&uniform_buffer_object, sizeof(uniform_buffer_object), uniform_buffer_offsets[current_image_index + 1 * swapchain_images.size()]);
 	}
@@ -1307,6 +1344,8 @@ void ModelRenderSystem::tick(float dt)
 	wait_fences_b = SDL_GetPerformanceCounter() - wait_b_start;
 	image_to_frame_index[image_index] = current_frame_index;
 
+	auto wait_d_start = SDL_GetPerformanceCounter();
+
 	auto render_contexts = recordCommandBuffer(image_index);
 
 	updateUniformBuffer(image_index);
@@ -1314,7 +1353,9 @@ void ModelRenderSystem::tick(float dt)
 	// this is horribly hacky rn
 	for (auto& model : level->models.components)
 		model.updateUniformBuffer(*render_contexts[0]);
-	ui_window->updateUniformBuffers(*render_contexts[1]);
+	ui->updateUniformBuffers(*render_contexts[1]);
+
+	wait_d = SDL_GetPerformanceCounter() - wait_d_start;
 
 	auto wait_c_start = SDL_GetPerformanceCounter();
 	std::lock_guard<std::mutex> lock(present_mutex);
