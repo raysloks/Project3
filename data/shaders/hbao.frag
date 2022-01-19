@@ -16,7 +16,7 @@ float getAmbientOcclusion(vec3 midpoint, vec3 normal, vec3 sample_point)
 	float diff_len_sqr = dot(diff, diff);
 	float raw_power = dot(normal, diff) * 1.0 / sqrt(diff_len_sqr);
 
-	return clamp(raw_power - 0.1, 0, 1) * clamp(diff_len_sqr * -4.0 + 1.0, 0, 1);
+	return clamp(raw_power - 0.0, 0, 1) * clamp(diff_len_sqr * -4.0 + 1.0, 0, 1);
 }
 
 vec3 getPosition(vec2 co, float depth)
@@ -59,22 +59,18 @@ void main()
 	vec3 normal = getNormal(co, midpoint);
 	float ao = 0.0;
 
-	float modifier = midpoint.x * 323.35;
+	float modifier = midpoint.x * 329003.3665;
 	modifier = mod(modifier, M_PI * 2.0);
-	modifier += midpoint.y * 2423.321;
+	modifier += midpoint.y * 248293.321;
 	modifier = mod(modifier, M_PI * 2.0);
 	modifier += midpoint.z * 223123.321;
 	modifier = mod(modifier, M_PI * 2.0);
-	modifier += co.x * 523.321;
-	modifier = mod(modifier, M_PI * 2.0);
-	modifier += co.y * 231.521;
-	modifier = mod(modifier, M_PI * 2.0);
 
-	float step_size = 200.0 / midpoint.z;
+	float step_size = textureSize(texSampler, 0).y * (5.0 / 18.0) / midpoint.z;
 	for (int rotation = 0; rotation < 4; ++rotation)
 	{
 		float angle = rotation * M_PI * 2.0 / 4;
-		float distance = step_size * mod(modifier, 1.0) + 1.0;
+		float distance = step_size * mod(modifier + rotation * 2.234, 1.0) + 1.0;
 		for (int step = 0; step < 4; ++step)
 		{
 			vec2 sample_coord = co + round(vec2(cos(angle + modifier), sin(angle + modifier)) * distance);
@@ -82,9 +78,10 @@ void main()
 			distance += step_size;
 		}
 	}
-	ao *= 1.0 / (4 * 4);
+	ao *= 1.5 / (4 * 4);
 	ao = clamp(1.0 - ao * 2.0, 0, 1);
-	ao = pow(ao, 2.0);
-
-	outColor = vec4(vec3(0.0), 1.0 - ao);
+	ao = pow(ao, 1.0);
+	
+	//outColor = vec4(vec3(0.0), 1.0 - ao);
+	outColor = vec4(vec3(ao), 1.0);
 }
