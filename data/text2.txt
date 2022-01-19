@@ -10,8 +10,8 @@ dynamic class Main : Window
 
 	uint onKeyDown(uint key)
 	{
-		maxOffset.x = 100f;
-		maxOffset.y = 100f;
+		maxOffset.x = maxOffset.x + 1f;
+		maxOffset.y = maxOffset.y + 1f;
 		return 0;
 	};
 };

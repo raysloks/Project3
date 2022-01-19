@@ -15,6 +15,12 @@ ModelRenderer::ModelRenderer()
 	uniform_buffer_object.color = Vec4(1.0f);
 }
 
+ModelRenderer::ModelRenderer(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, const std::shared_ptr<Animation>& animation, size_t camera_index) : model(model), texture(texture), animation(animation), camera_index(camera_index)
+{
+	uniform_vma = nullptr;
+	uniform_buffer_object.color = Vec4(1.0f);
+}
+
 ModelRenderer::ModelRenderer(const std::string& model, const std::string& texture, const std::string& animation, size_t camera_index)
 {
 	this->model = Model::get(model);
@@ -35,9 +41,12 @@ std::shared_ptr<RenderingModel> ModelRenderer::getRenderingModel(const RenderCon
 	if (!rendering_model || rendering_model->getGraphicsPipeline() != render_context.getGraphicsPipeline())
 		if (model->loaded && texture->loaded && (animation == nullptr || animation->loaded))
 		{
-			rendering_model.reset(new RenderingModel(model, texture, getUniformBufferObjectSize(), render_context.getModelRenderSystem(), render_context.getGraphicsPipeline(), camera_index));
-			dirty.clear();
-			dirty.resize(render_context.getModelRenderSystem()->getDescriptorSetCount(), true);
+			if (model->vertices.size() && model->triangles.size())
+			{
+				rendering_model.reset(new RenderingModel(model, texture, getUniformBufferObjectSize(), render_context.getModelRenderSystem(), render_context.getGraphicsPipeline(), camera_index));
+				dirty.clear();
+				dirty.resize(render_context.getModelRenderSystem()->getDescriptorSetCount(), true);
+			}
 		}
 	return rendering_model;
 }
@@ -54,7 +63,7 @@ void ModelRenderer::updateUniformBuffer(const RenderContext& render_context)
 		dirty[current_image_index] = false;
 
 		if (entity)
-			uniform_buffer_object.model = entity->getTransform();
+			uniform_buffer_object.model = transform * entity->getTransform();
 
 		if (animation)
 		{

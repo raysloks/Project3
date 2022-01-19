@@ -6,6 +6,7 @@ Entity::Entity() : xyz()
 {
 	parent = nullptr;
 	root = nullptr; // set to reference self shortly after construction
+	scale = Vec3(1.0f);
 }
 
 Entity::Entity(const Entity& entity)
@@ -38,7 +39,7 @@ Vec3 Entity::getPosition() const
 
 Matrix4 Entity::getTransform() const
 {
-	Matrix4 transform = Matrix4(rotation) * Matrix4::Translation(xyz);
+	Matrix4 transform = Matrix4::Scale(scale) * Matrix4(rotation) * Matrix4::Translation(xyz);
 	if (parent)
 		return transform * parent->getTransform();
 	return transform;

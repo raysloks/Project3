@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.h>
 #include <memory>
 #include <vector>
+#include <optional>
 
 class ModelRenderSystem;
 class RenderPass;
@@ -18,10 +19,13 @@ public:
 
 	struct Settings
 	{
+		std::vector<VkAttachmentReference> input_attachment_references;
 		std::vector<VkAttachmentReference> color_attachment_references;
-		VkAttachmentReference depth_stencil_attachment_reference;
+		std::optional<VkAttachmentReference> depth_stencil_attachment_reference;
 
 		std::vector<VkAttachmentDescription> attachment_descriptions;
+
+		VkSubpassDependency subpass_dependency;
 	};
 
 	void setSettings(const Settings& settings);

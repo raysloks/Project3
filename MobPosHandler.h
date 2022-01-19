@@ -27,6 +27,8 @@ class MobPosHandler :
 public:
 	MobPosHandler();
 
+	void Connect();
+
 	void AcceptHandler(const asio::ip::udp::endpoint& endpoint);
 	void ConnectHandler(const asio::ip::udp::endpoint& endpoint);
 	void MpChatHandler(const asio::ip::udp::endpoint& endpoint, const MpChat& message);

@@ -26,6 +26,10 @@ MobPosHandler::MobPosHandler() : grid(64, 64)
 	heartbeat_timer = 0.0f;
 
 	endpoint = asio::ip::udp::endpoint(asio::ip::address::from_string("2a01:7e01::f03c:92ff:fe8e:50b4"), 43857);
+}
+
+void MobPosHandler::Connect()
+{
 	link.Connect(endpoint);
 }
 
@@ -88,7 +92,6 @@ void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint,
 	if (message.type)
 	{
 		mob.setMobTemplate(message.type->template_id);
-		mob.getComponent<Sprite>()->sheet = SpriteSheet::get(temp[mob.mob_template->sprite]);
 	}
 
 	if (message.auras)
@@ -141,8 +144,8 @@ void MobPosHandler::MpPlayerMobAbilitiesUpdateHandler(const asio::ip::udp::endpo
 void MobPosHandler::MpPlayerMobCreatedHandler(const asio::ip::udp::endpoint & endpoint, const MpPlayerMobCreated & message)
 {
 	player_mob_id = message.id;
-	/*level->get<HealthDisplay>()->player = getMob(message.id)->second.mob;
-	level->get<ActionBar>()->player = getMob(message.id)->second.mob;*/
+	level->get<HealthDisplay>()->player = getMob(message.id)->second.mob;
+	level->get<ActionBar>()->player = getMob(message.id)->second.mob;
 }
 
 void MobPosHandler::MpSoundHandler(const asio::ip::udp::endpoint & endpoint, const MpSound & message)
@@ -252,7 +255,7 @@ void MobPosHandler::tick(float dt)
 							}
 
 							auto model = level->models.add("movement_indicator.mdl", "pixel.png", "movement_indicator.anm");
-							model->uniform_buffer_object.color = Vec4(0.05f, 0.75f, 0.05f, 1.0f);
+							model->uniform_buffer_object.color = Vec4(0.0f, 0.7f, 0.0f, 1.0f);
 							Component::attach(model, entity);
 
 							auto animator = level->add<ModelAnimator>("move", 112.5f, 0.0f, true);
@@ -321,30 +324,6 @@ void MobPosHandler::tick(float dt)
 
 		engine->input->addKeyDownCallback(KB_ACTION_0, [this]()
 			{
-				auto mob = mobs[player_mob_id].mob;
-
-				Vec2 direction = engine->mrs->screenToWorld(engine->input->getCursor()) - mob->entity->xy;
-				direction.Normalize();
-
-				auto sword = level->add_entity();
-
-				auto swoop = SpriteSheet::get("cone.png");
-
-				float rotation_degs = atan2f(direction.x, -direction.y) * 180.0f / float(M_PI);
-				auto swoop_iso = swoop->makeIsometricFloorLossless(rotation_degs);
-
-				auto sprite = level->sprites.add(Sprite(swoop_iso));
-				sprite->color = SDL_Color({ 255, 255, 255, 255 });
-				sprite->sort = 1;
-				//sprite->rotation = atan2f(direction.x, -direction.y) * 180.0f / float(M_PI);
-				//sprite->flip = flip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-				Component::attach(sprite, sword);
-
-				auto animator = level->add<SpriteAnimator>(30.0f);
-				animator->destroy = true;
-				Component::attach(animator, sword);
-
-				Entity::adopt(sword, mob->entity);
 			});
 	}
 
@@ -372,9 +351,6 @@ void MobPosHandler::createMob(uint64_t id)
 {
 	auto entity = level->add_entity();
 
-	auto sprite = level->sprites.add("uu.png");
-	Component::attach(sprite, entity);
-
 	auto model = level->models.add("hoodlum.mdl", "hoodlum.png", "hoodlum.anm");
 	Component::attach(model, entity);
 
@@ -386,39 +362,11 @@ void MobPosHandler::createMob(uint64_t id)
 	collider->layers = 0b10;
 	Component::attach(collider, entity);
 
-	auto mob_entity = entity;
-
-	// create shadow
-	{
-		auto entity = level->add_entity();
-		Entity::adopt(entity, mob_entity);
-
-		auto sprite = level->sprites.add("shadow4_iso.png");
-		sprite->sort = 0;
-		sprite->color = SDL_Color({ 0, 0, 0, 32 });
-		Component::attach(sprite, entity);
-	}
-
 	MobPosData data;
 	data.mob = mob;
 
 	mobs.insert(std::make_pair(id, data));
 }
-
-//const float lower_margin = -5.25f;
-//const float nominal_margin_lower = -4.25f;
-//const float upper_margin = -2.25f;
-//const float nominal_margin_upper = -3.25f;
-
-const float lower_margin = -4.0f;
-const float nominal_margin_lower = -4.0f;
-const float upper_margin = -2.0f;
-const float nominal_margin_upper = -2.0f;
-
-//const float lower_margin = -10.0f;
-//const float nominal_margin_lower = -10.0f;
-//const float upper_margin = -6.0f;
-//const float nominal_margin_upper = -6.0f;
 
 void MobPosData::tick(float dt)
 {

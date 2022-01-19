@@ -171,6 +171,8 @@ void SpriteSheet::createTextureImage(ModelRenderSystem * mrs)
 
 	vkDestroyBuffer(mrs->getDevice(), staging_buffer, nullptr);
 	vkFreeMemory(mrs->getDevice(), staging_buffer_memory, nullptr);
+
+	texture_image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }
 
 void SpriteSheet::createTextureImageView(ModelRenderSystem * mrs)
@@ -735,11 +737,11 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeScaled(intmax_t scale) const
 
 #include <iostream>
 
-std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_color, const SDL_Color & fill_color) const
+std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_color, const SDL_Color & fill_color, intmax_t cell_margin) const
 {
 	auto sheet = std::make_shared<SpriteSheet>();
 	auto shared_this = shared_from_this();
-	auto func = [shared_this, sheet, outline_color, fill_color]()
+	auto func = [shared_this, sheet, outline_color, fill_color, cell_margin]()
 	{
 		while (!shared_this->loaded)
 			SDL_Delay(0);
@@ -758,8 +760,8 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_
 
 			intmax_t w = wf / columns;
 			intmax_t h = hf / rows;
-			intmax_t nw = w + 2;
-			intmax_t nh = h + 2;
+			intmax_t nw = w + cell_margin * 2;
+			intmax_t nh = h + cell_margin * 2;
 
 			intmax_t nwf = nw * columns;
 			intmax_t nhf = nh * rows;
@@ -776,17 +778,17 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_
 					{
 						for (intmax_t y = 0; y < nh; ++y)
 						{
-							intmax_t x_min = x - 2;
+							intmax_t x_min = x - cell_margin - 1;
 							if (x_min < 0)
 								x_min = 0;
-							intmax_t y_min = y - 2;
+							intmax_t y_min = y - cell_margin - 1;
 							if (y_min < 0)
 								y_min = 0;
 
-							intmax_t x_max = x + 1;
+							intmax_t x_max = x - cell_margin + 2;
 							if (x_max > w)
 								x_max = w;
-							intmax_t y_max = y + 1;
+							intmax_t y_max = y - cell_margin + 2;
 							if (y_max > h)
 								y_max = h;
 
@@ -810,9 +812,9 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_
 							}
 
 							// hoping the compiler can optimize this into first/last loops
-							if (x != 0 && x != nw - 1 && y != 0 && y != nh - 1)
+							if (x >= cell_margin && x < nw - cell_margin && y >= cell_margin && y < nh - cell_margin)
 							{
-								SDL_Color & og = *(SDL_Color*)(this_pixels + (y - 1 + r * h) * this_pitch + (x - 1 + c * w) * 4);
+								SDL_Color & og = *(SDL_Color*)(this_pixels + (y - cell_margin + r * h) * this_pitch + (x - cell_margin + c * w) * 4);
 								if (og.a > 0)
 									color = fill_color;
 							}

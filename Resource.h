@@ -6,9 +6,18 @@
 #include <vector>
 #include <functional>
 
+#include "ThreadPool.h"
+
+class BaseResource
+{
+public:
+	static ThreadPool thread_pool;
+};
+
 template <class T>
 class Resource :
-	public std::enable_shared_from_this<T>
+	public std::enable_shared_from_this<T>,
+	public BaseResource
 {
 public:
 	static std::map<std::string, std::weak_ptr<T>> resources;
@@ -27,7 +36,6 @@ public:
 	}
 
 	bool loaded = false;
-	//std::vector<std::function<void(void)>> on_loaded;
 };
 
 template <class T>

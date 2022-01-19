@@ -7,7 +7,7 @@ layout(location = 2) in vec3 inNormal;
 layout(location = 3) in ivec4 inBones;
 layout(location = 4) in vec4 inWeights;
 
-layout(location = 0) out vec3 fragColor;
+layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 layout(location = 2) out vec3 fragNormal;
 
@@ -28,8 +28,8 @@ void main() {
 		ubo.bones[inBones.z] * inWeights.z + 
 		ubo.bones[inBones.w] * inWeights.w;
 	bone_transform /= inWeights.x + inWeights.y + inWeights.z + inWeights.w;
-	gl_Position = vp.proj * vp.view * ubo.model * bone_transform * vec4(inPosition, 1.0);
+	gl_Position = vp.proj * vp.view * (ubo.model * bone_transform * vec4(inPosition, 1.0));
 	fragNormal = (ubo.model * bone_transform * vec4(inNormal, 0.0)).xyz;
-	fragColor = ubo.color.rgb;
+	fragColor = ubo.color;
 	fragTexCoord = inUV;
 }

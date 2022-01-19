@@ -72,19 +72,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\lib\x64;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\lib\x64;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -179,8 +179,8 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>vulkan-1.lib;SDL2_net.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.170.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freetype.lib;vulkan-1.lib;SDL2_net.lib;SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Emil\source\repos\freetype-2.11.1\Release;C:\VulkanSDK\1.2.170.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
@@ -213,6 +213,7 @@
     <ClCompile Include="Equipment.cpp" />
     <ClCompile Include="FloatingText.cpp" />
     <ClCompile Include="FollowCursor.cpp" />
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="FrameRate.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="GroundEffectChunk.cpp" />
@@ -249,6 +250,7 @@
     <ClCompile Include="RenderingModel.cpp" />
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="RenderPassTemplate.cpp" />
+    <ClCompile Include="Resource.cpp" />
     <ClCompile Include="TemporaryCommandBuffer.cpp" />
     <ClCompile Include="TextArea.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
@@ -317,6 +319,7 @@
     <ClInclude Include="Equipment.h" />
     <ClInclude Include="FloatingText.h" />
     <ClInclude Include="FollowCursor.h" />
+    <ClInclude Include="Font.h" />
     <ClInclude Include="FrameRate.h" />
     <ClInclude Include="GameKeyBinding.h" />
     <ClInclude Include="GraphicsPipeline.h" />
@@ -407,8 +410,12 @@
     <Text Include="MobPos\last_build.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ShaderCompileTask Include="data\shaders\fullscreen_quad.vert" />
+    <ShaderCompileTask Include="data\shaders\hbao.frag" />
     <ShaderCompileTask Include="data\shaders\shader.frag" />
     <ShaderCompileTask Include="data\shaders\shader.vert" />
+    <ShaderCompileTask Include="data\shaders\shader_sdf.frag" />
+    <ShaderCompileTask Include="data\shaders\shader_ui.frag" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ProjectScript\ProjectScript\ProjectScript.vcxproj">

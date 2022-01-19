@@ -24,6 +24,19 @@ public:
 	{
 		std::vector<VkDescriptorSetLayout> descriptor_set_layouts;
 		std::vector<VkPipelineShaderStageCreateInfo> shader_stages;
+
+		VkVertexInputBindingDescription vertex_input_binding_description;
+		std::vector<VkVertexInputAttributeDescription> vertex_input_attribute_descriptions;
+
+		VkPipelineInputAssemblyStateCreateInfo input_assembly_state_create_info;
+
+		VkPipelineRasterizationStateCreateInfo rasterization_state_create_info;
+
+		VkPipelineMultisampleStateCreateInfo multisample_state_create_info;
+
+		VkPipelineColorBlendAttachmentState color_blend_attachment_state;
+
+		VkPipelineDepthStencilStateCreateInfo depth_stencil_state_create_info;
 	};
 
 	void setSettings(const Settings& settings);

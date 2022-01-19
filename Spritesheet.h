@@ -6,6 +6,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include "Vec2.h"
+
 class ModelRenderSystem;
 
 class SpriteSheet :
@@ -38,7 +40,7 @@ public:
 
 	std::shared_ptr<SpriteSheet> makeScaled(intmax_t scale) const;
 
-	std::shared_ptr<SpriteSheet> makeOutline(const SDL_Color & outline_color = SDL_Color({ 255, 255, 255, 255 }), const SDL_Color & fill_color = SDL_Color({ 0, 0, 0, 0 })) const;
+	std::shared_ptr<SpriteSheet> makeOutline(const SDL_Color & outline_color = SDL_Color({ 255, 255, 255, 255 }), const SDL_Color & fill_color = SDL_Color({ 0, 0, 0, 0 }), intmax_t cell_margin = 1) const;
 
 	SDL_Texture * getTexture(SDL_Renderer * render);
 
@@ -47,17 +49,24 @@ public:
 	void createTextureImageView(ModelRenderSystem * mrs);
 	void createTextureSampler(ModelRenderSystem * mrs);
 
+	struct Frame
+	{
+		Vec2 min, max, center, advance;
+	};
+
 //private:
 	SDL_Surface * surface;
 	SDL_Texture * texture;
 
 	size_t rows, columns;
-
 	int offset_x, offset_y;
+
+	std::map<uint32_t, Frame> frames;
 
 	VkImage texture_image;
 	VkDeviceMemory texture_image_memory;
 	VkImageView texture_image_view;
 	VkSampler texture_sampler;
+	VkImageLayout texture_image_layout;
 };
 

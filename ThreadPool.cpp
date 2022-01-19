@@ -2,9 +2,14 @@
 
 ThreadPool::ThreadPool()
 {
+	stopping = true;
+}
+
+ThreadPool::ThreadPool(size_t size)
+{
 	stopping = false;
 
-	for (size_t i = 0; i < 8; ++i)
+	for (size_t i = 0; i < size; ++i)
 	{
 		threads.push_back(std::thread([this]()
 			{
@@ -14,6 +19,8 @@ ThreadPool::ThreadPool()
 					{
 						std::unique_lock<std::mutex> lock(mutex);
 						condition.wait(lock, [this]() { return !queue.empty() || stopping; });
+						if (stopping)
+							return;
 						function = queue.front();
 						queue.pop();
 					}

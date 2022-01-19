@@ -44,7 +44,7 @@ Engine::Engine()
 	mrs->init(window);
 	systems.push_back(mrs);
 
-	srs = new SpriteRenderSystem(render);
+	srs = new SpriteRenderSystem(render, window);
 	systems.push_back(srs);
 
 	input = new InputSystem();

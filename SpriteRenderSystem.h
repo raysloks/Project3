@@ -8,7 +8,7 @@ class SpriteRenderSystem :
 	public System
 {
 public:
-	SpriteRenderSystem(SDL_Renderer * render);
+	SpriteRenderSystem(SDL_Renderer * render, SDL_Window * window);
 
 	Vec2 screenToWorld(const Vec2& screen_position) const;
 	Vec2 worldToScreen(const Vec2& world_position) const;
@@ -18,6 +18,7 @@ public:
 	Vec2 camera_position;
 
 	SDL_Renderer * render;
+	SDL_Window * window;
 
 	int getWidth() const;
 	int getHeight() const;

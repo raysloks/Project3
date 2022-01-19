@@ -10,20 +10,29 @@ class DummyVertexGroup:
 
 def write_mdl(self, context, filepath):
     print("running write_mdl...")
-    f = open(filepath, 'wb')
+    f = None
+    if not self.split_objects:
+        f = open(filepath, 'wb')
     
     #context = bpy.context
     scene = context.scene
     
     abs_filepath = bpy.path.abspath(filepath)
 
-    for ob in scene.objects:
+    for ob in context.collection.objects:
         if not ob.users_collection[0].hide_render and ob.type == 'MESH':
+            
+            if self.split_objects:
+                f = open(filepath[:-3] + ob.name + '.mdl', 'wb')
+            
             depsgraph = context.evaluated_depsgraph_get()
             ob = ob.evaluated_get(depsgraph)
             mesh = ob.to_mesh(preserve_all_data_layers=True, depsgraph=depsgraph)
-            flags = '00000011'
-            f.write(struct.pack('<B', int(flags, 2)))
+            armature = ob.find_armature()
+            flags = list('00000011')
+            #if armature == None:
+                #flags[6] = '0'
+            f.write(struct.pack('<B', int("".join(flags), 2)))
             f.write(struct.pack('<H', len(mesh.loops)))
             for loop in mesh.loops:
                 vertex = mesh.vertices[loop.vertex_index]
@@ -37,26 +46,35 @@ def write_mdl(self, context, filepath):
                 normal = vertex.normal
                 f.write(struct.pack('<3f', normal[0], normal[1], normal[2]))
                 
-                bones = ob.find_armature().pose.bones
-                groups = filter(lambda x: x.weight > 0.0, vertex.groups)
-                groups = sorted(groups, key=lambda x: x.weight, reverse=True)
-                if len(groups) > 0:
-                    groups = groups + [DummyVertexGroup(groups[0].group, 0.0)] * 3
+                if armature != None:
+                    bones = ob.find_armature().pose.bones
+                    groups = filter(lambda x: x.weight > 0.0, vertex.groups)
+                    groups = sorted(groups, key=lambda x: x.weight, reverse=True)
+                    if len(groups) > 0:
+                        groups = groups + [DummyVertexGroup(groups[0].group, 0.0)] * 3
+                    else:
+                        groups = [DummyVertexGroup(0, 1.0)] + [DummyVertexGroup(0, 0.0)] * 3
+                    groups = groups[:4]
+                    total_weight = sum(x.weight for x in groups) or 1
+                    for group in groups:
+                        f.write(struct.pack('<B', bones.find(ob.vertex_groups[group.group].name)))
+                    for group in groups:
+                        f.write(struct.pack('<f', group.weight / total_weight))
                 else:
-                    groups = [DummyVertexGroup(0, 1.0)] + [DummyVertexGroup(0, 0.0)] * 3
-                groups = groups[:4]
-                total_weight = sum(x.weight for x in groups) or 1
-                for group in groups:
-                    f.write(struct.pack('<B', bones.find(ob.vertex_groups[group.group].name)))
-                for group in groups:
-                    f.write(struct.pack('<f', group.weight / total_weight))
+                    f.write(struct.pack('<4B', 0, 0, 0, 0))
+                    f.write(struct.pack('<4f', 1.0, 0.0, 0.0, 0.0))
+                    
             f.write(struct.pack('<H', len(mesh.polygons)))
             for triangle in mesh.polygons:
                 idx = triangle.loop_indices
                 f.write(struct.pack('<3H', idx[0], idx[1], idx[2]))
-            break
+            if not self.split_objects:
+                break
+            else:
+                f.close()
     
-    f.close()
+    if not self.split_objects:
+        f.close()
 
     return {'FINISHED'}
 
@@ -65,6 +83,7 @@ def write_mdl(self, context, filepath):
 # invoke() function which calls the file selector.
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty
+from bpy.props import BoolProperty
 
 
 class ExportMDL(bpy.types.Operator, ExportHelper):
@@ -76,6 +95,8 @@ class ExportMDL(bpy.types.Operator, ExportHelper):
     filename_ext = ".mdl"
 
     filter_glob : StringProperty(default="*.mdl", options={'HIDDEN'})
+    
+    split_objects : BoolProperty(name="Split Objects", default=False)
 
     @classmethod
     def poll(cls, context):

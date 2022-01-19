@@ -14,17 +14,21 @@
 #include "TextBox.h"
 
 #include "ModelRenderSystem.h"
+#include "MobPosHandler.h"
 
 #include "Tilemap.h"
 
 #include "GameKeyBinding.h"
 
 #include "Text.h"
+#include "Font.h"
 
 #include "Xoroshiro128Plus.h"
 
 #include "Ability.h"
 #include "MobTemplate.h"
+
+#include "Matrix3.h"
 
 #include <chrono>
 
@@ -175,6 +179,22 @@ Level * create_level(int floor)
 	tileset->columns = 4;
 	tileset->rows = 8;
 
+	std::vector<uint8_t> mask_table(256, 255);
+	std::vector<intmax_t> rotation_table(256);
+	for (size_t i = 0; i < 256; ++i)
+	{
+		uint8_t mask = i;
+		if (mask_table[mask] != 255)
+			continue;
+		for (size_t r = 0; r < 4; ++r)
+		{
+			size_t rotation = r * 2;
+			uint8_t rotated_mask = (mask << rotation) | (mask >> (8 - rotation));
+			mask_table[rotated_mask] = mask;
+			rotation_table[rotated_mask] = r;
+		}
+	}
+
 	/*SpriteSheet::createIsometricFloorLosslessMap(16, 16)->save("test.png");
 
 	SpriteSheet::get("splatter.png")->makeMapped(SpriteSheet::get("stairs_effect_map_two.png"))->save("test_mapped.png");
@@ -193,39 +213,62 @@ Level * create_level(int floor)
 			{
 				show_floor = false;
 
-				int walls = 0;
-				if (tilemap.at(x + 1, y + 1).tile & 1)
-					walls += 1;
-				if (tilemap.at(x, y + 1).tile & 1)
-					walls += 1;
-				if (tilemap.at(x - 1, y + 1).tile & 1)
-					walls += 1;
-				if (tilemap.at(x - 1, y).tile & 1)
-					walls += 1;
-				if (tilemap.at(x - 1, y - 1).tile & 1)
-					walls += 1;
-				if (tilemap.at(x, y - 1).tile & 1)
-					walls += 1;
-				if (tilemap.at(x + 1, y - 1).tile & 1)
-					walls += 1;
-				if (tilemap.at(x + 1, y).tile & 1)
-					walls += 1;
+				int x_offsets[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+				int y_offsets[] = { 1, 1, 1, 0, -1, -1, -1, 0 };
 
-				if (walls < 8)
+				int wall_mask = 0;
+				for (size_t i = 0; i < 8; ++i)
+					if (tilemap.at(x + x_offsets[i], y + y_offsets[i]).tile & 1)
+						wall_mask |= 1 << i;
+
+				if (wall_mask != 255)
 				{
-					if (tile.tile & 32)
-						show_floor = true;
+					if (tile.tile <= 900)
+					{
+						auto entity = level->add_entity();
+						entity->xy = Vec2(x, y);
+
+						auto model = level->models.add("offset_plane.mdl", "floor.png");
+						Component::attach(model, entity);
+
+						if (!tile.effects.empty())
+						{
+							tile.refreshEffectSprite(Vec2(x, y) * tilemap.getTileSize());
+						}
+					}
 
 					auto entity = level->add_entity();
-					entity->xy = Vec2(x, y);
+					entity->xy = Vec2(x, y) + 0.5f;
 
-					auto sprite = level->sprites.add("tile_iso.png");
-					size_t tile_index = (tile.tile >> 1);
-					sprite->subsprite_x = tile_index % sprite->sheet->columns;
-					sprite->subsprite_y = tile_index / sprite->sheet->columns;
-					Component::attach(sprite, entity);
-
-					auto model = level->models.add("offset_cube.mdl", "wall.png");
+					std::string model_fname = "walls_test2.wall_" + std::to_string((uint64_t)mask_table[wall_mask]) + ".mdl";
+					auto model = level->models.add(model_fname, "pixel.png");
+					model->uniform_buffer_object.color = Vec4(0.8f, 0.4f, 0.3f, 1.0f);
+					switch (rotation_table[wall_mask])
+					{
+					case 0:
+						break;
+					case 1:
+						model->transform = Matrix3({
+							0.0f, -1.0f, 0.0f,
+							1.0f, 0.0f, 0.0f,
+							0.0f, 0.0f, 1.0f
+						});
+						break;
+					case 2:
+						model->transform = Matrix3({
+							-1.0f, 0.0f, 0.0f,
+							0.0f, -1.0f, 0.0f,
+							0.0f, 0.0f, 1.0f
+						});
+						break;
+					case 3:
+						model->transform = Matrix3({
+							0.0f, 1.0f, 0.0f,
+							-1.0f, 0.0f, 0.0f,
+							0.0f, 0.0f, 1.0f
+						});
+						break;
+					}
 					Component::attach(model, entity);
 				}
 			}
@@ -233,12 +276,14 @@ Level * create_level(int floor)
 			if (tile.tile > 900)
 			{
 				auto entity = level->add_entity();
-				entity->xy = Vec2(x, y) * tilemap.getTileSize();
-				entity->z = tile.tile & 2 ? -16 : 0;
+				entity->xy = Vec2(x, y) + Vec2(1.5f, 0.5f);
+				entity->z = tile.tile & 2 ? -0.5f : 0.5f;
+				entity->scale = Vec3(0.5f);
+				entity->rotation = Quaternion(M_PI / 2.0f, Vec3(0.0f, 0.0f, 1.0f));
 
-				auto sprite = level->sprites.add("stairs.png");
-				sprite->sheet->offset_y = -8;
-				Component::attach(sprite, entity);
+				auto model = level->models.add("stone4.mdl", "pixel.png");
+				model->uniform_buffer_object.color = Vec4(0.5f, 1.0f);
+				Component::attach(model, entity);
 
 				show_floor = false;
 			}
@@ -247,12 +292,6 @@ Level * create_level(int floor)
 			{
 				auto entity = level->add_entity();
 				entity->xy = Vec2(x, y);
-
-				auto sheet = SpriteSheet::get("floor_iso_gen_lossless");
-
-				auto sprite = level->sprites.add(sheet);
-				sprite->sort = -16;
-				Component::attach(sprite, entity);
 
 				auto model = level->models.add("offset_plane.mdl", "floor.png");
 				Component::attach(model, entity);
@@ -340,19 +379,14 @@ Level * create_level(int floor)
 	}
 
 	// create pillar
-	if (false)
+	if (true)
 	{
 		auto entity = level->add_entity();
-		entity->x = 16 * 16;
-		entity->y = 16 * (h - 16);
+		entity->x = 16.0f;
+		entity->y = (h - 16.0f);
 
-		auto sprite = level->sprites.add("pillar.png");
-
-		sprite->scale = Vec2(1.0f / 6.0f);
-
-		Component::attach(sprite, entity);
-
-		Component::attach(level->circle_colliders.add(6.0f), entity);
+		auto model = level->models.add("walls_test2.wall_90.mdl", "wall.png");
+		Component::attach(model, entity);
 	}
 
 	// cursor highlight
@@ -623,6 +657,8 @@ int main(int argc, char* args[])
 	}
 
 	engine.setLevel(level);
+
+	engine.net->Connect();
 
 	engine.run();
 

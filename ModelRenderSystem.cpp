@@ -30,7 +30,7 @@ const std::vector<const char*> device_extensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-ModelRenderSystem::ModelRenderSystem() : render_pass_template(this), ui_render_pass_template(this), graphics_pipeline_template(this), ui_graphics_pipeline_template(this)
+ModelRenderSystem::ModelRenderSystem() : render_pass_template(this), ui_render_pass_template(this), hbao_render_pass_template(this), graphics_pipeline_template(this), ui_graphics_pipeline_template(this), hbao_graphics_pipeline_template(this), thread_pool(1)
 {
 	window = nullptr;
 	instance = nullptr;
@@ -49,8 +49,19 @@ ModelRenderSystem::ModelRenderSystem() : render_pass_template(this), ui_render_p
 
 	vert_shader_module = nullptr;
 	frag_shader_module = nullptr;
+	frag_ui_shader_module = nullptr;
+
+	vert_fullscreen_quad_shader_module = nullptr;
+	frag_hbao_shader_module = nullptr;
 
 	camera_count = 2;
+
+	hbao_quad.reset(new ModelRenderer());
+	hbao_quad->model = std::make_shared<Model>();
+	hbao_quad->model->vertices.resize(3);
+	hbao_quad->model->triangles = { { 0, 1, 2 } };
+	hbao_quad->model->loaded = true;
+	hbao_quad->texture = std::make_shared<SpriteSheet>();
 }
 
 ModelRenderSystem::~ModelRenderSystem()
@@ -76,12 +87,14 @@ void ModelRenderSystem::init(SDL_Window * window)
 
 	createRenderPass();
 	createUIRenderPass();
+	createHBAORenderPass();
 
 	createDescriptorSetLayout();
 
 	setupGraphicsPipelineTemplates();
 	graphics_pipeline_template.setRenderPass(render_pass_template.getRenderPass());
 	ui_graphics_pipeline_template.setRenderPass(ui_render_pass_template.getRenderPass());
+	hbao_graphics_pipeline_template.setRenderPass(hbao_render_pass_template.getRenderPass());
 
 	createDepthBuffer();
 
@@ -120,26 +133,6 @@ void ModelRenderSystem::init(SDL_Window * window)
 	createSynchronizationPrimitives();
 
 	ui.reset(new Window());
-
-	{
-		auto ui_element = std::make_shared<Window>();
-		ui->addChild(ui_element);
-		ui_element->model.reset(new ModelRenderer("offset_plane.mdl", "slot.png", "", 1));
-		ui_element->minAnchor = Vec2(0.5f, 0.0f);
-		ui_element->maxAnchor = Vec2(0.5f, 0.0f);
-		ui_element->minOffset = Vec2(-128.0f, 0.0f);
-		ui_element->maxOffset = Vec2(0.0f, 128.0f);
-	}
-
-	{
-		auto ui_element = std::make_shared<Window>();
-		ui->addChild(ui_element);
-		ui_element->model.reset(new ModelRenderer("offset_plane.mdl", "slot.png", "", 1));
-		ui_element->minAnchor = Vec2(0.5f, 0.0f);
-		ui_element->maxAnchor = Vec2(0.5f, 0.0f);
-		ui_element->minOffset = Vec2(0.0f, 0.0f);
-		ui_element->maxOffset = Vec2(128.0f, 128.0f);
-	}
 }
 
 void ModelRenderSystem::createVulkanInstance()
@@ -277,7 +270,7 @@ void ModelRenderSystem::createSwapchain()
 	std::vector<VkSurfaceFormatKHR> formats(format_count);
 	vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, surface, &format_count, formats.data());
 
-	auto format = formats[0];
+	auto& format = formats[1]; // OMEGA DIRTY TODO FIX ASAP
 
 	int width, height;
 	SDL_Vulkan_GetDrawableSize(window, &width, &height);
@@ -346,11 +339,11 @@ void ModelRenderSystem::createRenderPass()
 		VK_FORMAT_D24_UNORM_S8_UINT,
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
-		VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		VK_ATTACHMENT_STORE_OP_STORE,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 		VK_ATTACHMENT_STORE_OP_DONT_CARE,
 		VK_IMAGE_LAYOUT_UNDEFINED,
-		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 	};
 
 	VkAttachmentReference color_attachment_reference = {
@@ -363,9 +356,20 @@ void ModelRenderSystem::createRenderPass()
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 	};
 
+	VkSubpassDependency subpass_dependency = {
+		VK_SUBPASS_EXTERNAL,
+		0,
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+		0,
+		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+		0
+	};
+
 	settings.attachment_descriptions = { color_attachment, depth_attachment };
 	settings.color_attachment_references = { color_attachment_reference };
 	settings.depth_stencil_attachment_reference = depth_attachment_reference;
+	settings.subpass_dependency = subpass_dependency;
 
 	render_pass_template.setSettings(settings);
 }
@@ -408,11 +412,60 @@ void ModelRenderSystem::createUIRenderPass()
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 	};
 
+	VkSubpassDependency subpass_dependency = {
+		VK_SUBPASS_EXTERNAL,
+		0,
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+		0,
+		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+		0
+	};
+
 	settings.attachment_descriptions = { color_attachment, depth_attachment };
 	settings.color_attachment_references = { color_attachment_reference };
 	settings.depth_stencil_attachment_reference = depth_attachment_reference;
+	settings.subpass_dependency = subpass_dependency;
 
 	ui_render_pass_template.setSettings(settings);
+}
+
+void ModelRenderSystem::createHBAORenderPass()
+{
+	RenderPassTemplate::Settings settings;
+
+	VkAttachmentDescription color_attachment = {
+		0,
+		swapchain_format,
+		VK_SAMPLE_COUNT_1_BIT,
+		VK_ATTACHMENT_LOAD_OP_LOAD,
+		VK_ATTACHMENT_STORE_OP_STORE,
+		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+	};
+
+	VkAttachmentReference color_attachment_reference = {
+		0,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+	};
+
+	VkSubpassDependency subpass_dependency = {
+		VK_SUBPASS_EXTERNAL,
+		0,
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+		0,
+		0
+	};
+
+	settings.attachment_descriptions = { color_attachment };
+	settings.color_attachment_references = { color_attachment_reference };
+	settings.subpass_dependency = subpass_dependency;
+
+	hbao_render_pass_template.setSettings(settings);
 }
 
 void ModelRenderSystem::createDescriptorSetLayout()
@@ -458,28 +511,51 @@ void ModelRenderSystem::createDescriptorSetLayout()
 void ModelRenderSystem::createFramebuffers()
 {
 	swapchain_framebuffers.resize(swapchain_image_views.size());
+	hbao_framebuffers.resize(swapchain_image_views.size());
 
 	for (size_t i = 0; i < swapchain_framebuffers.size(); ++i)
 	{
-		std::array<VkImageView, 2> attachments = {
-			swapchain_image_views[i],
-			depth_image_view
-		};
+		{
+			std::vector<VkImageView> attachments = {
+				swapchain_image_views[i],
+				depth_image_view
+			};
 
-		VkFramebufferCreateInfo framebuffer_create_info = {
-			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-			nullptr,
-			0,
-			*render_pass_template.getRenderPass(), // need to examine render pass compatibility more closely
-			(uint32_t)attachments.size(),
-			attachments.data(),
-			swapchain_extent.width,
-			swapchain_extent.height,
-			1
-		};
+			VkFramebufferCreateInfo framebuffer_create_info = {
+				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+				nullptr,
+				0,
+				*render_pass_template.getRenderPass(),
+				(uint32_t)attachments.size(),
+				attachments.data(),
+				swapchain_extent.width,
+				swapchain_extent.height,
+				1
+			};
 
-		if (vkCreateFramebuffer(device, &framebuffer_create_info, nullptr, &swapchain_framebuffers[i]))
-			throw std::runtime_error("failed to create framebuffer.");
+			if (vkCreateFramebuffer(device, &framebuffer_create_info, nullptr, &swapchain_framebuffers[i]))
+				throw std::runtime_error("failed to create framebuffer.");
+		}
+		{
+			std::vector<VkImageView> attachments = {
+				swapchain_image_views[i]
+			};
+
+			VkFramebufferCreateInfo framebuffer_create_info = {
+				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+				nullptr,
+				0,
+				*hbao_render_pass_template.getRenderPass(),
+				(uint32_t)attachments.size(),
+				attachments.data(),
+				swapchain_extent.width,
+				swapchain_extent.height,
+				1
+			};
+
+			if (vkCreateFramebuffer(device, &framebuffer_create_info, nullptr, &hbao_framebuffers[i]))
+				throw std::runtime_error("failed to create framebuffer.");
+		}
 	}
 }
 
@@ -498,9 +574,43 @@ void ModelRenderSystem::createCommandPool()
 
 void ModelRenderSystem::createDepthBuffer()
 {
-	createImage(swapchain_extent.width, swapchain_extent.height, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depth_image, depth_image_memory);
+	createImage(swapchain_extent.width, swapchain_extent.height, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depth_image, depth_image_memory);
 
 	createImageView(depth_image, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT, depth_image_view);
+
+	hbao_quad->texture->texture_image = depth_image;
+	hbao_quad->texture->texture_image_memory = depth_image_memory;
+	hbao_quad->texture->texture_image_view = depth_image_view;
+
+	VkPhysicalDeviceProperties physical_device_properties;
+	vkGetPhysicalDeviceProperties(getPhysicalDevice(), &physical_device_properties);
+
+	VkSamplerCreateInfo sampler_create_info = {
+		VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+		nullptr,
+		0,
+		VK_FILTER_LINEAR,
+		VK_FILTER_LINEAR,
+		VK_SAMPLER_MIPMAP_MODE_LINEAR,
+		VK_SAMPLER_ADDRESS_MODE_REPEAT,
+		VK_SAMPLER_ADDRESS_MODE_REPEAT,
+		VK_SAMPLER_ADDRESS_MODE_REPEAT,
+		0.0f,
+		VK_TRUE,
+		physical_device_properties.limits.maxSamplerAnisotropy,
+		VK_FALSE,
+		VK_COMPARE_OP_ALWAYS,
+		0.0f,
+		0.0f,
+		VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+		VK_FALSE
+	};
+
+	if (vkCreateSampler(getDevice(), &sampler_create_info, nullptr, &hbao_quad->texture->texture_sampler))
+		throw std::runtime_error("failed to create texture sampler.");
+
+	hbao_quad->texture->texture_image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	hbao_quad->texture->loaded = true;
 }
 
 void ModelRenderSystem::createStagingBuffers()
@@ -571,14 +681,19 @@ void ModelRenderSystem::setupGraphicsPipelineTemplates()
 {
 	auto vert_code = Text::get("shaders/shader.vert.spv");
 	auto frag_code = Text::get("shaders/shader.frag.spv");
+	auto frag_ui_code = Text::get("shaders/shader_ui.frag.spv");
 
-	while (!(vert_code->loaded && frag_code->loaded))
+	auto vert_fullscreen_quad_code = Text::get("shaders/fullscreen_quad.vert.spv");
+	auto frag_hbao_code = Text::get("shaders/hbao.frag.spv");
+
+	while (!(vert_code->loaded && frag_code->loaded && frag_ui_code->loaded && vert_fullscreen_quad_code->loaded && frag_hbao_code->loaded))
 		std::this_thread::yield();
 
-	if (vert_shader_module == nullptr)
-		vert_shader_module = createShaderModule(*vert_code);
-	if (frag_shader_module == nullptr)
-		frag_shader_module = createShaderModule(*frag_code);
+	vert_shader_module = createShaderModule(*vert_code);
+	frag_shader_module = createShaderModule(*frag_code);
+	frag_ui_shader_module = createShaderModule(*frag_ui_code);
+	vert_fullscreen_quad_shader_module = createShaderModule(*vert_fullscreen_quad_code);
+	frag_hbao_shader_module = createShaderModule(*frag_hbao_code);
 
 	VkPipelineShaderStageCreateInfo vert_shader_stage_create_info = {
 		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -600,13 +715,143 @@ void ModelRenderSystem::setupGraphicsPipelineTemplates()
 		nullptr
 	};
 
+	VkPipelineShaderStageCreateInfo frag_ui_shader_stage_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		nullptr,
+		0,
+		VK_SHADER_STAGE_FRAGMENT_BIT,
+		frag_ui_shader_module,
+		"main",
+		nullptr
+	};
+
+	VkPipelineShaderStageCreateInfo vert_fullscreen_quad_shader_stage_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		nullptr,
+		0,
+		VK_SHADER_STAGE_VERTEX_BIT,
+		vert_fullscreen_quad_shader_module,
+		"main",
+		nullptr
+	};
+
+	VkPipelineShaderStageCreateInfo frag_hbao_shader_stage_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+		nullptr,
+		0,
+		VK_SHADER_STAGE_FRAGMENT_BIT,
+		frag_hbao_shader_module,
+		"main",
+		nullptr
+	};
+
 	PipelineTemplate::Settings pipeline_settings;
+
+	pipeline_settings.vertex_input_binding_description = Model::getBindingDescription();
+	pipeline_settings.vertex_input_attribute_descriptions = Model::getAttributeDescriptions();
+
+	pipeline_settings.input_assembly_state_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+		nullptr,
+		0,
+		VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+		VK_FALSE
+	};
+
+	pipeline_settings.rasterization_state_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+		nullptr,
+		0,
+		VK_FALSE,
+		VK_FALSE,
+		VK_POLYGON_MODE_FILL,
+		VK_CULL_MODE_BACK_BIT,
+		VK_FRONT_FACE_COUNTER_CLOCKWISE,
+		VK_FALSE,
+		0.0f,
+		0.0f,
+		0.0f,
+		1.0f
+	};
+
+	pipeline_settings.multisample_state_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+		nullptr,
+		0,
+		VK_SAMPLE_COUNT_1_BIT,
+		VK_FALSE,
+		1.0f,
+		nullptr,
+		VK_FALSE,
+		VK_FALSE
+	};
+
+	pipeline_settings.color_blend_attachment_state = {
+		VK_FALSE,
+		VK_BLEND_FACTOR_ONE,
+		VK_BLEND_FACTOR_ZERO,
+		VK_BLEND_OP_ADD,
+		VK_BLEND_FACTOR_ONE,
+		VK_BLEND_FACTOR_ZERO,
+		VK_BLEND_OP_ADD,
+		VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
+	};
+
+	pipeline_settings.depth_stencil_state_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+		nullptr,
+		0,
+		VK_TRUE,
+		VK_TRUE,
+		VK_COMPARE_OP_LESS_OR_EQUAL,
+		VK_FALSE,
+		VK_FALSE,
+		{},
+		{},
+		0.0f,
+		1.0f
+	};
 
 	pipeline_settings.shader_stages = { vert_shader_stage_create_info, frag_shader_stage_create_info };
 	pipeline_settings.descriptor_set_layouts = { descriptor_set_layout };
 
 	graphics_pipeline_template.setSettings(pipeline_settings);
+
+	pipeline_settings.shader_stages = { vert_shader_stage_create_info, frag_ui_shader_stage_create_info };
+
+	pipeline_settings.color_blend_attachment_state = {
+		VK_TRUE,
+		VK_BLEND_FACTOR_SRC_ALPHA,
+		VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+		VK_BLEND_OP_ADD,
+		VK_BLEND_FACTOR_ONE,
+		VK_BLEND_FACTOR_ZERO,
+		VK_BLEND_OP_ADD,
+		VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
+	};
+
 	ui_graphics_pipeline_template.setSettings(pipeline_settings);
+
+	pipeline_settings.vertex_input_attribute_descriptions = {};
+
+	pipeline_settings.depth_stencil_state_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+		nullptr,
+		0,
+		VK_FALSE,
+		VK_FALSE,
+		VK_COMPARE_OP_ALWAYS,
+		VK_FALSE,
+		VK_FALSE,
+		{},
+		{},
+		0.0f,
+		1.0f
+	};
+
+	pipeline_settings.shader_stages = { vert_fullscreen_quad_shader_stage_create_info, frag_hbao_shader_stage_create_info };
+
+	hbao_graphics_pipeline_template.setSettings(pipeline_settings);
 }
 
 void ModelRenderSystem::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags memory_properties, VkBuffer& buffer, VkDeviceMemory& buffer_memory)
@@ -908,6 +1153,12 @@ std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuff
 	ui->getRenderingModels(*ui_render_context);
 	ui_render_context->collectCommandBuffers();
 
+	std::shared_ptr<RenderContext> hbao_render_context(new RenderContext(this, image_index, hbao_render_pass_template.getRenderPass(), hbao_graphics_pipeline_template.getGraphicsPipeline()));
+	auto hbao_quad_rendering_model = hbao_quad->getRenderingModel(*hbao_render_context);
+	if (hbao_quad_rendering_model)
+		hbao_render_context->addRenderingModel(hbao_quad_rendering_model);
+	hbao_render_context->collectCommandBuffers();
+
 	latch.wait();
 
 	VkCommandBufferBeginInfo command_buffer_begin_info = {
@@ -937,6 +1188,16 @@ std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuff
 		clear_values.data()
 	};
 
+	VkRenderPassBeginInfo hbao_render_pass_begin_info = {
+		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		nullptr,
+		*hbao_render_context->getRenderPass(),
+		hbao_framebuffers[image_index],
+		{ { 0, 0 }, swapchain_extent },
+		(uint32_t)clear_values.size(),
+		clear_values.data()
+	};
+
 	VkRenderPassBeginInfo ui_render_pass_begin_info = {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
@@ -948,21 +1209,21 @@ std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuff
 	};
 
 	vkCmdBeginRenderPass(command_buffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-
 	render_context->executeCommands(command_buffer);
+	vkCmdEndRenderPass(command_buffer);
 
+	vkCmdBeginRenderPass(command_buffer, &hbao_render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+	hbao_render_context->executeCommands(command_buffer);
 	vkCmdEndRenderPass(command_buffer);
 
 	vkCmdBeginRenderPass(command_buffer, &ui_render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-	
 	ui_render_context->executeCommands(command_buffer);
-
 	vkCmdEndRenderPass(command_buffer);
 
 	if (vkEndCommandBuffer(command_buffer))
 		throw std::runtime_error("failed to record command buffer.");
 
-	return { render_context, ui_render_context };
+	return { render_context, hbao_render_context, ui_render_context };
 }
 
 void ModelRenderSystem::allocateSecondaryCommandBuffer(VkCommandBuffer& command_buffer)
@@ -993,82 +1254,17 @@ void ModelRenderSystem::allocateSecondaryCommandBuffers(std::vector<VkCommandBuf
 		throw std::runtime_error("failed to allocate secondary command buffers.");
 }
 
-void ModelRenderSystem::createTextureImage()
-{
-	sprite_sheet = SpriteSheet::get("hoodlum.png");
-
-	while (!sprite_sheet->loaded)
-		std::this_thread::yield();
-
-	uint32_t width = sprite_sheet->surface->w;
-	uint32_t height = sprite_sheet->surface->h;
-	VkDeviceSize buffer_size = (VkDeviceSize)width * height * 4;
-
-	VkBuffer staging_buffer;
-	VkDeviceMemory staging_buffer_memory;
-	createBuffer(buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging_buffer, staging_buffer_memory);
-
-	void * data;
-	vkMapMemory(device, staging_buffer_memory, 0, buffer_size, 0, &data);
-	memcpy(data, sprite_sheet->surface->pixels, (size_t)buffer_size);
-	vkUnmapMemory(device, staging_buffer_memory);
-
-	createImage(width, height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, texture_image, texture_image_memory);
-
-	transitionImageLayout(texture_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-	copyBufferToImage(staging_buffer, texture_image, width, height);
-
-	transitionImageLayout(texture_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-	vkQueueWaitIdle(graphics_queue);
-
-	vkDestroyBuffer(device, staging_buffer, nullptr);
-	vkFreeMemory(device, staging_buffer_memory, nullptr);
-}
-
-void ModelRenderSystem::createTextureImageView()
-{
-	createImageView(texture_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, texture_image_view);
-}
-
-void ModelRenderSystem::createTextureSampler()
-{
-	VkPhysicalDeviceProperties physical_device_properties;
-	vkGetPhysicalDeviceProperties(physical_device, &physical_device_properties);
-
-	VkSamplerCreateInfo sampler_create_info = {
-		VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-		nullptr,
-		0,
-		VK_FILTER_LINEAR,
-		VK_FILTER_LINEAR,
-		VK_SAMPLER_MIPMAP_MODE_LINEAR,
-		VK_SAMPLER_ADDRESS_MODE_REPEAT,
-		VK_SAMPLER_ADDRESS_MODE_REPEAT,
-		VK_SAMPLER_ADDRESS_MODE_REPEAT,
-		0.0f,
-		VK_TRUE,
-		physical_device_properties.limits.maxSamplerAnisotropy,
-		VK_FALSE,
-		VK_COMPARE_OP_ALWAYS,
-		0.0f,
-		0.0f,
-		VK_BORDER_COLOR_INT_OPAQUE_BLACK,
-		VK_FALSE
-	};
-
-	if (vkCreateSampler(device, &sampler_create_info, nullptr, &texture_sampler))
-		throw std::runtime_error("failed to create texture sampler.");
-}
-
 void ModelRenderSystem::updateUniformBuffer(uint32_t current_image_index)
 {
 	// camera 0
 	{
 		UniformBufferObject uniform_buffer_object;
 		uniform_buffer_object.view = getViewMatrix();
-		uniform_buffer_object.proj = Matrix4::Perspective(getFieldOfView(), getAspectRatio(), 0.1f, 100.0f);
+		uniform_buffer_object.proj = Matrix4::Perspective(getFieldOfView(), getAspectRatio(), 20.0f, 50.0f);
+
+		//// TODO change to blue noise
+		//uniform_buffer_object.proj.data[12] += (rng.next_float() - 0.5f) * 40.0f / getWidth();
+		//uniform_buffer_object.proj.data[13] += (rng.next_float() - 0.5f) * 40.0f / getHeight();
 
 		stageUniformBufferData(&uniform_buffer_object, sizeof(uniform_buffer_object), uniform_buffer_offsets[current_image_index]);
 	}
@@ -1129,8 +1325,10 @@ void ModelRenderSystem::recreateSwapchain()
 	createImageViews();
 	createRenderPass();
 	createUIRenderPass();
+	createHBAORenderPass();
 	graphics_pipeline_template.setRenderPass(render_pass_template.getRenderPass());
 	ui_graphics_pipeline_template.setRenderPass(ui_render_pass_template.getRenderPass());
+	hbao_graphics_pipeline_template.setRenderPass(hbao_render_pass_template.getRenderPass());
 
 	createDepthBuffer();
 	createFramebuffers();
@@ -1142,13 +1340,6 @@ void ModelRenderSystem::release()
 	vkDeviceWaitIdle(device);
 
 	releaseSwapchain();
-
-	vkDestroySampler(device, texture_sampler, nullptr);
-
-	vkDestroyImageView(device, texture_image_view, nullptr);
-
-	vkDestroyImage(device, texture_image, nullptr);
-	vkFreeMemory(device, texture_image_memory, nullptr);
 
 	delete vma;
 

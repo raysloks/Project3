@@ -6,48 +6,45 @@
 
 #include "MobPosHandler.h"
 
+#include "Window.h"
+
+#include "ModelRenderSystem.h"
+
+#include "Font.h"
+
 void HealthDisplay::start()
 {
-	auto font = SpriteSheet::get("font.png")->makeOutline({ 0, 0, 0, 255 }, { 255, 255, 255, 255 });;
-	font->rows = 16;
-	font->columns = 16;
+	fonts.push_back(Font::get("RobotoMono-Regular.ttf")->getAtlas(Vec2(28.0f), 4.0f));
+	fonts.push_back(Font::get("RobotoMono-Regular.ttf")->getAtlas(Vec2(28.0f), 1.0f));
 
-	for (size_t i = 0; i < 32; ++i)
+	window.reset(new Window());
+	bg.reset(new Window());
+	fg.reset(new Window());
+	text_windows.push_back(std::make_shared<Window>());
+	text_windows.push_back(std::make_shared<Window>());
+
+	window->addChild(bg);
+	window->addChild(fg);
+	mrs->ui->addChild(window);
+
+	bg->model = std::make_shared<ModelRenderer>("offset_plane.mdl", "pixel.png", "", 1);
+	bg->model->uniform_buffer_object.color = Vec4(0.01f, 0.5f);
+	fg->model = std::make_shared<ModelRenderer>("offset_plane.mdl", "pixel.png", "", 1);
+	fg->model->uniform_buffer_object.color = Vec4(Vec3(0.9f, 0.01f, 0.01f), 1.0f);
+
+	for (auto& text_window : text_windows)
 	{
-		auto entity = level->add_entity();
-		Entity::adopt(entity, this->entity);
-		entity->x = i * 8 + 16;
-
-		auto sprite = level->ui_sprites.add(font);
-		sprite->color = SDL_Color({ 255, 255, 255, 255 });
-		Component::attach(sprite, entity);
-
-		sprites.push_back(sprite);
+		window->addChild(text_window);
+		text_window->minAnchor = Vec2(0.5f, 0.0f);
+		text_window->maxAnchor = Vec2(0.5f, 0.0f);
+		text_window->maxOffset = Vec2(1.0f);
 	}
 
-	{
-		auto entity = level->add_entity();
-		Entity::adopt(entity, this->entity);
-		entity->x = 64;
+	window->minAnchor = Vec2(0.5f, 0.0f);
+	window->maxAnchor = Vec2(0.5f, 0.0f);
 
-		bg = level->ui_sprites.add("pixel.png");
-		bg->sort = -2.0f;
-		bg->scale = Vec2(128 + 2, 16 + 2);
-		bg->color = SDL_Color({ 0, 0, 0, 255 });
-		Component::attach(bg, entity);
-	}
-
-	{
-		auto entity = level->add_entity();
-		Entity::adopt(entity, this->entity);
-		entity->x = 64;
-
-		fg = level->ui_sprites.add("pixel.png");
-		fg->sort = -1.0f;
-		fg->scale = Vec2(128, 16);
-		fg->color = SDL_Color({ 255, 0, 0, 255 });
-		Component::attach(fg, entity);
-	}
+	window->minOffset = Vec2(-200.0f, 20.0f);
+	window->maxOffset = Vec2(200.0f, 60.0f);
 }
 
 void HealthDisplay::tick(float dt)
@@ -55,29 +52,75 @@ void HealthDisplay::tick(float dt)
 	if (player == nullptr)
 		return;
 
-	entity->x = srs->getWidth() / 2 - 64;
-	entity->y = srs->getHeight() - 32;
+	for (auto& font : fonts)
+		if (!font->loaded)
+			return;
 
 	int64_t current_hp = player->hp.evaluate(net->time);
 
-	fg->scale.x = 128 * current_hp / player->hp.cap;
-	fg->entity->x = fg->scale.x / 2;
+	fg->maxAnchor = Vec2((float)current_hp / player->hp.cap, 1.0f);
 
-	std::string text = format(current_hp, 5) + " / " + format(player->hp.cap);
-	for (size_t i = 0; i < sprites.size(); ++i)
+	std::string lhs = format(current_hp);
+	std::string rhs = format(player->hp.cap);
+	std::string text = lhs + " / " + rhs;
+	
+	if (text != prev_text)
 	{
-		auto sprite = sprites[i];
-		if (i < text.size())
+		prev_text = text;
+		for (size_t k = 0; k < fonts.size(); ++k)
 		{
-			size_t c = text[i];
-			sprite->subsprite_x = c % 16;
-			sprite->subsprite_y = c / 16;
+			auto& font = fonts[k];
+			Vec2 offset;
+			auto model = std::make_shared<Model>();
+			model->vertices.resize(text.size() * 4);
+			model->triangles.resize(text.size() * 2);
+			for (size_t i = 0; i < text.size(); ++i)
+			{
+				unsigned char c = text[i];
+				auto& frame = font->frames[c];
+
+				model->vertices[i * 4 + 0].uv = frame.min;
+				model->vertices[i * 4 + 1].uv = Vec2(frame.max.x, frame.min.y);
+				model->vertices[i * 4 + 2].uv = frame.max;
+				model->vertices[i * 4 + 3].uv = Vec2(frame.min.x, frame.max.y);
+				model->vertices[i * 4 + 0].position = Vec2(frame.min.x, frame.max.y);
+				model->vertices[i * 4 + 1].position = frame.max;
+				model->vertices[i * 4 + 2].position = Vec2(frame.max.x, frame.min.y);
+				model->vertices[i * 4 + 3].position = frame.min;
+				for (size_t j = i * 4; j < i * 4 + 4; ++j)
+				{
+					auto& vertex = model->vertices[j];
+					vertex.position -= frame.center;
+					vertex.position *= Vec2(font->surface->w, font->surface->h);
+					vertex.position += offset;
+					vertex.normal = Vec3(0.0f, 0.0f, 1.0f);
+					vertex.bones[0] = 0;
+					vertex.bones[1] = 0;
+					vertex.bones[2] = 0;
+					vertex.bones[3] = 0;
+					vertex.weights[0] = 1.0f;
+					vertex.weights[1] = 0.0f;
+					vertex.weights[2] = 0.0f;
+					vertex.weights[3] = 0.0f;
+				}
+
+				model->triangles[i * 2 + 0].indices[0] = i * 4 + 1;
+				model->triangles[i * 2 + 0].indices[1] = i * 4 + 0;
+				model->triangles[i * 2 + 0].indices[2] = i * 4 + 2;
+				model->triangles[i * 2 + 1].indices[2] = i * 4 + 3;
+				model->triangles[i * 2 + 1].indices[0] = i * 4 + 2;
+				model->triangles[i * 2 + 1].indices[1] = i * 4 + 0;
+
+				offset += frame.advance;
+			}
+			model->loaded = true;
+
+			auto& text_window = text_windows[k];
+			text_window->model = std::make_shared<ModelRenderer>(model, font, nullptr, 1);
+			text_window->minOffset = Vec2(0.0f, 8.0f) - getAdvance(lhs, font) - getAdvance(" / ", font) * 0.5f;
+			text_window->maxOffset = text_window->minOffset + 1.0f;
 		}
-		else
-		{
-			sprite->subsprite_x = 0;
-			sprite->subsprite_y = 0;
-		}
+		text_windows[0]->model->uniform_buffer_object.color = Vec4(Vec3(0.0f), 1.0f);
 	}
 }
 
@@ -94,4 +137,15 @@ std::string HealthDisplay::format(int64_t number, size_t right) const
 	while (text.size() < right)
 		text = " " + text;
 	return text;
+}
+
+Vec2 HealthDisplay::getAdvance(const std::string& text, const std::shared_ptr<SpriteSheet>& font) const
+{
+	Vec2 offset;
+	for (size_t i = 0; i < text.size(); ++i)
+	{
+		unsigned char c = text[i];
+		offset += font->frames[c].advance;
+	}
+	return offset;
 }

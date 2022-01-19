@@ -3,6 +3,12 @@
 #include "ModelRenderer.h"
 #include "RenderContext.h"
 
+Window::Window()
+{
+	parent = nullptr;
+	maxAnchor = 1.0f;
+}
+
 Window::~Window()
 {
 	for (auto& child : children)

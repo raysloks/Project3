@@ -7,6 +7,9 @@
 NetworkMob::NetworkMob()
 {
 	angle = std::numeric_limits<float>::quiet_NaN();
+	animation_time_run = 0.0f;
+	animation_time_idle = 0.0f;
+	animation_blend = 0.0f;
 }
 
 void NetworkMob::start()
@@ -28,7 +31,39 @@ void NetworkMob::tick(float dt)
 
 	entity->z = tm->getZ(entity->xy);
 
-	getComponent<ModelRenderer>()->setDirty();
+	auto model = getComponent<ModelRenderer>();
+
+	model->setDirty();
+	if (model->animation && model->animation->loaded)
+	{
+		auto& base_pose = model->animation->base_pose;
+		Animation::Pose run_pose = base_pose;
+		auto& pose = model->pose;
+		pose = base_pose;
+
+		{
+			auto& action = model->animation->actions["run"];
+			animation_time_run += dt * v.Len() * 30.0f;
+			animation_time_run = fmodf(animation_time_run, action.length);
+			action.getPose(run_pose, base_pose, animation_time_run);
+		}
+
+		{
+			auto& action = model->animation->actions["idle"];
+			animation_time_idle += dt * 10.0f;
+			animation_time_idle = fmodf(animation_time_idle, action.length);
+			action.getPose(pose, base_pose, animation_time_idle);
+		}
+
+		animation_blend += (v != Vec2() ? -5.0f : 10.0f) * dt;
+		animation_blend = fmaxf(0.0f, fminf(1.0f, animation_blend));
+
+		for (size_t i = 0; i < pose.bones.size(); ++i)
+		{
+			pose.bones[i].matrix *= animation_blend;
+			pose.bones[i].matrix += run_pose.bones[i].matrix * (1.0f - animation_blend);
+		}
+	}
 
 	if (net->player_mob_id == id)
 	{

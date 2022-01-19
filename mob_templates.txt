@@ -4,7 +4,7 @@
 		sprite 0
 		stats
 		{
-			movement_speed 2.0
+			movement_speed 2.5
 			movement_speed_multiplier 1.0
 			hp 12
 		}

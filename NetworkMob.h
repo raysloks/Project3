@@ -22,5 +22,8 @@ public:
 	const MobTemplate * mob_template;
 
 	float angle;
+
+	float animation_time_run, animation_time_idle;
+	float animation_blend;
 };
 

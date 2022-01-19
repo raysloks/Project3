@@ -344,6 +344,12 @@
     <ClCompile Include="ModelAnimator.cpp">
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClCompile>
+    <ClCompile Include="Resource.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -372,9 +378,6 @@
     </ClInclude>
     <ClInclude Include="CustomBehaviourSystem.h">
       <Filter>Source Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Collider.h">
       <Filter>Source Files\Components</Filter>
@@ -667,6 +670,12 @@
     <ClInclude Include="ModelAnimator.h">
       <Filter>Source Files\Custom Behaviours</Filter>
     </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Source Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Source Files\Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="MobPos\last_build.txt">
@@ -678,6 +687,18 @@
       <Filter>Resource Files</Filter>
     </ShaderCompileTask>
     <ShaderCompileTask Include="data\shaders\shader.frag">
+      <Filter>Resource Files</Filter>
+    </ShaderCompileTask>
+    <ShaderCompileTask Include="data\shaders\shader_ui.frag">
+      <Filter>Resource Files</Filter>
+    </ShaderCompileTask>
+    <ShaderCompileTask Include="data\shaders\shader_sdf.frag">
+      <Filter>Resource Files</Filter>
+    </ShaderCompileTask>
+    <ShaderCompileTask Include="data\shaders\fullscreen_quad.vert">
+      <Filter>Resource Files</Filter>
+    </ShaderCompileTask>
+    <ShaderCompileTask Include="data\shaders\hbao.frag">
       <Filter>Resource Files</Filter>
     </ShaderCompileTask>
   </ItemGroup>

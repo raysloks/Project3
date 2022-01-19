@@ -6,10 +6,11 @@
 
 #include "CustomBehaviour.h"
 
-SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
+SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render, SDL_Window * window)
 {
 	//this->sprites = sprites;
 	this->render = render;
+	this->window = window;
 
 	camera_position = Vec2();
 
@@ -18,7 +19,7 @@ SpriteRenderSystem::SpriteRenderSystem(SDL_Renderer * render)
 
 	offscreen = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, target_w, target_h);
 
-	setCursor(SpriteSheet::get("cursor.png"), 1);
+	//setCursor(SpriteSheet::get("cursor.png"), 1);
 
 	use_offscreen = false;
 }
@@ -40,12 +41,7 @@ Vec2 SpriteRenderSystem::worldToScreen(const Vec2 & world_position) const
 
 void SpriteRenderSystem::tick(float dt)
 {
-	return;
-
-	auto& sprites = level->sprites.components;
-	auto& ui = level->ui_sprites.components;
-
-	SDL_GetRendererOutputSize(render, &screen_w, &screen_h);
+	SDL_GetWindowSize(window, &screen_w, &screen_h);
 
 	int scale_new = (screen_w + target_w - 1) / target_w;
 	if (scale_new < 1)
@@ -55,8 +51,13 @@ void SpriteRenderSystem::tick(float dt)
 		scale = scale_new;
 		cursor_sheet = cursor_sheet_new;
 		cursor_hotspot = cursor_hotspot_new;
-		engine->setCursor(cursor_sheet->makeScaled(scale_new), scale_new * cursor_hotspot.x, scale_new * cursor_hotspot.y);
+		engine->setCursor(cursor_sheet, cursor_hotspot.x, cursor_hotspot.y);
 	}
+
+	return;
+
+	auto& sprites = level->sprites.components;
+	auto& ui = level->ui_sprites.components;
 	
 	if (use_offscreen)
 	{

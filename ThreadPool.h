@@ -11,6 +11,7 @@ class ThreadPool
 {
 public:
 	ThreadPool();
+	ThreadPool(size_t size);
 	~ThreadPool();
 
 	void push(const std::function<void(void)>& function);

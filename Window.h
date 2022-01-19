@@ -14,6 +14,7 @@ class RenderContext;
 class Window
 {
 public:
+	Window();
 	virtual ~Window();
 
 	void addChild(const std::shared_ptr<Window>& child);

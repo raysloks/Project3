@@ -76,7 +76,7 @@ void RenderingModel::createDescriptorSets()
 		VkDescriptorImageInfo descriptor_image_info = {
 			texture->texture_sampler,
 			texture->texture_image_view,
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+			texture->texture_image_layout
 		};
 
 		VkWriteDescriptorSet ubo_write_descriptor_set = {

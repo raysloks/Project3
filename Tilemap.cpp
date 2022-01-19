@@ -81,9 +81,9 @@ float Tilemap::getZ(const Vec2& p) const
 	intmax_t y = floorf(p.y);
 	auto& tile = at(x, y);
 	if (tile.tile == 980)
-		return 1.0f + y - p.y;
+		return p.x - x;
 	if (tile.tile == 990)
-		return y - p.y;
+		return p.x - x - 1.0f;
 	return 0.0f;
 }
 

@@ -20,6 +20,8 @@
 #include "RenderPassTemplate.h"
 #include "PipelineTemplate.h"
 
+#include "Xoroshiro128Plus.h"
+
 class Model;
 class SpriteSheet;
 
@@ -42,6 +44,7 @@ public:
 	void createImageViews();
 	void createRenderPass();
 	void createUIRenderPass();
+	void createHBAORenderPass();
 	void createDescriptorSetLayout();
 	void createFramebuffers();
 	void createCommandPool();
@@ -74,10 +77,6 @@ public:
 
 	void allocateSecondaryCommandBuffer(VkCommandBuffer& command_buffer);
 	void allocateSecondaryCommandBuffers(std::vector<VkCommandBuffer>& command_buffers);
-
-	void createTextureImage();
-	void createTextureImageView();
-	void createTextureSampler();
 
 	void updateUniformBuffer(uint32_t current_image_index);
 
@@ -151,15 +150,16 @@ private:
 	VkExtent2D swapchain_extent;
 	std::vector<VkImageView> swapchain_image_views;
 
-	VkShaderModule vert_shader_module;
-	VkShaderModule frag_shader_module;
+	VkShaderModule vert_fullscreen_quad_shader_module, frag_hbao_shader_module;
+	VkShaderModule vert_shader_module, frag_shader_module, frag_ui_shader_module;
 
-	RenderPassTemplate render_pass_template, ui_render_pass_template;
-	PipelineTemplate graphics_pipeline_template, ui_graphics_pipeline_template;
+	RenderPassTemplate render_pass_template, ui_render_pass_template, hbao_render_pass_template;
+	PipelineTemplate graphics_pipeline_template, ui_graphics_pipeline_template, hbao_graphics_pipeline_template;
 
 	VkDescriptorSetLayout descriptor_set_layout;
 
 	std::vector<VkFramebuffer> swapchain_framebuffers;
+	std::vector<VkFramebuffer> hbao_framebuffers;
 
 	VkCommandPool command_pool;
 	std::vector<std::vector<VkCommandBuffer>> command_buffers;
@@ -183,11 +183,6 @@ private:
 	std::vector<const char*> extension_names;
 
 	VkDescriptorPool descriptor_pool;
-
-	VkImage texture_image;
-	VkDeviceMemory texture_image_memory;
-	VkImageView texture_image_view;
-	VkSampler texture_sampler;
 
 	VkImage depth_image;
 	VkDeviceMemory depth_image_memory;
@@ -216,4 +211,8 @@ private:
 	std::mutex present_mutex;
 
 	uint64_t present_time_unsafe, present_time_safe;
+
+	std::shared_ptr<ModelRenderer> hbao_quad;
+
+	Xoroshiro128Plus rng;
 };

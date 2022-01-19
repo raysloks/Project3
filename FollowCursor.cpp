@@ -2,9 +2,11 @@
 
 #include "Mob.h"
 
+#include "ModelRenderSystem.h"
+
 void FollowCursor::tick(float dt)
 {
-	entity->xy = srs->screenToWorld(input->getCursor());
+	entity->xy = mrs->screenToWorld(input->getCursor());
 
 	Reference<Mob> hover = nullptr;
 
@@ -12,7 +14,7 @@ void FollowCursor::tick(float dt)
 	if (sprite)
 	{
 		sprite->color = SDL_Color();
-		auto in_range = cs->overlapCircle(entity->xy + Vec2(4.0f), 8.0f);
+		auto in_range = cs->overlapCircle(entity->xy, 0.5f);
 		for (auto i : in_range)
 		{
 			auto mob = i.second->getComponent<Mob>();
