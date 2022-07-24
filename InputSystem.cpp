@@ -12,14 +12,35 @@ void InputSystem::processKeyDownEvent(SDL_KeyboardEvent & event)
 	// ignore auto-repeated key down events
 	if (event.repeat)
 		return;
-	processKeyDown(event.keysym.sym);
-	processKeyDown(keyBindings.getAction(event.keysym.sym));
+
+	KeyDownEvent ev;
+	ev.mouse_position = cursorPosition;
+	ev.key = event.keysym.sym;
+	if (engine->mrs->ui->processEvent(ev))
+		return;
+	processKeyDown(ev.key);
+
+	uint64_t action = keyBindings.getAction(ev.key);
+	ev.key = action;
+	if (engine->mrs->ui->processEvent(ev))
+		return;
+	processKeyDown(action);
 }
 
 void InputSystem::processKeyUpEvent(SDL_KeyboardEvent & event)
 {
-	processKeyUp(event.keysym.sym);
-	processKeyUp(keyBindings.getAction(event.keysym.sym));
+	KeyUpEvent ev;
+	ev.mouse_position = cursorPosition;
+	ev.key = event.keysym.sym;
+	if (engine->mrs->ui->processEvent(ev))
+		return;
+	processKeyUp(ev.key);
+
+	uint64_t action = keyBindings.getAction(ev.key);
+	ev.key = action;
+	if (engine->mrs->ui->processEvent(ev))
+		return;
+	processKeyUp(action);
 }
 
 void InputSystem::processMouseMoveEvent(SDL_MouseMotionEvent & event)
@@ -34,20 +55,44 @@ void InputSystem::processMouseWheelEvent(SDL_MouseWheelEvent & event)
 
 void InputSystem::processButtonDownEvent(SDL_MouseButtonEvent & event)
 {
-	processKeyDown(-event.button);
-	processKeyDown(keyBindings.getAction(-event.button));
-	engine->mrs->ui->onKeyDown(0);
+	KeyDownEvent ev;
+	ev.mouse_position = cursorPosition;
+	ev.key = std::numeric_limits<uint64_t>::max() - event.button;
+	if (engine->mrs->ui->processEvent(ev))
+		return;
+	processKeyDown(ev.key);
+
+	uint64_t action = keyBindings.getAction(ev.key);
+	ev.key = action;
+	if (engine->mrs->ui->processEvent(ev))
+		return;
+	processKeyDown(action);
 }
 
 void InputSystem::processButtonUpEvent(SDL_MouseButtonEvent & event)
 {
-	processKeyUp(-event.button);
-	processKeyUp(keyBindings.getAction(-event.button));
+	KeyUpEvent ev;
+	ev.mouse_position = cursorPosition;
+	ev.key = std::numeric_limits<uint64_t>::max() - event.button;
+	if (engine->mrs->ui->processEvent(ev))
+		return;
+	processKeyUp(ev.key);
+
+	uint64_t action = keyBindings.getAction(ev.key);
+	ev.key = action;
+	if (engine->mrs->ui->processEvent(ev))
+		return;
+	processKeyUp(action);
 }
 
 void InputSystem::processTextInputEvent(SDL_TextInputEvent & event)
 {
 	std::string text(event.text);
+	TextInputEvent ev;
+	ev.mouse_position = cursorPosition;
+	ev.text = text;
+	if (engine->mrs->ui->processEvent(ev))
+		return;
 	for (auto& func : onTextInput)
 		func(text);
 }
@@ -100,7 +145,7 @@ void InputSystem::tick(float dt)
 
 void InputSystem::processKeyDown(uint64_t sym)
 {
-	if (sym == -1)
+	if (sym == std::numeric_limits<uint32_t>::max())
 		return;
 	auto range = onKeyDown.equal_range(sym);
 	for (auto i = range.first; i != range.second;)
@@ -120,7 +165,7 @@ void InputSystem::processKeyDown(uint64_t sym)
 
 void InputSystem::processKeyUp(uint64_t sym)
 {
-	if (sym == -1)
+	if (sym == std::numeric_limits<uint32_t>::max())
 		return;
 	auto range = onKeyUp.equal_range(sym);
 	for (auto i = range.first; i != range.second;)
@@ -140,7 +185,7 @@ void InputSystem::processKeyUp(uint64_t sym)
 
 void InputSystem::processUnfilteredKeyDown(uint64_t sym)
 {
-	if (sym == -1)
+	if (sym == std::numeric_limits<uint32_t>::max())
 		return;
 	auto range = onUnfilteredKeyDown.equal_range(sym);
 	for (auto i = range.first; i != range.second;)

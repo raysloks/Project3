@@ -7,6 +7,7 @@
 #include <freetype/ftstroke.h>
 
 #include "SpriteSheet.h"
+#include "Model.h"
 
 #include "Vec2.h"
 

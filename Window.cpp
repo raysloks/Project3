@@ -9,6 +9,11 @@ Window::Window()
 	maxAnchor = 1.0f;
 }
 
+Window::Window(const Vec2& minAnchor, const Vec2& maxAnchor, const Vec2& minOffset, const Vec2& maxOffset) : minAnchor(minAnchor), maxAnchor(maxAnchor), minOffset(minOffset), maxOffset(maxOffset)
+{
+	parent = nullptr;
+}
+
 Window::~Window()
 {
 	for (auto& child : children)
@@ -42,18 +47,6 @@ Window * Window::getParent() const
 	return parent;
 }
 
-bool Window::onKeyDown(uint64_t key)
-{
-	for (auto& child : children)
-		child->onKeyDown(key);
-	return false;
-}
-
-bool Window::onKeyUp(uint64_t key)
-{
-	return false;
-}
-
 Vec2 Window::getMin() const
 {
 	if (parent)
@@ -82,6 +75,14 @@ Vec2 Window::getMax() const
 	}
 }
 
+void Window::setAnchorOffset(const Vec2& minAnchor, const Vec2& maxAnchor, const Vec2& minOffset, const Vec2& maxOffset)
+{
+	this->minAnchor = minAnchor;
+	this->maxAnchor = maxAnchor;
+	this->minOffset = minOffset;
+	this->maxOffset = maxOffset;
+}
+
 void Window::getRenderingModels(RenderContext& render_context)
 {
 	for (auto& child : children)
@@ -108,4 +109,19 @@ void Window::updateUniformBuffers(const RenderContext& render_context)
 		model->uniform_buffer_object.model = Matrix4::Scale(Vec3(size.x, -size.y, 1.0f)) * Matrix4::Translation(Vec3(min.x, -min.y));
 		model->updateUniformBuffer(render_context);
 	}
+}
+
+bool Window::onEvent(const KeyDownEvent & event)
+{
+	return false;
+}
+
+bool Window::onEvent(const KeyUpEvent & event)
+{
+	return false;
+}
+
+bool Window::onEvent(const TextInputEvent & event)
+{
+	return false;
 }

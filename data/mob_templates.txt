@@ -1,0 +1,22 @@
+[
+	{
+		name "Player"
+		sprite 0
+		stats
+		{
+			movement_speed 2.5
+			hp 12
+			spell_power 10
+		}
+	}
+	{
+		name "Imp"
+		sprite 1
+		stats
+		{
+			movement_speed 2.0
+			hp 7
+			spell_power 4
+		}
+	}
+]

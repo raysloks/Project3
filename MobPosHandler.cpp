@@ -12,6 +12,8 @@
 
 #include "ModelRenderSystem.h"
 
+#include <boost/uuid/string_generator.hpp>
+
 MobPosHandler::MobPosHandler() : grid(64, 64)
 {
 	link.handler = this;
@@ -26,6 +28,9 @@ MobPosHandler::MobPosHandler() : grid(64, 64)
 	heartbeat_timer = 0.0f;
 
 	endpoint = asio::ip::udp::endpoint(asio::ip::address::from_string("2a01:7e01::f03c:92ff:fe8e:50b4"), 43857);
+
+	boost::uuids::string_generator gen;
+	player_character.character_id = gen("9769f33c-0617-42fc-83b5-4c00a606e529");
 }
 
 void MobPosHandler::Connect()
@@ -39,6 +44,13 @@ void MobPosHandler::AcceptHandler(const asio::ip::udp::endpoint & endpoint)
 
 void MobPosHandler::ConnectHandler(const asio::ip::udp::endpoint & endpoint)
 {
+	MpAuthentication message;
+	message.character_id = player_character.character_id;
+	link.Send(endpoint, message);
+}
+
+void MobPosHandler::MpAuthenticationHandler(const asio::ip::udp::endpoint & endpoint, const MpAuthentication & message)
+{
 }
 
 void MobPosHandler::MpChatHandler(const asio::ip::udp::endpoint & endpoint, const MpChat & message)
@@ -48,26 +60,21 @@ void MobPosHandler::MpChatHandler(const asio::ip::udp::endpoint & endpoint, cons
 
 void MobPosHandler::MpDamageHandler(const asio::ip::udp::endpoint & endpoint, const MpDamage & message)
 {
-	mutex.lock();
+	//std::cout << "OOF" << std::endl;
+	/*mutex.lock();
 	auto mob = mobs.find(message.id);
 	if (mob != mobs.end())
 	{
 		mob->second.mob->onDamaged(message.damage);
 	}
-	mutex.unlock();
+	mutex.unlock();*/
 }
-
-std::vector<std::string> temp = { "bone_boy.png", "imp.png" };
 
 void MobPosHandler::MpMobHealthUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobHealthUpdate & message)
 {
 }
 
 void MobPosHandler::MpMobSpriteUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobSpriteUpdate & message)
-{
-}
-
-void MobPosHandler::MpMobStateUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpMobStateUpdate & message)
 {
 }
 
@@ -116,7 +123,7 @@ void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint,
 				data.path.distances[i] = (data.path.points[i + 1] - data.path.points[i]).Len();
 		}
 		int64_t diff = time - message.path->time;
-		float speed = mob.stats.movement_speed * mob.stats.movement_speed_multiplier;
+		float speed = mob.getMovementSpeed();
 		data.path.move(diff * 0.000000001 * speed);
 	}
 
@@ -125,9 +132,22 @@ void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint,
 		mob.team = message.state->team;
 		//mob.getComponent<Sprite>()->sheet = SpriteSheet::get(temp[message.state->sprite]);
 	}
+
+	if (message.cast)
+	{
+		mob.cast_queue = message.cast->queue;
+	}
 }
 
 void MobPosHandler::MpMobUpdateDataHandler(const asio::ip::udp::endpoint & endpoint, const MpMobUpdateData & message)
+{
+}
+
+void MobPosHandler::MpPlayerExperienceUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpPlayerExperienceUpdate & message)
+{
+}
+
+void MobPosHandler::MpPlayerInventoryUpdateHandler(const asio::ip::udp::endpoint & endpoint, const MpPlayerInventoryUpdate & message)
 {
 }
 
@@ -146,6 +166,9 @@ void MobPosHandler::MpPlayerMobCreatedHandler(const asio::ip::udp::endpoint & en
 	player_mob_id = message.id;
 	level->get<HealthDisplay>()->player = getMob(message.id)->second.mob;
 	level->get<ActionBar>()->player = getMob(message.id)->second.mob;
+	player_character.name = message.name;
+	player_character.equipment = message.inventory.equipment;
+	player_character.inventory = message.inventory.inventory;
 }
 
 void MobPosHandler::MpSoundHandler(const asio::ip::udp::endpoint & endpoint, const MpSound & message)
@@ -273,7 +296,13 @@ void MobPosHandler::tick(float dt)
 				MpStopCommand message;
 				message.command.time = time;
 				link.Send(endpoint, message);
-			});
+
+				auto&& mob = mobs[player_mob_id];
+				auto&& path = mob.path;
+
+				path.clear();
+				path.points.push_back(mob.mob->entity->xy);
+		});
 
 		engine->input->addKeyDownCallback(KB_CANCEL_ACTION, [this]()
 			{
@@ -318,6 +347,23 @@ void MobPosHandler::tick(float dt)
 						message.command.time = time;
 						message.action = i;
 						link.Send(endpoint, message);
+					}
+
+					// create poof
+					{
+						auto entity = level->add_entity();
+						if (target_mob)
+							Entity::adopt(entity, target_mob->entity);
+						else
+							entity->xy = target;
+
+						auto model = level->models.add("movement_indicator.mdl", "pixel.png", "movement_indicator.anm");
+						model->uniform_buffer_object.color = Vec4(0.7f, 0.0f, 0.0f, 1.0f);
+						Component::attach(model, entity);
+
+						auto animator = level->add<ModelAnimator>("move", 112.5f, 0.0f, true);
+						Component::attach(animator, entity);
+						animator->tick(0.0f);
 					}
 				});
 		}
@@ -370,7 +416,7 @@ void MobPosHandler::createMob(uint64_t id)
 
 void MobPosData::tick(float dt)
 {
-	float speed = mob->stats.movement_speed * mob->stats.movement_speed_multiplier;
+	float speed = mob->getMovementSpeed();
 
 	path.move(dt * speed);
 

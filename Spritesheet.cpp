@@ -737,11 +737,11 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeScaled(intmax_t scale) const
 
 #include <iostream>
 
-std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_color, const SDL_Color & fill_color, intmax_t cell_margin) const
+std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_color, const SDL_Color & fill_color, intmax_t cell_margin, intmax_t outline_width) const
 {
 	auto sheet = std::make_shared<SpriteSheet>();
 	auto shared_this = shared_from_this();
-	auto func = [shared_this, sheet, outline_color, fill_color, cell_margin]()
+	auto func = [shared_this, sheet, outline_color, fill_color, cell_margin, outline_width]()
 	{
 		while (!shared_this->loaded)
 			SDL_Delay(0);
@@ -778,17 +778,17 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_
 					{
 						for (intmax_t y = 0; y < nh; ++y)
 						{
-							intmax_t x_min = x - cell_margin - 1;
+							intmax_t x_min = x - cell_margin - outline_width;
 							if (x_min < 0)
 								x_min = 0;
-							intmax_t y_min = y - cell_margin - 1;
+							intmax_t y_min = y - cell_margin - outline_width;
 							if (y_min < 0)
 								y_min = 0;
 
-							intmax_t x_max = x - cell_margin + 2;
+							intmax_t x_max = x - cell_margin + 1 + outline_width;
 							if (x_max > w)
 								x_max = w;
-							intmax_t y_max = y - cell_margin + 2;
+							intmax_t y_max = y - cell_margin + 1 + outline_width;
 							if (y_max > h)
 								y_max = h;
 
@@ -809,6 +809,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_
 							if (opacity > 0)
 							{
 								color = outline_color;
+								color.a = std::min(opacity, 255ll) * outline_color.a / 255;
 							}
 
 							// hoping the compiler can optimize this into first/last loops
@@ -816,7 +817,24 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_
 							{
 								SDL_Color & og = *(SDL_Color*)(this_pixels + (y - cell_margin + r * h) * this_pitch + (x - cell_margin + c * w) * 4);
 								if (og.a > 0)
-									color = fill_color;
+								{
+									intmax_t one_minus_og_a = 255ll - og.a;
+									// hopefully this also gets optimized out
+									if (fill_color.a == 0 && fill_color.r > 0)
+									{
+										color.r = (color.r * one_minus_og_a + intmax_t(og.r) * og.a) / 255ll;
+										color.g = (color.g * one_minus_og_a + intmax_t(og.g) * og.a) / 255ll;
+										color.b = (color.b * one_minus_og_a + intmax_t(og.b) * og.a) / 255ll;
+										color.a = 255ll - (255ll - color.a) * one_minus_og_a / 255ll;
+									}
+									else
+									{
+										color.r = (color.r * one_minus_og_a + intmax_t(fill_color.r) * og.a) / 255ll;
+										color.g = (color.g * one_minus_og_a + intmax_t(fill_color.g) * og.a) / 255ll;
+										color.b = (color.b * one_minus_og_a + intmax_t(fill_color.b) * og.a) / 255ll;
+										color.a = 255ll - (255ll - color.a) * one_minus_og_a / 255ll; // shieeet??
+									}
+								}
 							}
 
 							pixel = color;
@@ -856,4 +874,68 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_
 	}
 
 	return sheet;
+}
+
+std::shared_ptr<Model> SpriteSheet::makeTextModel(const std::string& text) const
+{
+	auto model = std::make_shared<Model>();
+	auto shared_this = shared_from_this();
+	auto func = [shared_this, model, text]()
+	{
+		while (!shared_this->loaded)
+			std::this_thread::yield();
+
+		Vec2 offset;
+		model->vertices.resize(text.size() * 4);
+		model->triangles.resize(text.size() * 2);
+		for (size_t i = 0; i < text.size(); ++i)
+		{
+			unsigned char c = text[i];
+			auto it = shared_this->frames.find(c);
+			auto& frame = it->second;
+
+			model->vertices[i * 4 + 0].uv = frame.min;
+			model->vertices[i * 4 + 1].uv = Vec2(frame.max.x, frame.min.y);
+			model->vertices[i * 4 + 2].uv = frame.max;
+			model->vertices[i * 4 + 3].uv = Vec2(frame.min.x, frame.max.y);
+			model->vertices[i * 4 + 0].position = Vec2(frame.min.x, frame.max.y);
+			model->vertices[i * 4 + 1].position = frame.max;
+			model->vertices[i * 4 + 2].position = Vec2(frame.max.x, frame.min.y);
+			model->vertices[i * 4 + 3].position = frame.min;
+			for (size_t j = i * 4; j < i * 4 + 4; ++j)
+			{
+				auto& vertex = model->vertices[j];
+				vertex.position -= frame.center;
+				vertex.position *= Vec2(shared_this->surface->w, shared_this->surface->h);
+				vertex.position += offset;
+				vertex.normal = Vec3(0.0f, 0.0f, 1.0f);
+				vertex.bones[0] = 0;
+				vertex.bones[1] = 0;
+				vertex.bones[2] = 0;
+				vertex.bones[3] = 0;
+				vertex.weights[0] = 1.0f;
+				vertex.weights[1] = 0.0f;
+				vertex.weights[2] = 0.0f;
+				vertex.weights[3] = 0.0f;
+			}
+
+			model->triangles[i * 2 + 0].indices[0] = i * 4 + 1;
+			model->triangles[i * 2 + 0].indices[1] = i * 4 + 0;
+			model->triangles[i * 2 + 0].indices[2] = i * 4 + 2;
+			model->triangles[i * 2 + 1].indices[2] = i * 4 + 3;
+			model->triangles[i * 2 + 1].indices[0] = i * 4 + 2;
+			model->triangles[i * 2 + 1].indices[1] = i * 4 + 0;
+
+			offset += frame.advance;
+		}
+
+		model->loaded = true;
+	};
+
+	if (loaded)
+		func();
+	else
+		thread_pool.push(func);
+
+	return model;
 }

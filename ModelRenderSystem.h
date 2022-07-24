@@ -46,6 +46,7 @@ public:
 	void createUIRenderPass();
 	void createHBAORenderPass();
 	void createDescriptorSetLayout();
+	void createHBAODescriptorSetLayout();
 	void createFramebuffers();
 	void createCommandPool();
 	void createDepthBuffer();
@@ -60,7 +61,6 @@ public:
 	void stageBufferData(void * source_data, VkDeviceSize size, VkDeviceSize destination_offset);
 	void stageUniformBufferData(void * source_data, VkDeviceSize size, VkDeviceSize destination_offset);
 
-	void copyBuffer(VkBuffer source, VkBuffer destination, VkDeviceSize size, VkCommandBuffer command_buffer, VkFence fence);
 	void copyBuffers(VkBuffer source, VkBuffer destination, const std::vector<VkBufferCopy>& regions, VkCommandBuffer command_buffer, VkFence fence);
 
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
@@ -123,6 +123,8 @@ public:
 
 	Vec3 camera_position;
 	Quaternion camera_rotation;
+	Vec2 camera_shift;
+	float aspect_ratio_multiplier;
 
 	std::shared_ptr<Window> ui;
 
@@ -130,6 +132,12 @@ public:
 	{
 		Matrix4 view;
 		Matrix4 proj;
+		float time;
+	};
+
+	struct UniformBufferObjectHBAO
+	{
+		float time;
 	};
 
 	uint64_t wait_fences_a, wait_fences_b;
@@ -156,7 +164,7 @@ private:
 	RenderPassTemplate render_pass_template, ui_render_pass_template, hbao_render_pass_template;
 	PipelineTemplate graphics_pipeline_template, ui_graphics_pipeline_template, hbao_graphics_pipeline_template;
 
-	VkDescriptorSetLayout descriptor_set_layout;
+	VkDescriptorSetLayout descriptor_set_layout, hbao_descriptor_set_layout;
 
 	std::vector<VkFramebuffer> swapchain_framebuffers;
 	std::vector<VkFramebuffer> hbao_framebuffers;

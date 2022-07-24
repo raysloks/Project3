@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Mob.h"
+#include "Cast.h"
 
 class MobTemplate;
 
@@ -25,5 +26,7 @@ public:
 
 	float animation_time_run, animation_time_idle;
 	float animation_blend;
+
+	std::vector<Cast> cast_queue;
 };
 

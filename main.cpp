@@ -379,7 +379,7 @@ Level * create_level(int floor)
 	}
 
 	// create pillar
-	if (true)
+	if (false)
 	{
 		auto entity = level->add_entity();
 		entity->x = 16.0f;
@@ -468,6 +468,8 @@ Level * create_level(int floor)
 
 #include "Window.h"
 
+#include "DiamondScript.h"
+
 int main(int argc, char* args[])
 {
 	/*auto bp = Blueprint::load("test.bp");
@@ -482,6 +484,7 @@ int main(int argc, char* args[])
 	void * mem = VirtualAlloc(nullptr, max_mem_size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
 	//while (true)
+	//if (false)
 	{
 		//try
 		{
@@ -495,51 +498,7 @@ int main(int argc, char* args[])
 
 			ScriptCompile comp(mem);
 
-			ScriptTypeData float_data = NewScriptTypeData<float>();
-
-			std::shared_ptr<ScriptClassData> test_class_data(new ScriptClassData("Window", sizeof(Window), true));
-
-			std::shared_ptr<ScriptClassData> vec2_class_data(new ScriptClassData("Vec2", sizeof(Vec2)));
-			vec2_class_data->AddMember("x", float_data, offsetof(Vec2, x));
-			vec2_class_data->AddMember("y", float_data, offsetof(Vec2, y));
-
-			ScriptTypeData vec2_data;
-			vec2_data.type = ST_CLASS;
-			vec2_data.class_data = vec2_class_data;
-
-			ScriptTypeData parent_data;
-			parent_data.type = ST_CLASS;
-			parent_data.indirection = 1;
-			parent_data.class_data = test_class_data;
-
-			test_class_data->AddMember("minAnchor", vec2_data, offsetof(Window, minAnchor));
-			test_class_data->AddMember("maxAnchor", vec2_data, offsetof(Window, maxAnchor));
-			test_class_data->AddMember("minOffset", vec2_data, offsetof(Window, minOffset));
-			test_class_data->AddMember("maxOffset", vec2_data, offsetof(Window, maxOffset));
-
-			ScriptFunctionPrototype get_parent_prototype;
-			get_parent_prototype.cc = CC_MICROSOFT_X64;
-			get_parent_prototype.ret = parent_data;
-			test_class_data->AddFunction("getParent", get_parent_prototype, &Window::getParent);
-
-			ScriptFunctionPrototype destructor_data;
-			destructor_data.cc = CC_MICROSOFT_X64;
-			test_class_data->AddVirtualFunction("~", destructor_data);
-
-			ScriptFunctionPrototype func_data;
-			func_data.cc = CC_MICROSOFT_X64;
-			func_data.ret = NewScriptTypeData<bool>();
-			func_data.params.push_back(NewScriptTypeData<uint64_t>());
-			test_class_data->AddVirtualFunction("onKeyDown", func_data, &Window::onKeyDown);
-			test_class_data->AddVirtualFunction("onKeyUp", func_data, &Window::onKeyUp);
-
-			ScriptFunctionPrototype get_func_data;
-			get_func_data.cc = CC_MICROSOFT_X64;
-			get_func_data.ret = vec2_data;
-			test_class_data->AddFunction("getMin", get_func_data, &Window::getMin);
-			test_class_data->AddFunction("getMax", get_func_data, &Window::getMax);
-
-			comp.classes.insert(std::make_pair("Window", test_class_data));
+			Diamond::populate(comp);
 
 			for (auto i = code.statements.begin(); i != code.statements.end(); ++i)
 			{
@@ -599,62 +558,13 @@ int main(int argc, char* args[])
 	engine.input->keyBindings.set(KB_ACTION_8, SDLK_9);
 	engine.input->keyBindings.set(KB_ACTION_9, SDLK_0);
 
-	//engine.input->keyBindings.set(KB_ACTION_1, -1);
-	engine.input->keyBindings.set(KB_MOVE_ATTACK_CURSOR, -3);
-	//engine.input->keyBindings.set(KB_ATTACK_CURSOR, -3);
+	//engine.input->keyBindings.set(KB_ACTION_1, -2);
+	engine.input->keyBindings.set(KB_MOVE_ATTACK_CURSOR, std::numeric_limits<uint64_t>::max() - SDL_BUTTON_RIGHT);
+	//engine.input->keyBindings.set(KB_ATTACK_CURSOR, -4);
 	engine.input->keyBindings.set(KB_STOP_MOVE, SDLK_s);
 	engine.input->keyBindings.set(KB_CANCEL_ACTION, SDLK_c);
 
-	// TODO remove after a better option to keep a resource loaded is added
-	auto swoop = SpriteSheet::get("swoop_small.png");
-	auto stairs_effect_map = SpriteSheet::get("stairs_effect_map_two.png");
-	stairs_effect_map->offset_y = -8;
-
-	auto floor = SpriteSheet::get("floor.png");
-
-	auto floor_iso_gen_lossy = floor->makeIsometricFloorLossy(false);
-	auto floor_iso_gen_lossy_blur = floor->makeIsometricFloorLossy(true);
-	auto floor_iso_gen_lossless = floor->makeIsometricFloorLossless();
-
-	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy", floor_iso_gen_lossy));
-	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossy_blur", floor_iso_gen_lossy_blur));
-	SpriteSheet::resources.insert(std::make_pair("floor_iso_gen_lossless", floor_iso_gen_lossless));
-
 	Level * level = create_level(0);
-
-	// create player
-	if (false)
-	{
-		auto entity = level->add_entity();
-		entity->x = 16;
-		entity->y = 16 * (level->tilemap.getHeight() - 2);
-
-		auto sheet = SpriteSheet::get("bone_boy.png");
-		sheet->columns = 12;
-		sheet->rows = 2;
-		sheet->offset_y = -8;
-
-		auto player = level->add<Player>();
-		Component::attach(player, entity);
-
-		Component::attach(level->circle_colliders.add(3.0f), entity);
-
-		auto sprite = level->sprites.add(sheet);
-		Component::attach(sprite, entity);
-
-		auto player_entity = entity;
-
-		// create shadow
-		{
-			auto entity = level->add_entity();
-			Entity::adopt(entity, player_entity);
-
-			auto sprite = level->sprites.add("shadow4_iso.png");
-			sprite->sort = 0;
-			sprite->color = SDL_Color({ 0, 0, 0, 32 });
-			Component::attach(sprite, entity);
-		}
-	}
 
 	engine.setLevel(level);
 

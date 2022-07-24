@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "MpMobAurasUpdate.h"
+#include "MpMobCastUpdate.h"
 #include "MpMobHealthUpdate.h"
 #include "MpMobStateUpdate.h"
 #include "MpMobTypeUpdate.h"
@@ -61,6 +62,16 @@ void MpMobUpdate::serialize(std::ostream& os) const
 	{
 		os.put(false);
 	}
+	if (this->cast)
+	{
+		os.put(true);
+		auto&& value = *this->cast;
+	value.serialize(os);
+	}
+	else
+	{
+		os.put(false);
+	}
 }
 
 void MpMobUpdate::deserialize(std::istream& is)
@@ -93,6 +104,12 @@ void MpMobUpdate::deserialize(std::istream& is)
 	{
 		this->type = std::make_unique<MpMobTypeUpdate>();
 		is.read((char*)this->type.get(), sizeof(MpMobTypeUpdate));
+	}
+	if (is.get())
+	{
+		this->cast = std::make_unique<MpMobCastUpdate>();
+		auto&& value = *this->cast;
+	value.deserialize(is);
 	}
 }
 

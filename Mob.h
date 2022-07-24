@@ -3,6 +3,7 @@
 #include "CustomBehaviour.h"
 
 #include "MobStatBlock.h"
+#include "MobStats.h"
 
 #include "ResourceBar.h"
 
@@ -32,10 +33,13 @@ public:
 
 	float cooldown;
 
-	MobStatBlock stats, base_stats;
+	MobStatBlock stat_cache;
+	MobStats stats;
 
 	std::vector<AbilitySlot> abilities;
 
 	void recalculateStats();
+
+	float getMovementSpeed() const;
 };
 

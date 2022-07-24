@@ -6,6 +6,7 @@
 #include <iostream>
 
 class MpMobAurasUpdate;
+class MpMobCastUpdate;
 class MpMobHealthUpdate;
 class MpMobStateUpdate;
 class MpMobTypeUpdate;
@@ -21,6 +22,7 @@ public:
 	std::unique_ptr<MpMobAurasUpdate> auras;
 	std::unique_ptr<MpMobStateUpdate> state;
 	std::unique_ptr<MpMobTypeUpdate> type;
+	std::unique_ptr<MpMobCastUpdate> cast;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

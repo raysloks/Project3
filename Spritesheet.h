@@ -9,6 +9,7 @@
 #include "Vec2.h"
 
 class ModelRenderSystem;
+class Model;
 
 class SpriteSheet :
 	public Resource<SpriteSheet>
@@ -40,7 +41,9 @@ public:
 
 	std::shared_ptr<SpriteSheet> makeScaled(intmax_t scale) const;
 
-	std::shared_ptr<SpriteSheet> makeOutline(const SDL_Color & outline_color = SDL_Color({ 255, 255, 255, 255 }), const SDL_Color & fill_color = SDL_Color({ 0, 0, 0, 0 }), intmax_t cell_margin = 1) const;
+	std::shared_ptr<SpriteSheet> makeOutline(const SDL_Color & outline_color = SDL_Color({ 255, 255, 255, 255 }), const SDL_Color & fill_color = SDL_Color({ 0, 0, 0, 0 }), intmax_t cell_margin = 1, intmax_t outline_width = 1) const;
+
+	std::shared_ptr<Model> makeTextModel(const std::string& text) const;
 
 	SDL_Texture * getTexture(SDL_Renderer * render);
 

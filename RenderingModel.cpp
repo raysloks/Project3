@@ -118,7 +118,7 @@ void RenderingModel::createDescriptorSets()
 			nullptr
 		};
 
-		std::array<VkWriteDescriptorSet, 3> write_descriptor_sets = {
+		std::vector<VkWriteDescriptorSet> write_descriptor_sets = {
 			ubo_write_descriptor_set,
 			vp_write_descriptor_set,
 			sampler_write_descriptor_set

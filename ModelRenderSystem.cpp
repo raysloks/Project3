@@ -46,6 +46,7 @@ ModelRenderSystem::ModelRenderSystem() : render_pass_template(this), ui_render_p
 	present_time_safe = present_time_unsafe;
 
 	field_of_view = 70.0f;
+	aspect_ratio_multiplier = 1.0f;
 
 	vert_shader_module = nullptr;
 	frag_shader_module = nullptr;
@@ -482,7 +483,7 @@ void ModelRenderSystem::createDescriptorSetLayout()
 		1,
 		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 		1,
-		VK_SHADER_STAGE_VERTEX_BIT,
+		VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 		nullptr
 	};
 
@@ -494,7 +495,7 @@ void ModelRenderSystem::createDescriptorSetLayout()
 		nullptr
 	};
 
-	std::array<VkDescriptorSetLayoutBinding, 3> descriptor_set_layout_bindings = { ubo_layout_binding, vp_layout_binding, sampler_layout_binding };
+	std::vector<VkDescriptorSetLayoutBinding> descriptor_set_layout_bindings = { ubo_layout_binding, vp_layout_binding, sampler_layout_binding };
 
 	VkDescriptorSetLayoutCreateInfo descriptor_set_layout_create_info = {
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
@@ -505,6 +506,38 @@ void ModelRenderSystem::createDescriptorSetLayout()
 	};
 
 	if (vkCreateDescriptorSetLayout(device, &descriptor_set_layout_create_info, nullptr, &descriptor_set_layout))
+		throw std::runtime_error("failed to create descriptor set layout.");
+}
+
+void ModelRenderSystem::createHBAODescriptorSetLayout()
+{
+	VkDescriptorSetLayoutBinding ubo_layout_binding = {
+		0,
+		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+		1,
+		VK_SHADER_STAGE_FRAGMENT_BIT,
+		nullptr
+	};
+
+	VkDescriptorSetLayoutBinding sampler_layout_binding = {
+		2,
+		VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+		1,
+		VK_SHADER_STAGE_FRAGMENT_BIT,
+		nullptr
+	};
+
+	std::vector<VkDescriptorSetLayoutBinding> descriptor_set_layout_bindings = { ubo_layout_binding, sampler_layout_binding };
+
+	VkDescriptorSetLayoutCreateInfo descriptor_set_layout_create_info = {
+		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+		nullptr,
+		0,
+		(uint32_t)descriptor_set_layout_bindings.size(),
+		descriptor_set_layout_bindings.data()
+	};
+
+	if (vkCreateDescriptorSetLayout(device, &descriptor_set_layout_create_info, nullptr, &hbao_descriptor_set_layout))
 		throw std::runtime_error("failed to create descriptor set layout.");
 }
 
@@ -922,21 +955,6 @@ void ModelRenderSystem::stageUniformBufferData(void * source_data, VkDeviceSize 
 	uniform_staging_offsets[current_frame_index] = (uniform_staging_offsets[current_frame_index] + alignment - 1) / alignment * alignment;
 }
 
-void ModelRenderSystem::copyBuffer(VkBuffer source, VkBuffer destination, VkDeviceSize size, VkCommandBuffer command_buffer, VkFence fence)
-{
-	//TemporaryCommandBuffer command_buffer(device, command_pool, fence);
-
-	//VkBufferCopy region = {
-	//	0,
-	//	0,
-	//	size
-	//};
-
-	//vkCmdCopyBuffer(command_buffer, source, destination, 1, &region);
-
-	//command_buffer.submit(graphics_queue);
-}
-
 void ModelRenderSystem::copyBuffers(VkBuffer source, VkBuffer destination, const std::vector<VkBufferCopy>& regions, VkCommandBuffer command_buffer, VkFence fence)
 {
 	VkCommandBufferBeginInfo command_buffer_begin_info = {
@@ -1260,7 +1278,8 @@ void ModelRenderSystem::updateUniformBuffer(uint32_t current_image_index)
 	{
 		UniformBufferObject uniform_buffer_object;
 		uniform_buffer_object.view = getViewMatrix();
-		uniform_buffer_object.proj = Matrix4::Perspective(getFieldOfView(), getAspectRatio(), 20.0f, 50.0f);
+		uniform_buffer_object.proj = Matrix4::Perspective(getFieldOfView(), getAspectRatio(), 20.0f, 80.0f) * Matrix4::Translation(camera_shift);
+		uniform_buffer_object.time = rng.next_float() * (1 << 16);
 
 		//// TODO change to blue noise
 		//uniform_buffer_object.proj.data[12] += (rng.next_float() - 0.5f) * 40.0f / getWidth();
@@ -1466,7 +1485,7 @@ uint64_t ModelRenderSystem::getPresentTime() const
 
 float ModelRenderSystem::getAspectRatio() const
 {
-	return swapchain_extent.width / (float)swapchain_extent.height;
+	return swapchain_extent.width / (float)swapchain_extent.height * aspect_ratio_multiplier;
 }
 
 float ModelRenderSystem::getFieldOfView() const
@@ -1491,7 +1510,7 @@ uint32_t ModelRenderSystem::getHeight() const
 
 Vec2 ModelRenderSystem::screenToWorld(const Vec2& screen_position) const
 {
-	Matrix4 view_proj = getViewMatrix() * Matrix4::Perspective(field_of_view, getAspectRatio(), 0.1f, 100.0f);
+	Matrix4 view_proj = getViewMatrix() * Matrix4::Perspective(field_of_view, getAspectRatio(), 20.0f, 100.0f) * Matrix4::Translation(camera_shift);
 
 	Matrix3 plane_proj = view_proj;
 	plane_proj.mtrx[2][0] = view_proj.mtrx[3][0];

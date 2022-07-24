@@ -15,7 +15,7 @@ void FollowCursor::tick(float dt)
 	{
 		sprite->color = SDL_Color();
 		auto in_range = cs->overlapCircle(entity->xy, 0.5f);
-		for (auto i : in_range)
+		for (auto& i : in_range)
 		{
 			auto mob = i.second->getComponent<Mob>();
 			if (mob)
@@ -26,7 +26,10 @@ void FollowCursor::tick(float dt)
 		}
 	}
 
-	srs->setCursor(SpriteSheet::get("cursor.png"), 1);
+	if (base_cursor_sheet == nullptr)
+		base_cursor_sheet = SpriteSheet::get("cursor.png");
+
+	srs->setCursor(base_cursor_sheet, 1);
 
 	if (hover)
 	{
@@ -64,6 +67,15 @@ void FollowCursor::tick(float dt)
 				sprite->color = SDL_Color({ 255, 0, 0, a });
 				srs->setCursor(SpriteSheet::get("cursor_attack.png"), 1);
 			}
+		}
+
+		if (hover->team == 0)
+		{
+		}
+		else
+		{
+			uint8_t a = cosf(t * 6) * 50 + 200;
+			srs->setCursor(base_cursor_sheet->makeOutline({ 255, 0, 0, a }, { 255, 255, 255, 0 }, 2, 2), 3);
 		}
 
 		current_hover = hover;

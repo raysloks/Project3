@@ -18,6 +18,9 @@ int64 a
 int64 b
 int64 c
 int64 d
+MpAuthentication
+uuid character_id
+uint8 auth_token[]
 MpCancelCommand
 MpCommand command
 MpChat
@@ -42,6 +45,8 @@ int64 duration
 int64 amount
 MpMobAurasUpdate
 MpAuraUpdate updated[]
+MpMobCastUpdate
+Cast queue[]
 MpMobHealthUpdate
 int64 current
 int64 cap
@@ -67,6 +72,7 @@ MpPath * path
 MpMobAurasUpdate * auras
 MpMobStateUpdate * state
 MpMobTypeUpdate * type
+MpMobCastUpdate * cast
 MpMobUpdateData
 uint64 tick
 vec3 position
@@ -78,11 +84,19 @@ vec2 target
 MpPath
 uint64 time
 vec2 points[]
+MpPlayerExperienceUpdate
+int64 experience
+MpPlayerInventoryUpdate
+ItemData equipment[]
+ItemData inventory[]
 MpPlayerMobAbilitiesUpdate
 uint64 id
 uint64 abilities[]
 MpPlayerMobCreated
 uint64 id
+string name
+MpPlayerInventoryUpdate inventory
+MpPlayerExperienceUpdate experience
 MpPointTargetActionCommand
 MpActionCommand action
 vec2 target

@@ -1,10 +1,17 @@
 #include "Mob.h"
 
+#include "FloatingText.h"
+
+#include "StatContext.h"
+
 Mob::Mob()
 {
 	hp = 3;
 
 	cooldown = 0.0f;
+
+	for (size_t i = 0; i < stats.stats_array.size(); ++i)
+		stats.stats_array[i] = 0;
 }
 
 void Mob::start()
@@ -33,8 +40,6 @@ void Mob::onCollision(const Collision & collision)
 
 	n = collision.n;
 }
-
-#include "FloatingText.h"
 
 void Mob::onDamaged(int64_t damage)
 {
@@ -87,5 +92,11 @@ void Mob::onDamaged(int64_t damage)
 
 void Mob::recalculateStats()
 {
-	memcpy(&stats, &base_stats, sizeof(MobStatBlock));
+	StatContext stat_context{ 0 };
+	stat_cache = stats.calculateStats(stat_context);
+}
+
+float Mob::getMovementSpeed() const
+{
+	return stat_cache.movement_speed * STAT_UNIT_FACTOR;
 }

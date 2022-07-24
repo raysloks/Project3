@@ -12,6 +12,8 @@
 
 #include "Font.h"
 
+#include "Border.h"
+
 void HealthDisplay::start()
 {
 	fonts.push_back(Font::get("RobotoMono-Regular.ttf")->getAtlas(Vec2(28.0f), 4.0f));
@@ -45,6 +47,10 @@ void HealthDisplay::start()
 
 	window->minOffset = Vec2(-200.0f, 20.0f);
 	window->maxOffset = Vec2(200.0f, 60.0f);
+
+	auto border = std::make_shared<Border>(0.0f, 2.0f);
+	border->setColor(Vec4(Vec3(0.0f), 1.0f));
+	window->addChild(border);
 }
 
 void HealthDisplay::tick(float dt)

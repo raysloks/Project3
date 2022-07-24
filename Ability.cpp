@@ -16,7 +16,7 @@ void Ability::load()
 	if (coal)
 	{
 		coal->print(std::cout);
-		for (auto element : coal->elements)
+		for (auto& element : coal->elements)
 		{
 			Ability ability;
 			ability.name = element["name"].string;

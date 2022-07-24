@@ -8,8 +8,22 @@ dynamic class Main : Window
 	{
 	};
 
-	uint onKeyDown(uint key)
+	uint onEvent(KeyDownEvent * event)
 	{
+		if (event.key == -2)
+		{
+			maxOffset.x = event.mouse_position.x + 1f;
+			maxOffset.y = getParent().getMax().y - getParent().getMin().y - event.mouse_position.y;
+		}
 		return 0;
+	};
+
+	uint onEvent(KeyUpEvent * event)
+	{
+		KeyDownEvent ev;
+		ev.mouse_position.x = event.mouse_position.x;
+		ev.mouse_position.y = event.mouse_position.y;
+		ev.key = event.key;
+		return onEvent(&ev);
 	};
 };

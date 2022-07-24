@@ -72,19 +72,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Emil\Documents\Libraries\boost_1_69_0;C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Emil\Documents\Libraries\boost_1_69_0;C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Emil\Documents\Libraries\boost_1_69_0;C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\lib\x64;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Emil\Documents\Libraries\boost_1_69_0;C:\Users\Emil\Downloads\freetype-2.11.1\include;C:\Users\Emil\Documents\Libraries\asio-1.16.1\include;C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\include;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\include;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Emil\Downloads\SDL2_net-devel-2.0.1-VC\SDL2_net-2.0.1\lib\x64;M:\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;M:\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Filip\sdl_stuff\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Filip\sdl_stuff\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;C:\Users\Emil\Downloads\SDL2_image-devel-2.0.5-VC\SDL2_image-2.0.5\lib\x64;C:\Users\Emil\Downloads\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -198,8 +198,10 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Blueprint.cpp" />
     <ClCompile Include="Body.cpp" />
+    <ClCompile Include="Border.cpp" />
     <ClCompile Include="BouncingBall.cpp" />
     <ClCompile Include="CircleCollider.cpp" />
+    <ClCompile Include="ClientItemView.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
@@ -207,6 +209,7 @@
     <ClCompile Include="CustomBehaviour.cpp" />
     <ClCompile Include="CustomBehaviourSystem.cpp" />
     <ClCompile Include="DiamondComponent.cpp" />
+    <ClCompile Include="DiamondScript.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -223,12 +226,15 @@
     <ClCompile Include="MobPos\MpAttackCommand.cpp" />
     <ClCompile Include="MobPos\MpAttackMoveCommand.cpp" />
     <ClCompile Include="MobPos\MpAuraUpdate.cpp" />
+    <ClCompile Include="MobPos\MpAuthentication.cpp" />
     <ClCompile Include="MobPos\MpCancelCommand.cpp" />
     <ClCompile Include="MobPos\MpCommand.cpp" />
     <ClCompile Include="MobPos\MpDamage.cpp" />
     <ClCompile Include="MobPos\MpDirectionTargetActionCommand.cpp" />
     <ClCompile Include="MobPos\MpLinearResourceChange.cpp" />
+    <ClCompile Include="MobPos\MpMobActionUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobAurasUpdate.cpp" />
+    <ClCompile Include="MobPos\MpMobCastUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobHealthUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobSpriteUpdate.cpp" />
     <ClCompile Include="MobPos\MpMobStateUpdate.cpp" />
@@ -237,6 +243,8 @@
     <ClCompile Include="MobPos\MpMobTypeUpdate.cpp" />
     <ClCompile Include="MobPos\MpMoveCommand.cpp" />
     <ClCompile Include="MobPos\MpPath.cpp" />
+    <ClCompile Include="MobPos\MpPlayerExperienceUpdate.cpp" />
+    <ClCompile Include="MobPos\MpPlayerInventoryUpdate.cpp" />
     <ClCompile Include="MobPos\MpPlayerMobAbilitiesUpdate.cpp" />
     <ClCompile Include="MobPos\MpPointTargetActionCommand.cpp" />
     <ClCompile Include="MobPos\MpStopCommand.cpp" />
@@ -303,8 +311,10 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Blueprint.h" />
     <ClInclude Include="Body.h" />
+    <ClInclude Include="Border.h" />
     <ClInclude Include="BouncingBall.h" />
     <ClInclude Include="CircleCollider.h" />
+    <ClInclude Include="ClientItemView.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="CollisionSystem.h" />
@@ -313,6 +323,7 @@
     <ClInclude Include="CustomBehaviour.h" />
     <ClInclude Include="CustomBehaviourSystem.h" />
     <ClInclude Include="DiamondComponent.h" />
+    <ClInclude Include="DiamondScript.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Entity.h" />
@@ -330,12 +341,15 @@
     <ClInclude Include="MobPos\MpAttackCommand.h" />
     <ClInclude Include="MobPos\MpAttackMoveCommand.h" />
     <ClInclude Include="MobPos\MpAuraUpdate.h" />
+    <ClInclude Include="MobPos\MpAuthentication.h" />
     <ClInclude Include="MobPos\MpCancelCommand.h" />
     <ClInclude Include="MobPos\MpCommand.h" />
     <ClInclude Include="MobPos\MpDamage.h" />
     <ClInclude Include="MobPos\MpDirectionTargetActionCommand.h" />
     <ClInclude Include="MobPos\MpLinearResourceChange.h" />
+    <ClInclude Include="MobPos\MpMobActionUpdate.h" />
     <ClInclude Include="MobPos\MpMobAurasUpdate.h" />
+    <ClInclude Include="MobPos\MpMobCastUpdate.h" />
     <ClInclude Include="MobPos\MpMobHealthUpdate.h" />
     <ClInclude Include="MobPos\MpMobSpriteUpdate.h" />
     <ClInclude Include="MobPos\MpMobStateUpdate.h" />
@@ -344,6 +358,8 @@
     <ClInclude Include="MobPos\MpMobTypeUpdate.h" />
     <ClInclude Include="MobPos\MpMoveCommand.h" />
     <ClInclude Include="MobPos\MpPath.h" />
+    <ClInclude Include="MobPos\MpPlayerExperienceUpdate.h" />
+    <ClInclude Include="MobPos\MpPlayerInventoryUpdate.h" />
     <ClInclude Include="MobPos\MpPlayerMobAbilitiesUpdate.h" />
     <ClInclude Include="MobPos\MpPointTargetActionCommand.h" />
     <ClInclude Include="MobPos\MpStopCommand.h" />
@@ -405,6 +421,7 @@
     <ClInclude Include="VideoMemoryAllocatorSettings.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="WindowEvents.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="MobPos\last_build.txt" />

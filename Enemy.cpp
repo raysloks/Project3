@@ -10,7 +10,7 @@ Enemy::Enemy()
 {
 	hp = 10;
 	
-	base_stats.movement_speed = 15.0f;
+	//base_stats.movement_speed = 15.0f;
 	/*base_stats.move_acc = 30.0f;
 	base_stats.move_dec = 30.0f;*/
 }

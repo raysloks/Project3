@@ -21,10 +21,12 @@ class Resource :
 {
 public:
 	static std::map<std::string, std::weak_ptr<T>> resources;
+	static std::mutex mutex;
 
 	static std::shared_ptr<T> get(const std::string& fname)
 	{
 		std::shared_ptr<T> resource = nullptr;
+		std::lock_guard<std::mutex> guard(mutex);
 		auto i = resources.find(fname);
 		if (i != resources.end())
 			resource = i->second.lock();
@@ -40,4 +42,6 @@ public:
 
 template <class T>
 std::map<std::string, std::weak_ptr<T>> Resource<T>::resources;
+template <class T>
+std::mutex Resource<T>::mutex;
 

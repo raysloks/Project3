@@ -15,5 +15,7 @@ public:
 	Reference<Mob> current_hover;
 
 	float t;
+
+	std::shared_ptr<SpriteSheet> base_cursor_sheet;
 };
 

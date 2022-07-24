@@ -3,6 +3,8 @@
 		name "Melee"
 		icon 1
 		range 1
+		wind_up 500000000
+		wind_down 500000000
 		effects
 		[
 			{
@@ -15,6 +17,7 @@
 		name "Skull-Splitting Strike"
 		icon 12
 		range 2
+		wind_up 300000000
 		effects
 		[
 			{
@@ -27,6 +30,7 @@
 		name "Power Word: Heal"
 		icon 0
 		range 8
+		wind_up 100000000
 		effects
 		[
 			{
@@ -39,6 +43,7 @@
 		name "Power Word: Shield"
 		icon 0
 		range 8
+		wind_up 100000000
 		effects
 		[
 			{
@@ -51,6 +56,7 @@
 		name "Truestrike"
 		icon 0
 		range 1
+		wind_up 100000000
 		effects
 		[
 			{
@@ -63,6 +69,7 @@
 		name "Ignite"
 		icon 9
 		range 2
+		wind_up 200000000
 		effects
 		[
 			{
@@ -75,6 +82,7 @@
 		name "Lightning Bolt"
 		icon 2
 		range 8
+		wind_up 1000000000
 		effects
 		[
 			{

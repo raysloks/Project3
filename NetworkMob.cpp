@@ -63,6 +63,21 @@ void NetworkMob::tick(float dt)
 			pose.bones[i].matrix *= animation_blend;
 			pose.bones[i].matrix += run_pose.bones[i].matrix * (1.0f - animation_blend);
 		}
+
+		cast_queue.erase(std::remove_if(cast_queue.begin(), cast_queue.end(), [](const Cast& cast)
+			{
+				const Ability * ability = Ability::get(cast.ability_id);
+				return net->time > cast.start + ability->wind_up + ability->wind_down;
+			}
+		), cast_queue.end());
+		if (cast_queue.size())
+		{
+			auto& cast = cast_queue.front();
+			auto& action = model->animation->actions["attack"];
+			const Ability * ability = Ability::get(cast.ability_id);
+			float animation_time = (float)(net->time - cast.start) / ability->wind_up;
+			action.getPose(pose, base_pose, animation_time * action.length);
+		}
 	}
 
 	if (net->player_mob_id == id)
@@ -70,7 +85,8 @@ void NetworkMob::tick(float dt)
 		srs->camera_position = entity->xy;
 		mrs->camera_position = entity->getPosition() + Vec3(-16.0f, -16.0f, 23.0f);
 		mrs->camera_rotation = Quaternion(M_PI * 1.75f, Vec3(0.0f, 0.0f, 1.0f)) * Quaternion(-M_PI * 0.75f, Vec3(1.0f, 0.0f, 0.0f));
-		mrs->field_of_view = 30.0f;
+		mrs->field_of_view = 25.0f;
+		mrs->camera_shift = Vec2(0.0f, -0.125f);
 	}
 }
 
@@ -80,8 +96,8 @@ void NetworkMob::setMobTemplate(uint64_t new_mob_template_id)
 {
 	mob_template_id = new_mob_template_id;
 	mob_template = MobTemplate::get(mob_template_id);
-	memcpy(&base_stats, &mob_template->stats, sizeof(MobStatBlock));
+	stats.base_stats = mob_template->stats;
 	recalculateStats();
 
-	hp.set_cap(stats.hp);
+	hp.set_cap(stat_cache.hp);
 }

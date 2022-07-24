@@ -21,7 +21,7 @@ Player::Player()
 
 	blood = 0;
 
-	base_stats.movement_speed = 24.0f;
+	//base_stats.movement_speed = 24.0f;
 	/*base_stats.move_acc = 60.0f;
 	base_stats.move_dec = 240.0f;*/
 
