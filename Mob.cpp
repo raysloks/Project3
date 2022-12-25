@@ -10,8 +10,8 @@ Mob::Mob()
 
 	cooldown = 0.0f;
 
-	for (size_t i = 0; i < stats.stats_array.size(); ++i)
-		stats.stats_array[i] = 0;
+	for (size_t i = 0; i < stats.all.size(); ++i)
+		stats.all[i] = 0;
 }
 
 void Mob::start()

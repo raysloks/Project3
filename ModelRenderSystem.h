@@ -16,9 +16,12 @@
 #include "ThreadPool.h"
 
 #include "Window.h"
+#include "RootWindow.h"
 
 #include "RenderPassTemplate.h"
 #include "PipelineTemplate.h"
+
+#include "Camera.h"
 
 #include "Xoroshiro128Plus.h"
 
@@ -119,14 +122,9 @@ public:
 
 	void tick(float dt);
 
-	float field_of_view;
+	Camera camera;
 
-	Vec3 camera_position;
-	Quaternion camera_rotation;
-	Vec2 camera_shift;
-	float aspect_ratio_multiplier;
-
-	std::shared_ptr<Window> ui;
+	std::shared_ptr<RootWindow> ui;
 
 	struct UniformBufferObject
 	{

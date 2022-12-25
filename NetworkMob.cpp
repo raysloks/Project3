@@ -83,10 +83,10 @@ void NetworkMob::tick(float dt)
 	if (net->player_mob_id == id)
 	{
 		srs->camera_position = entity->xy;
-		mrs->camera_position = entity->getPosition() + Vec3(-16.0f, -16.0f, 23.0f);
-		mrs->camera_rotation = Quaternion(M_PI * 1.75f, Vec3(0.0f, 0.0f, 1.0f)) * Quaternion(-M_PI * 0.75f, Vec3(1.0f, 0.0f, 0.0f));
-		mrs->field_of_view = 25.0f;
-		mrs->camera_shift = Vec2(0.0f, -0.125f);
+		mrs->camera.position = entity->getPosition() + Vec3(-16.0f, -16.0f, 23.0f);
+		mrs->camera.rotation = Quaternion(M_PI * 1.75f, Vec3(0.0f, 0.0f, 1.0f)) * Quaternion(-M_PI * 0.75f, Vec3(1.0f, 0.0f, 0.0f));
+		mrs->camera.field_of_view = 25.0f;
+		mrs->camera.shift = Vec2(0.0f, -0.125f);
 	}
 }
 
@@ -96,7 +96,7 @@ void NetworkMob::setMobTemplate(uint64_t new_mob_template_id)
 {
 	mob_template_id = new_mob_template_id;
 	mob_template = MobTemplate::get(mob_template_id);
-	stats.base_stats = mob_template->stats;
+	stats.base = mob_template->stats;
 	recalculateStats();
 
 	hp.set_cap(stat_cache.hp);

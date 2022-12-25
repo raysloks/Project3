@@ -531,7 +531,7 @@ int main(int argc, char* args[])
 					std::shared_ptr<Window> window(t);
 					engine.mrs->ui->addChild(window);
 
-					window->model = std::make_shared<ModelRenderer>("offset_plane.mdl", "slot.png", "", 1);
+					window->model = std::make_shared<ModelRenderer>(Model::load("offset_plane.mdl"), SpriteSheet::load("slot.png")->merge(SpriteSheet::load("splatter.png")), nullptr, 1);
 				}
 			}
 

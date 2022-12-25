@@ -8,7 +8,7 @@ std::shared_ptr<Text> Text::load(const std::string & fname)
 	auto text = std::make_shared<Text>();
 	std::thread t([text, fname]()
 		{
-			std::ifstream in("data/" + fname, std::ios::in | std::ios::binary);
+			std::ifstream in(BaseResource::data_location + fname, std::ios::in | std::ios::binary);
 			if (in)
 			{
 				std::string buffer;

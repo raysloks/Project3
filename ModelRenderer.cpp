@@ -38,12 +38,12 @@ ModelRenderer::~ModelRenderer()
 
 std::shared_ptr<RenderingModel> ModelRenderer::getRenderingModel(const RenderContext& render_context)
 {
-	if (!rendering_model || rendering_model->getGraphicsPipeline() != render_context.getGraphicsPipeline())
+	if (!rendering_model || rendering_model->getGraphicsPipeline() != render_context.getGraphicsPipeline() || rendering_model->getDynamicState() != render_context.dynamic_state)
 		if (model->loaded && texture->loaded && (animation == nullptr || animation->loaded))
 		{
 			if (model->vertices.size() && model->triangles.size())
 			{
-				rendering_model.reset(new RenderingModel(model, texture, getUniformBufferObjectSize(), render_context.getModelRenderSystem(), render_context.getGraphicsPipeline(), camera_index));
+				rendering_model.reset(new RenderingModel(model, texture, getUniformBufferObjectSize(), render_context.getModelRenderSystem(), render_context.getGraphicsPipeline(), camera_index, render_context.dynamic_state));
 				dirty.clear();
 				dirty.resize(render_context.getModelRenderSystem()->getDescriptorSetCount(), true);
 			}

@@ -45,8 +45,10 @@ ModelRenderSystem::ModelRenderSystem() : render_pass_template(this), ui_render_p
 	present_time_unsafe = SDL_GetPerformanceCounter();
 	present_time_safe = present_time_unsafe;
 
-	field_of_view = 70.0f;
-	aspect_ratio_multiplier = 1.0f;
+	camera.field_of_view = 70.0f;
+	camera.aspect_ratio_multiplier = 1.0f;
+	camera.near_clip = 20.0f;
+	camera.far_clip = 100.0f;
 
 	vert_shader_module = nullptr;
 	frag_shader_module = nullptr;
@@ -133,7 +135,7 @@ void ModelRenderSystem::init(SDL_Window * window)
 
 	createSynchronizationPrimitives();
 
-	ui.reset(new Window());
+	ui.reset(new RootWindow());
 }
 
 void ModelRenderSystem::createVulkanInstance()
@@ -863,7 +865,11 @@ void ModelRenderSystem::setupGraphicsPipelineTemplates()
 		VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
 	};
 
+	pipeline_settings.dynamic_states = { VK_DYNAMIC_STATE_SCISSOR };
+
 	ui_graphics_pipeline_template.setSettings(pipeline_settings);
+
+	pipeline_settings.dynamic_states = {};
 
 	pipeline_settings.vertex_input_attribute_descriptions = {};
 
@@ -1278,7 +1284,7 @@ void ModelRenderSystem::updateUniformBuffer(uint32_t current_image_index)
 	{
 		UniformBufferObject uniform_buffer_object;
 		uniform_buffer_object.view = getViewMatrix();
-		uniform_buffer_object.proj = Matrix4::Perspective(getFieldOfView(), getAspectRatio(), 20.0f, 80.0f) * Matrix4::Translation(camera_shift);
+		uniform_buffer_object.proj = Matrix4::Perspective(getFieldOfView(), getAspectRatio(), camera.near_clip, camera.far_clip) * Matrix4::Translation(camera.shift);
 		uniform_buffer_object.time = rng.next_float() * (1 << 16);
 
 		//// TODO change to blue noise
@@ -1291,11 +1297,11 @@ void ModelRenderSystem::updateUniformBuffer(uint32_t current_image_index)
 	// camera 1
 	{
 		UniformBufferObject uniform_buffer_object;
-		uniform_buffer_object.view = Matrix4();
-		uniform_buffer_object.proj = Matrix4::Scale(Vec3(2.0f / getWidth(), 2.0f / getHeight(), 1.0f));
+		uniform_buffer_object.view = Matrix4::Translation(Vec2(getWidth(), getHeight()) * Vec2(-0.5f, 0.5f));
+		uniform_buffer_object.proj = Matrix4::Scale(Vec3(2.0f / getWidth(), -2.0f / getHeight(), 1.0f));
 
-		ui->maxOffset = Vec2(getWidth() / 2.0f, getHeight() / 2.0f);
-		ui->minOffset = -ui->maxOffset;
+		ui->maxOffset = Vec2(getWidth(), getHeight());
+		ui->minOffset = Vec2(0.0f, 0.0f);
 
 		stageUniformBufferData(&uniform_buffer_object, sizeof(uniform_buffer_object), uniform_buffer_offsets[current_image_index + 1 * swapchain_images.size()]);
 	}
@@ -1485,17 +1491,17 @@ uint64_t ModelRenderSystem::getPresentTime() const
 
 float ModelRenderSystem::getAspectRatio() const
 {
-	return swapchain_extent.width / (float)swapchain_extent.height * aspect_ratio_multiplier;
+	return swapchain_extent.width / (float)swapchain_extent.height * camera.aspect_ratio_multiplier;
 }
 
 float ModelRenderSystem::getFieldOfView() const
 {
-	return field_of_view;
+	return camera.field_of_view;
 }
 
 Matrix4 ModelRenderSystem::getViewMatrix() const
 {
-	return Matrix4::Translation(-camera_position) * camera_rotation.getConj();
+	return Matrix4::Translation(-camera.position) * camera.rotation.getConj();
 }
 
 uint32_t ModelRenderSystem::getWidth() const
@@ -1510,7 +1516,7 @@ uint32_t ModelRenderSystem::getHeight() const
 
 Vec2 ModelRenderSystem::screenToWorld(const Vec2& screen_position) const
 {
-	Matrix4 view_proj = getViewMatrix() * Matrix4::Perspective(field_of_view, getAspectRatio(), 20.0f, 100.0f) * Matrix4::Translation(camera_shift);
+	Matrix4 view_proj = getViewMatrix() * Matrix4::Perspective(camera.field_of_view, getAspectRatio(), camera.near_clip, camera.far_clip) * Matrix4::Translation(camera.shift);
 
 	Matrix3 plane_proj = view_proj;
 	plane_proj.mtrx[2][0] = view_proj.mtrx[3][0];

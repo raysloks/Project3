@@ -12,6 +12,7 @@ class BaseResource
 {
 public:
 	static ThreadPool thread_pool;
+	static std::string data_location;
 };
 
 template <class T>

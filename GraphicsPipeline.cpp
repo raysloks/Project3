@@ -32,7 +32,7 @@ GraphicsPipeline::GraphicsPipeline(const PipelineTemplate& pipeline_template, co
 		&scissor
 	};
 
-	auto settings = pipeline_template.getSettings();
+	settings = pipeline_template.getSettings();
 
 	VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {
 		VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -68,6 +68,14 @@ GraphicsPipeline::GraphicsPipeline(const PipelineTemplate& pipeline_template, co
 	if (vkCreatePipelineLayout(mrs->getDevice(), &pipeline_layout_create_info, nullptr, &layout))
 		throw std::runtime_error("failed to create pipeline layout.");
 
+	VkPipelineDynamicStateCreateInfo dynamic_state_create_info = {
+		VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+		nullptr,
+		0,
+		(uint32_t)settings.dynamic_states.size(),
+		settings.dynamic_states.data()
+	};
+
 	VkGraphicsPipelineCreateInfo graphics_pipeline_create_info = {
 		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
 		nullptr,
@@ -82,7 +90,7 @@ GraphicsPipeline::GraphicsPipeline(const PipelineTemplate& pipeline_template, co
 		&settings.multisample_state_create_info,
 		&settings.depth_stencil_state_create_info,
 		&color_blend_state_create_info,
-		nullptr,
+		settings.dynamic_states.empty() ? nullptr : &dynamic_state_create_info,
 		layout,
 		*render_pass,
 		0,
@@ -113,4 +121,9 @@ GraphicsPipeline::operator VkPipelineLayout() const
 VkRenderPass GraphicsPipeline::getRenderPass() const
 {
 	return *render_pass;
+}
+
+PipelineTemplate::Settings GraphicsPipeline::getSettings() const
+{
+	return settings;
 }

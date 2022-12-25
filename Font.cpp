@@ -43,7 +43,7 @@ std::shared_ptr<Font> Font::load(const std::string& fname)
 	auto font = std::make_shared<Font>();
 	auto func = [font, fname]()
 	{
-		std::ifstream in("data/" + fname, std::ios::in | std::ios::binary);
+		std::ifstream in(BaseResource::data_location + fname, std::ios::in | std::ios::binary);
 		if (in)
 		{
 			in.seekg(0, std::ios::end);

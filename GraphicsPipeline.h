@@ -4,8 +4,9 @@
 #include <memory>
 #include <vector>
 
+#include "PipelineTemplate.h"
+
 class ModelRenderSystem;
-class PipelineTemplate;
 class RenderPass;
 
 class GraphicsPipeline
@@ -19,6 +20,8 @@ public:
 
 	VkRenderPass getRenderPass() const;
 
+	PipelineTemplate::Settings getSettings() const;
+
 private:
 	ModelRenderSystem * mrs;
 
@@ -26,4 +29,6 @@ private:
 	VkPipelineLayout layout;
 
 	std::shared_ptr<RenderPass> render_pass;
+
+	PipelineTemplate::Settings settings;
 };

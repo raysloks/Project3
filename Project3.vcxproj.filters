@@ -39,6 +39,9 @@
     <Filter Include="Source Files\Vulkan">
       <UniqueIdentifier>{7459036c-c34e-4003-a6d5-4a07f08c2a57}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Assembly Nodes">
+      <UniqueIdentifier>{72b1cd02-588c-4497-b66a-a58e731d33c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -373,6 +376,30 @@
     </ClCompile>
     <ClCompile Include="ClientItemView.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LayerNode.cpp">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="AssemblyNode.cpp">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="AssemblyInputBase.cpp">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="AssemblyContext.cpp">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="AssemblyNodeDiamond.cpp">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="NineSlice.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="RootWindow.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicState.cpp">
+      <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -726,6 +753,45 @@
     </ClInclude>
     <ClInclude Include="ClientItemView.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AssemblyNode.h">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="FileNode.h">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="AssemblyContext.h">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerNode.h">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="AssemblyOutput.h">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="AssemblyInputBase.h">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="AssemblyInput.h">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="AssemblyOutputBase.h">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="AssemblyNodeDiamond.h">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Source Files\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="NineSlice.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="RootWindow.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicState.h">
+      <Filter>Source Files\Vulkan</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

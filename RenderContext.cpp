@@ -1,9 +1,11 @@
 #include "RenderContext.h"
 
 #include "RenderingModel.h"
+#include "ModelRenderSystem.h"
 
 RenderContext::RenderContext(ModelRenderSystem * mrs, size_t image_index, const std::shared_ptr<RenderPass>& render_pass, const std::shared_ptr<GraphicsPipeline>& graphics_pipeline) : mrs(mrs), image_index(image_index), render_pass(render_pass), graphics_pipeline(graphics_pipeline)
 {
+    dynamic_state.scissor = { 0, 0, mrs->getWidth(), mrs->getHeight() };
 }
 
 ModelRenderSystem * RenderContext::getModelRenderSystem() const
@@ -40,4 +42,15 @@ void RenderContext::collectCommandBuffers()
 void RenderContext::executeCommands(VkCommandBuffer command_buffer) const
 {
     vkCmdExecuteCommands(command_buffer, (uint32_t)command_buffers.size(), command_buffers.data());
+}
+
+void RenderContext::pushDynamicState()
+{
+    dynamic_states.push_back(dynamic_state);
+}
+
+void RenderContext::popDynamicState()
+{
+    dynamic_state = dynamic_states.back();
+    dynamic_states.pop_back();
 }

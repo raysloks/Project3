@@ -2000,7 +2000,7 @@ void Diamond::populate(ScriptCompile& comp)
 			script_type_data.type = ST_CLASS;
 			script_type_data.indirection = 0;
 			script_type_data.class_data = comp.classes["Vec2"];
-			class_data->AddMember("mouse_position", script_type_data, offsetof(WindowEvent, mouse_position));
+			class_data->AddMember("cursor_position", script_type_data, offsetof(WindowEvent, cursor_position));
 		}
 	}
 
@@ -2011,7 +2011,7 @@ void Diamond::populate(ScriptCompile& comp)
 			script_type_data.type = ST_CLASS;
 			script_type_data.indirection = 0;
 			script_type_data.class_data = comp.classes["Vec2"];
-			class_data->AddMember("mouse_position", script_type_data, offsetof(TextInputEvent, mouse_position));
+			class_data->AddMember("cursor_position", script_type_data, offsetof(TextInputEvent, cursor_position));
 		}
 		{
 			ScriptTypeData script_type_data;
@@ -2073,7 +2073,7 @@ void Diamond::populate(ScriptCompile& comp)
 			script_type_data.type = ST_CLASS;
 			script_type_data.indirection = 0;
 			script_type_data.class_data = comp.classes["Vec2"];
-			class_data->AddMember("mouse_position", script_type_data, offsetof(KeyUpEvent, mouse_position));
+			class_data->AddMember("cursor_position", script_type_data, offsetof(KeyUpEvent, cursor_position));
 		}
 		class_data->AddMember("key", NewScriptTypeData<uint64_t>(), offsetof(KeyUpEvent, key));
 	}
@@ -2085,7 +2085,7 @@ void Diamond::populate(ScriptCompile& comp)
 			script_type_data.type = ST_CLASS;
 			script_type_data.indirection = 0;
 			script_type_data.class_data = comp.classes["Vec2"];
-			class_data->AddMember("mouse_position", script_type_data, offsetof(KeyDownEvent, mouse_position));
+			class_data->AddMember("cursor_position", script_type_data, offsetof(KeyDownEvent, cursor_position));
 		}
 		class_data->AddMember("key", NewScriptTypeData<uint64_t>(), offsetof(KeyDownEvent, key));
 	}

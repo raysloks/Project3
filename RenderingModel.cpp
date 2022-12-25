@@ -4,7 +4,7 @@
 #include "VideoMemoryAllocator.h"
 #include "GraphicsPipeline.h"
 
-RenderingModel::RenderingModel(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, size_t uniform_buffer_size, ModelRenderSystem * mrs, const std::shared_ptr<GraphicsPipeline>& graphics_pipeline, size_t camera_index) : model(model), texture(texture), uniform_buffer_size(uniform_buffer_size), mrs(mrs), uniform_vma(mrs->getUniformBufferVideoMemoryAllocator()), graphics_pipeline(graphics_pipeline), camera_index(camera_index)
+RenderingModel::RenderingModel(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, size_t uniform_buffer_size, ModelRenderSystem * mrs, const std::shared_ptr<GraphicsPipeline>& graphics_pipeline, size_t camera_index, const DynamicState& dynamic_state) : model(model), texture(texture), uniform_buffer_size(uniform_buffer_size), mrs(mrs), uniform_vma(mrs->getUniformBufferVideoMemoryAllocator()), graphics_pipeline(graphics_pipeline), camera_index(camera_index), dynamic_state(dynamic_state)
 {
 	createUniformBuffers();
 	createDescriptorSets();
@@ -32,6 +32,11 @@ std::shared_ptr<GraphicsPipeline> RenderingModel::getGraphicsPipeline() const
 VkCommandBuffer RenderingModel::getCommandBuffer(size_t image_index) const
 {
     return command_buffers[image_index];
+}
+
+DynamicState RenderingModel::getDynamicState() const
+{
+	return dynamic_state;
 }
 
 void RenderingModel::createUniformBuffers()
@@ -130,6 +135,8 @@ void RenderingModel::createDescriptorSets()
 
 void RenderingModel::createCommandBuffers()
 {
+	auto settings = graphics_pipeline->getSettings();
+
 	command_buffers.resize(mrs->getDescriptorSetCount());
 	mrs->allocateSecondaryCommandBuffers(command_buffers);
 
@@ -155,6 +162,8 @@ void RenderingModel::createCommandBuffers()
 		&command_buffer_inheritance_info
 	};
 
+	bool scissor = std::find(settings.dynamic_states.begin(), settings.dynamic_states.end(), VK_DYNAMIC_STATE_SCISSOR) != settings.dynamic_states.end();
+
 	for (size_t i = 0; i < command_buffers.size(); ++i)
 	{
 		auto& command_buffer = command_buffers[i];
@@ -163,6 +172,9 @@ void RenderingModel::createCommandBuffers()
 			throw std::runtime_error("failed to begin recording command buffer.");
 
 		vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *graphics_pipeline);
+
+		if (scissor)
+			vkCmdSetScissor(command_buffer, 0, 1, &dynamic_state.scissor);
 
 		VkBuffer vertex_buffers[] = { mrs->getVideoMemoryAllocator()->buffer };
 		VkDeviceSize offsets[] = { vertex_buffer_offset };

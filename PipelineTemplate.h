@@ -22,6 +22,7 @@ public:
 
 	struct Settings
 	{
+		// pipeline settings
 		std::vector<VkDescriptorSetLayout> descriptor_set_layouts;
 		std::vector<VkPipelineShaderStageCreateInfo> shader_stages;
 
@@ -37,6 +38,12 @@ public:
 		VkPipelineColorBlendAttachmentState color_blend_attachment_state;
 
 		VkPipelineDepthStencilStateCreateInfo depth_stencil_state_create_info;
+
+		std::vector<VkDynamicState> dynamic_states;
+
+
+		// secondary command buffer settings
+		VkCommandBufferInheritanceInfo command_buffer_inheritance_info;
 	};
 
 	void setSettings(const Settings& settings);

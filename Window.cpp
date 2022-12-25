@@ -6,18 +6,27 @@
 Window::Window()
 {
 	parent = nullptr;
+	root = nullptr;
 	maxAnchor = 1.0f;
+	clickable = false;
+	clipping = false;
 }
 
 Window::Window(const Vec2& minAnchor, const Vec2& maxAnchor, const Vec2& minOffset, const Vec2& maxOffset) : minAnchor(minAnchor), maxAnchor(maxAnchor), minOffset(minOffset), maxOffset(maxOffset)
 {
 	parent = nullptr;
+	root = nullptr;
+	clickable = false;
+	clipping = false;
 }
 
 Window::~Window()
 {
 	for (auto& child : children)
+	{
 		child->parent = nullptr;
+		child->setRoot(nullptr);
+	}
 }
 
 void Window::addChild(const std::shared_ptr<Window>& child)
@@ -30,6 +39,7 @@ void Window::addChild(const std::shared_ptr<Window>& child)
 	}
 	children.push_back(child);
 	child->parent = this;
+	child->setRoot(root);
 }
 
 void Window::removeChild(const std::shared_ptr<Window>& child)
@@ -39,12 +49,18 @@ void Window::removeChild(const std::shared_ptr<Window>& child)
 	{
 		children.erase(it);
 		child->parent = nullptr;
+		child->setRoot(nullptr);
 	}
 }
 
 Window * Window::getParent() const
 {
 	return parent;
+}
+
+RootWindow * Window::getRoot() const
+{
+	return root;
 }
 
 Vec2 Window::getMin() const
@@ -75,6 +91,11 @@ Vec2 Window::getMax() const
 	}
 }
 
+Vec2 Window::getCenter() const
+{
+	return (getMin() + getMax()) * 0.5f;
+}
+
 void Window::setAnchorOffset(const Vec2& minAnchor, const Vec2& maxAnchor, const Vec2& minOffset, const Vec2& maxOffset)
 {
 	this->minAnchor = minAnchor;
@@ -83,10 +104,32 @@ void Window::setAnchorOffset(const Vec2& minAnchor, const Vec2& maxAnchor, const
 	this->maxOffset = maxOffset;
 }
 
+void Window::setSizeAnchorOffset(const Vec2& size, const Vec2& offset, const Vec2& anchor)
+{
+	minAnchor = anchor;
+	maxAnchor = anchor;
+	Vec2 half_size = size * 0.5f;
+	minOffset = offset - half_size;
+	maxOffset = offset + half_size;
+}
+
 void Window::getRenderingModels(RenderContext& render_context)
 {
+	if (clipping)
+	{
+		render_context.pushDynamicState();
+		auto min = getMin();
+		auto max = getMax();
+		auto size = max - min;
+		render_context.dynamic_state.scissor = { (int32_t)min.x, (int32_t)min.y, (uint32_t)size.x, (uint32_t)size.y };
+	}
+
 	for (auto& child : children)
 		child->getRenderingModels(render_context);
+
+	if (clipping)
+		render_context.popDynamicState();
+
 	if (model)
 	{
 		auto rendering_model = model->getRenderingModel(render_context);
@@ -106,9 +149,32 @@ void Window::updateUniformBuffers(const RenderContext& render_context)
 		auto min = getMin();
 		auto max = getMax();
 		auto size = max - min;
-		model->uniform_buffer_object.model = Matrix4::Scale(Vec3(size.x, -size.y, 1.0f)) * Matrix4::Translation(Vec3(min.x, -min.y));
+		model->uniform_buffer_object.model = Matrix4::Scale(Vec3(size.x, size.y, 1.0f)) * Matrix4::Translation(Vec3(min.x, -max.y));
 		model->updateUniformBuffer(render_context);
 	}
+}
+
+bool Window::containsPosition(const Vec2& position) const
+{
+	return position >= getMin() && position <= getMax();
+}
+
+std::shared_ptr<Window> Window::getAtPosition(const Vec2& position)
+{
+	bool contains = containsPosition(position);
+	if (contains || !clipping)
+	{
+		for (auto i = children.rbegin(); i != children.rend(); ++i)
+		{
+			auto window = (*i)->getAtPosition(position);
+			if (window)
+				return window;
+		}
+	}
+	if (contains && clickable)
+		return shared_from_this();
+	else
+		return nullptr;
 }
 
 bool Window::onEvent(const KeyDownEvent & event)
@@ -124,4 +190,39 @@ bool Window::onEvent(const KeyUpEvent & event)
 bool Window::onEvent(const TextInputEvent & event)
 {
 	return false;
+}
+
+bool Window::onEvent(const CursorMoveEvent & event)
+{
+	return false;
+}
+
+bool Window::onEvent(const CursorEnterEvent & event)
+{
+	return false;
+}
+
+bool Window::onEvent(const CursorLeaveEvent & event)
+{
+	return false;
+}
+
+bool Window::onEvent(const FocusGainedEvent & event)
+{
+	return false;
+}
+
+bool Window::onEvent(const FocusLostEvent & event)
+{
+	return false;
+}
+
+void Window::setRoot(RootWindow * root)
+{
+	if (this->root != root)
+	{
+		this->root = root;
+		for (auto& child : children)
+			child->setRoot(root);
+	}
 }

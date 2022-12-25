@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include "DynamicState.h"
+
 class Model;
 class SpriteSheet;
 class ModelRenderSystem;
@@ -13,7 +15,7 @@ class VideoMemoryAllocator;
 class RenderingModel
 {
 public:
-	RenderingModel(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, size_t uniform_buffer_size, ModelRenderSystem * mrs, const std::shared_ptr<GraphicsPipeline>& graphics_pipeline, size_t camera_index);
+	RenderingModel(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, size_t uniform_buffer_size, ModelRenderSystem * mrs, const std::shared_ptr<GraphicsPipeline>& graphics_pipeline, size_t camera_index, const DynamicState& dynamic_state);
 	~RenderingModel();
 
 	void stageUniformBufferData(void * source_data, size_t image_index);
@@ -21,6 +23,8 @@ public:
 	std::shared_ptr<GraphicsPipeline> getGraphicsPipeline() const;
 
 	VkCommandBuffer getCommandBuffer(size_t image_index) const;
+
+	DynamicState getDynamicState() const;
 
 private:
 	ModelRenderSystem * mrs;
@@ -42,4 +46,6 @@ private:
 	void createCommandBuffers();
 
 	size_t camera_index; // temp
+
+	DynamicState dynamic_state;
 };

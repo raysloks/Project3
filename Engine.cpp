@@ -29,7 +29,7 @@ Engine::Engine()
 	max_dt = 1.0 / 30.0;
 
 
-	SDL_SetWindowGrab(window, SDL_TRUE);
+	//SDL_SetWindowGrab(window, SDL_TRUE);
 
 
 	// create level instance

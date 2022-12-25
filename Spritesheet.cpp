@@ -15,6 +15,9 @@
 #include <sstream>
 #include <iostream>
 
+#include "Coal.h"
+#include "Diamond.h"
+
 std::vector<SDL_Texture*> unused_textures;
 std::mutex unused_textures_mutex;
 
@@ -75,7 +78,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::load(const std::string & fname)
 		{
 			auto meta = Text::get(fname + ".meta");
 
-			sheet->surface = IMG_Load(("data/" + fname).c_str());
+			sheet->surface = IMG_Load((BaseResource::data_location + fname).c_str());
 
 			while (!meta->loaded)
 				std::this_thread::yield();
@@ -83,7 +86,20 @@ std::shared_ptr<SpriteSheet> SpriteSheet::load(const std::string & fname)
 			if (meta->size())
 			{
 				std::istringstream is(*meta);
-				is >> sheet->columns >> sheet->rows >> sheet->offset_x >> sheet->offset_y;
+				auto coal = Coal::parse(is);
+				if (coal)
+				{
+					for (auto& element : coal->members["frames"].elements)
+					{
+						size_t index = element["index"];
+						Frame frame;
+						Diamond::init(frame.min, element["min"]);
+						Diamond::init(frame.max, element["max"]);
+						Diamond::init(frame.center, element["center"]);
+						Diamond::init(frame.advance, element["advance"]);
+						sheet->frames[(uint32_t)index] = frame;
+					}
+				}
 			}
 
 			sheet->loaded = true;
@@ -271,6 +287,78 @@ std::shared_ptr<SpriteSheet> SpriteSheet::createIsometricFloorLosslessMap(size_t
 	}
 
 	sheet->loaded = true;
+
+	return sheet;
+}
+
+std::shared_ptr<SpriteSheet> SpriteSheet::merge(const std::shared_ptr<SpriteSheet>& fg) const
+{
+	auto sheet = std::make_shared<SpriteSheet>();
+	auto shared_this = shared_from_this();
+	auto func = [shared_this, sheet, fg]()
+	{
+		while (!(shared_this->loaded && fg->loaded))
+			SDL_Delay(0);
+
+		if (shared_this->surface && fg->surface)
+		{
+			auto& bg_surf = shared_this->surface;
+			auto& bg_form = bg_surf->format;
+			auto& fg_surf = fg->surface;
+			auto& fg_form = fg_surf->format;
+
+			intmax_t w = bg_surf->w;
+			intmax_t h = bg_surf->h;
+
+			sheet->surface = SDL_CreateRGBSurfaceWithFormat(0, w, h, bg_form->BitsPerPixel, bg_form->format);
+			auto& surf = sheet->surface;
+			auto& form = surf->format;
+
+			intmax_t dx = intmax_t(fg->offset_x) - shared_this->offset_x;
+			intmax_t dy = intmax_t(fg->offset_y) - shared_this->offset_y;
+
+			intmax_t fg_pixel_offset = dy * fg_surf->pitch + dx * 4;
+
+			for (intmax_t y = 0; y < h; ++y)
+			{
+				for (intmax_t x = 0; x < w; ++x)
+				{
+					SDL_Color& bg_color = *(SDL_Color*)((char*)bg_surf->pixels + y * bg_surf->pitch + x * 4);
+					SDL_Color& fg_color = *(SDL_Color*)((char*)fg_surf->pixels + y * fg_surf->pitch + x * 4 + fg_pixel_offset);
+					SDL_Color& color = *(SDL_Color*)((char*)surf->pixels + y * surf->pitch + x * 4);
+
+					if (x + dx >= 0 && x + dx < fg_surf->w && y + dy >= 0 && y + dy < fg_surf->h)
+					{
+						color.r = std::max(intmax_t(0), intmax_t(fg_color.r) + (intmax_t(bg_color.r) * (intmax_t(255) - intmax_t(fg_color.a)) + intmax_t(127)) / intmax_t(255));
+						color.g = std::max(intmax_t(0), intmax_t(fg_color.g) + (intmax_t(bg_color.g) * (intmax_t(255) - intmax_t(fg_color.a)) + intmax_t(127)) / intmax_t(255));
+						color.b = std::max(intmax_t(0), intmax_t(fg_color.b) + (intmax_t(bg_color.b) * (intmax_t(255) - intmax_t(fg_color.a)) + intmax_t(127)) / intmax_t(255));
+						color.a = intmax_t(bg_color.a) + intmax_t(fg_color.a) - (intmax_t(bg_color.a) * intmax_t(fg_color.a) + intmax_t(127)) / intmax_t(255);
+					}
+					else
+					{
+						color = bg_color;
+					}
+				}
+			}
+
+			sheet->columns = shared_this->columns;
+			sheet->rows = shared_this->rows;
+			sheet->offset_x = shared_this->offset_x;
+			sheet->offset_y = shared_this->offset_y;
+		}
+
+		sheet->loaded = true;
+	};
+
+	if (loaded)
+	{
+		func();
+	}
+	else
+	{
+		std::thread t(func);
+		t.detach();
+	}
 
 	return sheet;
 }
@@ -890,7 +978,7 @@ std::shared_ptr<Model> SpriteSheet::makeTextModel(const std::string& text) const
 		model->triangles.resize(text.size() * 2);
 		for (size_t i = 0; i < text.size(); ++i)
 		{
-			unsigned char c = text[i];
+			unsigned char c = text[i]; // TODO utf-8
 			auto it = shared_this->frames.find(c);
 			auto& frame = it->second;
 
@@ -927,6 +1015,80 @@ std::shared_ptr<Model> SpriteSheet::makeTextModel(const std::string& text) const
 			model->triangles[i * 2 + 1].indices[1] = i * 4 + 0;
 
 			offset += frame.advance;
+		}
+
+		model->loaded = true;
+	};
+
+	if (loaded)
+		func();
+	else
+		thread_pool.push(func);
+
+	return model;
+}
+
+std::shared_ptr<Model> SpriteSheet::makeFrameModel(uint32_t frame_index, bool normalize) const
+{
+	auto model = std::make_shared<Model>();
+	auto shared_this = shared_from_this();
+	auto func = [shared_this, model, frame_index, normalize]()
+	{
+		while (!shared_this->loaded)
+			std::this_thread::yield();
+
+		model->vertices.resize(4);
+		model->triangles.resize(2);
+		auto it = shared_this->frames.find(frame_index);
+		if (it != shared_this->frames.end())
+		{
+			auto& frame = it->second;
+
+			model->vertices[0].uv = frame.min;
+			model->vertices[1].uv = Vec2(frame.max.x, frame.min.y);
+			model->vertices[2].uv = frame.max;
+			model->vertices[3].uv = Vec2(frame.min.x, frame.max.y);
+
+			if (normalize)
+			{
+				model->vertices[0].position = Vec2(0.0f, 1.0f);
+				model->vertices[1].position = Vec2(1.0f, 1.0f);
+				model->vertices[2].position = Vec2(1.0f, 0.0f);
+				model->vertices[3].position = Vec2(0.0f, 0.0f);
+			}
+			else
+			{
+				model->vertices[0].position = Vec2(frame.min.x, frame.max.y);
+				model->vertices[1].position = frame.max;
+				model->vertices[2].position = Vec2(frame.max.x, frame.min.y);
+				model->vertices[3].position = frame.min;
+			}
+
+			for (size_t j = 0; j < 4; ++j)
+			{
+				auto& vertex = model->vertices[j];
+				if (normalize == false)
+				{
+					vertex.position -= frame.center;
+					vertex.position *= Vec2(shared_this->surface->w, shared_this->surface->h);
+				}
+				vertex.normal = Vec3(0.0f, 0.0f, 1.0f);
+				vertex.bones[0] = 0;
+				vertex.bones[1] = 0;
+				vertex.bones[2] = 0;
+				vertex.bones[3] = 0;
+				vertex.weights[0] = 1.0f;
+				vertex.weights[1] = 0.0f;
+				vertex.weights[2] = 0.0f;
+				vertex.weights[3] = 0.0f;
+			}
+
+			model->triangles[0].indices[0] = 1;
+			model->triangles[0].indices[1] = 0;
+			model->triangles[0].indices[2] = 2;
+			model->triangles[1].indices[2] = 3;
+			model->triangles[1].indices[0] = 2;
+			model->triangles[1].indices[1] = 0;
 		}
 
 		model->loaded = true;

@@ -21,7 +21,7 @@ std::shared_ptr<Animation> Animation::load(const std::string & fname)
 	auto animation = std::make_shared<Animation>();
 	std::thread t([animation, fname]()
 		{
-			std::ifstream in("data/" + fname, std::ios::in | std::ios::binary);
+			std::ifstream in(BaseResource::data_location + fname, std::ios::in | std::ios::binary);
 
 			if (in)
 			{

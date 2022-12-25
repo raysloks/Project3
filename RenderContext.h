@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include "DynamicState.h"
+
 class ModelRenderSystem;
 class RenderPass;
 class GraphicsPipeline;
@@ -24,6 +26,11 @@ public:
 	void collectCommandBuffers();
 	void executeCommands(VkCommandBuffer command_buffer) const;
 
+	DynamicState dynamic_state;
+
+	void pushDynamicState();
+	void popDynamicState();
+
 private:
 	ModelRenderSystem * mrs;
 
@@ -33,5 +40,7 @@ private:
 
 	std::vector<std::shared_ptr<RenderingModel>> rendering_models;
 	std::vector<VkCommandBuffer> command_buffers;
+
+	std::vector<DynamicState> dynamic_states;
 };
 

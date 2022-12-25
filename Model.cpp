@@ -32,7 +32,7 @@ std::shared_ptr<Model> Model::load(const std::string & fname)
 	auto model = std::make_shared<Model>();
 	std::thread t([model, fname]()
 		{
-			std::ifstream in("data/" + fname, std::ios::in | std::ios::binary);
+			std::ifstream in(BaseResource::data_location + fname, std::ios::in | std::ios::binary);
 
 			if (in)
 			{
