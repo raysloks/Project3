@@ -7,6 +7,7 @@
 #include <vulkan/vulkan.h>
 
 #include "Vec2.h"
+#include "TextSettings.h"
 
 class ModelRenderSystem;
 class Model;
@@ -45,8 +46,13 @@ public:
 
 	std::shared_ptr<SpriteSheet> makeOutline(const SDL_Color & outline_color = SDL_Color({ 255, 255, 255, 255 }), const SDL_Color & fill_color = SDL_Color({ 0, 0, 0, 0 }), intmax_t cell_margin = 1, intmax_t outline_width = 1) const;
 
-	std::shared_ptr<Model> makeTextModel(const std::string& text) const;
+	std::shared_ptr<Model> makeTextModel(const std::string& text, const TextSettings& settings) const;
 	std::shared_ptr<Model> makeFrameModel(uint32_t frame_index, bool normalize = false) const;
+
+	Vec2 getAdvance(const std::string& text, const TextSettings& settings, size_t index = std::string::npos) const;
+	Vec2 getJustifiedOffset(const std::string& text, const TextSettings& settings, size_t index = std::string::npos) const;
+	std::vector<Vec2> getLineAdvances(const std::string& text) const;
+	int64_t getIndexFromPosition(const std::string& text, const TextSettings& settings, const Vec2& position) const;
 
 	SDL_Texture * getTexture(SDL_Renderer * render);
 
@@ -61,6 +67,10 @@ public:
 	};
 
 //private:
+
+	Vec2 getLineAdvance(const std::u32string::const_iterator& begin, const std::u32string::const_iterator& end, const TextSettings& settings) const;
+	Vec2 getLineAdvance(const std::string::const_iterator& begin, const std::string::const_iterator& end, const TextSettings& settings) const;
+
 	SDL_Surface * surface;
 	SDL_Texture * texture;
 

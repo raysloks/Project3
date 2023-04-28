@@ -47,9 +47,9 @@ std::shared_ptr<Animation> Animation::load(const std::string & fname)
 				ss.read((char*)animation->base_pose.bones.data(), bone_count * sizeof(Bone));
 
 
-				Matrix4 transforms[256];
+				std::vector<Matrix4> transforms(256);
 				transforms[255] = Matrix4();
-				animation->base_pose.apply(transforms);
+				animation->base_pose.apply(transforms.data());
 				animation->base_pose_inverse_transforms.resize(bone_count);
 				for (size_t i = 0; i < bone_count; ++i)
 				{
@@ -106,6 +106,7 @@ std::shared_ptr<Animation> Animation::load(const std::string & fname)
 			}
 
 			animation->loaded = true;
+			animation->loaded.notify_all();
 		});
 	t.detach();
 

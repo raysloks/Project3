@@ -11,6 +11,9 @@ public:
 	void setFocus(const std::shared_ptr<Window>& window);
 	std::shared_ptr<Window> getFocus();
 
+	void focusPrevious(bool wrap);
+	void focusNext(bool wrap);
+
 	void processCursorMoveEvent(const CursorMoveEvent& event);
 	bool processKeyDownEvent(const KeyDownEvent& event);
 	bool processKeyUpEvent(const KeyUpEvent& event);

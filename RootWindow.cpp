@@ -2,6 +2,8 @@
 
 #include <ranges>
 
+#include "CustomBehaviour.h"
+
 RootWindow::RootWindow()
 {
 	root = this;
@@ -55,6 +57,56 @@ std::shared_ptr<Window> RootWindow::getFocus()
 	return nullptr;
 }
 
+void RootWindow::focusPrevious(bool wrap)
+{
+	auto focus = getFocus();
+	if (focus)
+	{
+		auto parent = focus->parent;
+		auto it = std::find(parent->children.rbegin(), parent->children.rend(), focus);
+		while (it != parent->children.rend())
+		{
+			++it;
+			if (it == parent->children.rend())
+				if (wrap)
+					it = parent->children.rbegin();
+				else
+					break;
+			if ((*it)->clickable || *it == focus)
+				break;
+		}
+		if (it != parent->children.rend())
+			setFocus(*it);
+		else
+			setFocus(parent->shared_from_this());
+	}
+}
+
+void RootWindow::focusNext(bool wrap)
+{
+	auto focus = getFocus();
+	if (focus)
+	{
+		auto parent = focus->parent;
+		auto it = std::find(parent->children.begin(), parent->children.end(), focus);
+		while (it != parent->children.end())
+		{
+			++it;
+			if (it == parent->children.end())
+				if (wrap)
+					it = parent->children.begin();
+				else
+					break;
+			if ((*it)->clickable || *it == focus)
+				break;
+		}
+		if (it != parent->children.end())
+			setFocus(*it);
+		else
+			setFocus(parent->shared_from_this());
+	}
+}
+
 void RootWindow::processCursorMoveEvent(const CursorMoveEvent& event)
 {
 	auto focus = getFocus();
@@ -76,6 +128,10 @@ void RootWindow::processCursorMoveEvent(const CursorMoveEvent& event)
 		enter_event.cursor_index = event.cursor_index;
 		if (hover)
 			hover->onEvent(enter_event);
+
+		mouseover = hover;
+		if (hover)
+			CustomBehaviour::engine->setCursor((SDL_SystemCursor)hover->cursor);
 	}
 }
 

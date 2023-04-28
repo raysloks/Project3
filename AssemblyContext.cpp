@@ -3,6 +3,7 @@
 #include "Coal.h"
 
 #include "FileNode.h"
+#include "ConstantNode.h"
 
 #include "SpriteSheet.h"
 #include "Model.h"
@@ -12,6 +13,8 @@ void dummy()
 {
 	FileNode<SpriteSheet> sprite_sheet;
 	FileNode<Model> model;
+
+	ConstantNode<std::string> string;
 }
 
 void AssemblyContext::registerInput(AssemblyInputBase& input, const Coal& coal)
@@ -50,4 +53,10 @@ size_t AssemblyContext::getIndex(AssemblyOutputBase& output) const
 		if (&output == outputs[i])
 			return i;
 	return std::numeric_limits<size_t>::max();
+}
+
+void AssemblyContext::assemble()
+{
+	for (auto& node : nodes)
+		node->assemble();
 }

@@ -21,7 +21,7 @@ public:
 	Window(const Vec2& minAnchor, const Vec2& maxAnchor, const Vec2& minOffset, const Vec2& maxOffset);
 	virtual ~Window();
 
-	void addChild(const std::shared_ptr<Window>& child);
+	void addChild(const std::shared_ptr<Window>& child, intmax_t index = -1);
 	void removeChild(const std::shared_ptr<Window>& child);
 
 	Window * getParent() const;
@@ -45,8 +45,12 @@ public:
 
 	std::shared_ptr<ModelRenderer> model;
 
+	bool hidden;
+
 	bool clickable;
 	bool clipping;
+
+	uint64_t cursor;
 
 	template <class T>
 	bool processEventSelfParent(const T& event)
@@ -63,7 +67,8 @@ public:
 	{
 		if (onEvent(event))
 			return true;
-		for (auto it = children.rbegin(); it != children.rend(); ++it)
+		std::vector<std::shared_ptr<Window>> copy = children;
+		for (auto it = copy.rbegin(); it != copy.rend(); ++it)
 			if (it->get() != ignore)
 				if ((*it)->processEventSelfChildren(event))
 					return true;
@@ -77,7 +82,8 @@ public:
 	{
 		if (onEvent(event))
 			return true;
-		for (auto it = children.rbegin(); it != children.rend(); ++it)
+		std::vector<std::shared_ptr<Window>> copy = children;
+		for (auto it = copy.rbegin(); it != copy.rend(); ++it)
 			if ((*it)->processEventSelfChildren(event))
 				return true;
 		return false;
@@ -91,6 +97,7 @@ public:
 	virtual bool onEvent(const CursorLeaveEvent& event);
 	virtual bool onEvent(const FocusGainedEvent& event);
 	virtual bool onEvent(const FocusLostEvent& event);
+	virtual bool onEvent(const LayoutEvent& event);
 
 //private:
 

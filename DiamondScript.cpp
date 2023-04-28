@@ -2017,7 +2017,7 @@ void Diamond::populate(ScriptCompile& comp)
 			ScriptTypeData script_type_data;
 			script_type_data.type = ST_CLASS;
 			script_type_data.indirection = 0;
-			script_type_data.class_data = comp.classes["std::basic_string<char,std::char_traits<char>,std::allocator<char> >"];
+			script_type_data.class_data = comp.classes["std::string"];
 			class_data->AddMember("text", script_type_data, offsetof(TextInputEvent, text));
 		}
 		{
@@ -2076,6 +2076,7 @@ void Diamond::populate(ScriptCompile& comp)
 			class_data->AddMember("cursor_position", script_type_data, offsetof(KeyUpEvent, cursor_position));
 		}
 		class_data->AddMember("key", NewScriptTypeData<uint64_t>(), offsetof(KeyUpEvent, key));
+		class_data->AddMember("mod", NewScriptTypeData<uint64_t>(), offsetof(KeyUpEvent, mod));
 	}
 
 	{
@@ -2088,6 +2089,8 @@ void Diamond::populate(ScriptCompile& comp)
 			class_data->AddMember("cursor_position", script_type_data, offsetof(KeyDownEvent, cursor_position));
 		}
 		class_data->AddMember("key", NewScriptTypeData<uint64_t>(), offsetof(KeyDownEvent, key));
+		class_data->AddMember("mod", NewScriptTypeData<uint64_t>(), offsetof(KeyDownEvent, mod));
+		class_data->AddMember("repeat", NewScriptTypeData<bool>(), offsetof(KeyDownEvent, repeat));
 	}
 
 	{
@@ -2127,11 +2130,15 @@ void Diamond::populate(ScriptCompile& comp)
 			script_type_data.class_data = comp.classes["std::shared_ptr<ModelRenderer>"];
 			class_data->AddMember("model", script_type_data, offsetof(Window, model));
 		}
+		class_data->AddMember("hidden", NewScriptTypeData<bool>(), offsetof(Window, hidden));
+		class_data->AddMember("clickable", NewScriptTypeData<bool>(), offsetof(Window, clickable));
+		class_data->AddMember("clipping", NewScriptTypeData<bool>(), offsetof(Window, clipping));
+		class_data->AddMember("cursor", NewScriptTypeData<uint64_t>(), offsetof(Window, cursor));
 		{
 			ScriptTypeData script_type_data;
 			script_type_data.type = ST_CLASS;
 			script_type_data.indirection = 0;
-			script_type_data.class_data = comp.classes["std::vector<std::shared_ptr<Window>,std::allocator<std::shared_ptr<Window> > >"];
+			script_type_data.class_data = comp.classes["std::vector<std::shared_ptr<Window>,std::allocator<std::shared_ptr<Window>>>"];
 			class_data->AddMember("children", script_type_data, offsetof(Window, children));
 		}
 		{
@@ -2140,6 +2147,13 @@ void Diamond::populate(ScriptCompile& comp)
 			script_type_data.indirection = 1;
 			script_type_data.class_data = comp.classes["Window"];
 			class_data->AddMember("parent", script_type_data, offsetof(Window, parent));
+		}
+		{
+			ScriptTypeData script_type_data;
+			script_type_data.type = ST_CLASS;
+			script_type_data.indirection = 1;
+			script_type_data.class_data = comp.classes["RootWindow"];
+			class_data->AddMember("root", script_type_data, offsetof(Window, root));
 		}
 		{
 			ScriptFunctionPrototype function_prototype;
@@ -2158,7 +2172,8 @@ void Diamond::populate(ScriptCompile& comp)
 				script_type_data.class_data = comp.classes["std::shared_ptr<Window>"];
 				function_prototype.params.push_back(script_type_data);
 			}
-			class_data->AddFunction("addChild", function_prototype, (void(Window::*)(const std::shared_ptr<Window>&))&Window::addChild);
+			function_prototype.params.push_back(NewScriptTypeData<int64_t>());
+			class_data->AddFunction("addChild", function_prototype, (void(Window::*)(const std::shared_ptr<Window>&, int64_t))&Window::addChild);
 		}
 		{
 			ScriptFunctionPrototype function_prototype;
@@ -2191,6 +2206,18 @@ void Diamond::populate(ScriptCompile& comp)
 			{
 				ScriptTypeData script_type_data;
 				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["RootWindow"];
+				function_prototype.ret = script_type_data;
+			}
+			class_data->AddFunction("getRoot", function_prototype, (RootWindow*(Window::*)()const)&Window::getRoot);
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
 				script_type_data.indirection = 0;
 				script_type_data.class_data = comp.classes["Vec2"];
 				function_prototype.ret = script_type_data;
@@ -2208,6 +2235,18 @@ void Diamond::populate(ScriptCompile& comp)
 				function_prototype.ret = script_type_data;
 			}
 			class_data->AddFunction("getMax", function_prototype, (Vec2(Window::*)()const)&Window::getMax);
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 0;
+				script_type_data.class_data = comp.classes["Vec2"];
+				function_prototype.ret = script_type_data;
+			}
+			class_data->AddFunction("getCenter", function_prototype, (Vec2(Window::*)()const)&Window::getCenter);
 		}
 		{
 			ScriptFunctionPrototype function_prototype;
@@ -2251,6 +2290,33 @@ void Diamond::populate(ScriptCompile& comp)
 				ScriptTypeData script_type_data;
 				script_type_data.type = ST_CLASS;
 				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["Vec2"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["Vec2"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["Vec2"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			class_data->AddFunction("setSizeAnchorOffset", function_prototype, (void(Window::*)(const Vec2&, const Vec2&, const Vec2&))&Window::setSizeAnchorOffset);
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			function_prototype.ret = NewScriptTypeData<void>();
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
 				script_type_data.class_data = comp.classes["RenderContext"];
 				function_prototype.params.push_back(script_type_data);
 			}
@@ -2268,6 +2334,103 @@ void Diamond::populate(ScriptCompile& comp)
 				function_prototype.params.push_back(script_type_data);
 			}
 			class_data->AddFunction("updateUniformBuffers", function_prototype, (void(Window::*)(const RenderContext&))&Window::updateUniformBuffers);
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			function_prototype.ret = NewScriptTypeData<bool>();
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["Vec2"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			class_data->AddFunction("containsPosition", function_prototype, (bool(Window::*)(const Vec2&)const)&Window::containsPosition);
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 0;
+				script_type_data.class_data = comp.classes["std::shared_ptr<Window>"];
+				function_prototype.ret = script_type_data;
+			}
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["Vec2"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			class_data->AddFunction("getAtPosition", function_prototype, (std::shared_ptr<Window>(Window::*)(const Vec2&))&Window::getAtPosition);
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			function_prototype.ret = NewScriptTypeData<bool>();
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["FocusLostEvent"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			class_data->AddVirtualFunction("onEvent", function_prototype, ResolveThunk(Window, onEvent, bool, const FocusLostEvent&)());
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			function_prototype.ret = NewScriptTypeData<bool>();
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["FocusGainedEvent"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			class_data->AddVirtualFunction("onEvent", function_prototype, ResolveThunk(Window, onEvent, bool, const FocusGainedEvent&)());
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			function_prototype.ret = NewScriptTypeData<bool>();
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["CursorLeaveEvent"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			class_data->AddVirtualFunction("onEvent", function_prototype, ResolveThunk(Window, onEvent, bool, const CursorLeaveEvent&)());
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			function_prototype.ret = NewScriptTypeData<bool>();
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["CursorEnterEvent"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			class_data->AddVirtualFunction("onEvent", function_prototype, ResolveThunk(Window, onEvent, bool, const CursorEnterEvent&)());
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			function_prototype.ret = NewScriptTypeData<bool>();
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["CursorMoveEvent"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			class_data->AddVirtualFunction("onEvent", function_prototype, ResolveThunk(Window, onEvent, bool, const CursorMoveEvent&)());
 		}
 		{
 			ScriptFunctionPrototype function_prototype;
@@ -2307,6 +2470,19 @@ void Diamond::populate(ScriptCompile& comp)
 				function_prototype.params.push_back(script_type_data);
 			}
 			class_data->AddVirtualFunction("onEvent", function_prototype, ResolveThunk(Window, onEvent, bool, const KeyDownEvent&)());
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			function_prototype.ret = NewScriptTypeData<void>();
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["RootWindow"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			class_data->AddFunction("setRoot", function_prototype, (void(Window::*)(RootWindow*))&Window::setRoot);
 		}
 		{
 			ScriptFunctionPrototype function_prototype;

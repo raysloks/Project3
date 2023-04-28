@@ -50,7 +50,7 @@ public:
 
 	Matrix4 transform;
 
-private:
+//private:
 	std::shared_ptr<RenderingModel> rendering_model;
 
 	std::vector<VkCommandBuffer> command_buffers;

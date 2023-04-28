@@ -26,8 +26,7 @@ std::shared_ptr<Blueprint> Blueprint::load(const std::string & fname)
 		{
 			auto text = Text::get(fname);
 
-			while (!text->loaded)
-				std::this_thread::yield();
+			text->loaded.wait(false);
 
 			if (text->size())
 			{
@@ -96,6 +95,7 @@ std::shared_ptr<Blueprint> Blueprint::load(const std::string & fname)
 			}
 			
 			bp->loaded = true;
+			bp->loaded.notify_all();
 		});
 	t.detach();
 
@@ -107,8 +107,7 @@ void Blueprint::save(const std::string & fname) const
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, fname]()
 	{
-		while (!shared_this->loaded)
-			std::this_thread::yield();
+		shared_this->loaded.wait(false);
 
 		Coal coal;
 		coal.type = Coal::Type::Object;

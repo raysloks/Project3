@@ -21,6 +21,7 @@ std::shared_ptr<Text> Text::load(const std::string & fname)
 			}
 
 			text->loaded = true;
+			text->loaded.notify_all();
 		});
 	t.detach();
 

@@ -7,5 +7,7 @@ class AssemblyOutput :
 	public AssemblyOutputBase
 {
 public:
+	using value_type = T;
+
 	T result;
 };

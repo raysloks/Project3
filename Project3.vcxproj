@@ -402,12 +402,15 @@
     <ClCompile Include="Body.cpp" />
     <ClCompile Include="Border.cpp" />
     <ClCompile Include="BouncingBall.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="CircleCollider.cpp" />
     <ClCompile Include="ClientItemView.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="ConstantNode.h" />
+    <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="CustomBehaviour.cpp" />
     <ClCompile Include="CustomBehaviourSystem.cpp" />
     <ClCompile Include="DiamondComponent.cpp" />
@@ -458,6 +461,7 @@
     <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="ModelRenderSystem.cpp" />
     <ClCompile Include="NineSlice.cpp" />
+    <ClCompile Include="OutputNode.cpp" />
     <ClCompile Include="PipelineTemplate.cpp" />
     <ClCompile Include="RenderContext.cpp" />
     <ClCompile Include="RenderingModel.cpp" />
@@ -467,6 +471,8 @@
     <ClCompile Include="RootWindow.cpp" />
     <ClCompile Include="TemporaryCommandBuffer.cpp" />
     <ClCompile Include="TextArea.cpp" />
+    <ClCompile Include="TextEditArea.cpp" />
+    <ClCompile Include="TextSettings.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="UID.cpp" />
     <ClCompile Include="HealthDisplay.cpp" />
@@ -526,6 +532,7 @@
     <ClInclude Include="Body.h" />
     <ClInclude Include="Border.h" />
     <ClInclude Include="BouncingBall.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CircleCollider.h" />
     <ClInclude Include="ClientItemView.h" />
@@ -534,6 +541,7 @@
     <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentContainer.h" />
+    <ClInclude Include="CursorManager.h" />
     <ClInclude Include="DynamicState.h" />
     <ClInclude Include="LayerNode.h" />
     <ClInclude Include="CustomBehaviour.h" />
@@ -552,6 +560,7 @@
     <ClInclude Include="GameKeyBinding.h" />
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="GroundEffectChunk.h" />
+    <ClInclude Include="OutputNode.h" />
     <ClInclude Include="RootWindow.h" />
     <ClInclude Include="MobPath.h" />
     <ClInclude Include="MobPos\MpActionCommand.h" />
@@ -594,6 +603,8 @@
     <ClInclude Include="RenderPassTemplate.h" />
     <ClInclude Include="TemporaryCommandBuffer.h" />
     <ClInclude Include="TextArea.h" />
+    <ClInclude Include="TextEditArea.h" />
+    <ClInclude Include="TextSettings.h" />
     <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="UID.h" />
     <ClInclude Include="HealthDisplay.h" />

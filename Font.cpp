@@ -57,6 +57,7 @@ std::shared_ptr<Font> Font::load(const std::string& fname)
 		}
 
 		font->loaded = true;
+		font->loaded.notify_all();
 	};
 
 	thread_pool.push(func);
@@ -70,8 +71,7 @@ std::shared_ptr<SpriteSheet> Font::getGlyph(intmax_t code, const Vec2& size)
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, sheet, code, size]()
 	{
-		while (!shared_this->loaded)
-			std::this_thread::yield();
+		shared_this->loaded.wait(false);
 
 		std::lock_guard<std::mutex> guard(shared_this->mutex);
 
@@ -98,6 +98,7 @@ std::shared_ptr<SpriteSheet> Font::getGlyph(intmax_t code, const Vec2& size)
 		}
 
 		sheet->loaded = true;
+		sheet->loaded.notify_all();
 	};
 
 	if (loaded)
@@ -114,8 +115,7 @@ std::shared_ptr<SpriteSheet> Font::getAtlas(const Vec2& size, float outline)
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, sheet, size, outline]()
 	{
-		while (!shared_this->loaded)
-			std::this_thread::yield();
+		shared_this->loaded.wait(false);
 
 		sheet->surface = SDL_CreateRGBSurface(0, 2048, 2048, 32, 0xff, 0xff << 8, 0xff << 16, 0xff << 24);
 
@@ -140,7 +140,7 @@ std::shared_ptr<SpriteSheet> Font::getAtlas(const Vec2& size, float outline)
 
 		size_t fill_x = 0;
 		size_t fill_y = 0;
-		size_t max_glyph_height_on_row = 0;
+		intmax_t max_glyph_height_on_row = 0;
 
 		FT_Stroker stroker;
 		FT_Stroker_New(ftLibrary, &stroker);
@@ -163,13 +163,19 @@ std::shared_ptr<SpriteSheet> Font::getAtlas(const Vec2& size, float outline)
 			auto& bitmap = bitmap_glyph->bitmap;
 
 			size_t pixel_width = 1;
-			size_t real_width = bitmap.width / pixel_width + 1;
+			size_t real_width = bitmap.width / pixel_width;
+			intmax_t real_height = (intmax_t)bitmap.rows;
 
-			if (fill_x + real_width > sheet->surface->w)
+			if (real_width != 0)
+				real_width += 1;
+			if (real_height != 0)
+				real_height += 1;
+
+			if (fill_x + real_width + 1 >= sheet->surface->w)
 			{
 				fill_x = 0;
-				fill_y += max_glyph_height_on_row + 1;
-				max_glyph_height_on_row = bitmap.rows;
+				fill_y += max_glyph_height_on_row;
+				max_glyph_height_on_row = real_height + 1;
 			}
 
 			intmax_t pitch = sheet->surface->pitch;
@@ -187,13 +193,13 @@ std::shared_ptr<SpriteSheet> Font::getAtlas(const Vec2& size, float outline)
 
 			sheet->frames[code] = {
 				Vec2(fill_x, fill_y) * normalize_multiplier,
-				Vec2(fill_x + real_width, fill_y + bitmap.rows + 1) * normalize_multiplier,
-				(Vec2(fill_x, fill_y) + Vec2(-bitmap_glyph->left, (intmax_t)bitmap.rows + 1 - bitmap_glyph->top)) * normalize_multiplier,
-				Vec2(bitmap_glyph->root.advance.x >> 16, bitmap_glyph->root.advance.y >> 16)
+				Vec2(fill_x + real_width, fill_y + real_height) * normalize_multiplier,
+				(Vec2(fill_x, fill_y) + Vec2(-bitmap_glyph->left, real_height - bitmap_glyph->top)) * normalize_multiplier,
+				Vec2(bitmap_glyph->root.advance.x / 65536.0f, bitmap_glyph->root.advance.y / 65536.0f)
 			};
 
-			fill_x += real_width;
-			max_glyph_height_on_row = std::max(max_glyph_height_on_row, (size_t)bitmap.rows);
+			fill_x += real_width + 1;
+			max_glyph_height_on_row = std::max(max_glyph_height_on_row, real_height + 1);
 
 			FT_Done_Glyph(glyph);
 		}
@@ -201,6 +207,7 @@ std::shared_ptr<SpriteSheet> Font::getAtlas(const Vec2& size, float outline)
 		FT_Stroker_Done(stroker);
 
 		sheet->loaded = true;
+		sheet->loaded.notify_all();
 	};
 
 	if (loaded)

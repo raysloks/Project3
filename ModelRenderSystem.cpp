@@ -866,9 +866,11 @@ void ModelRenderSystem::setupGraphicsPipelineTemplates()
 	};
 
 	pipeline_settings.dynamic_states = { VK_DYNAMIC_STATE_SCISSOR };
+	pipeline_settings.rasterization_state_create_info.cullMode = VK_CULL_MODE_NONE;
 
 	ui_graphics_pipeline_template.setSettings(pipeline_settings);
 
+	pipeline_settings.rasterization_state_create_info.cullMode = VK_CULL_MODE_BACK_BIT;
 	pipeline_settings.dynamic_states = {};
 
 	pipeline_settings.vertex_input_attribute_descriptions = {};

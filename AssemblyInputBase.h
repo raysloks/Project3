@@ -12,6 +12,5 @@ public:
 
 	bool isConnectedTo(const AssemblyOutputBase * output) const;
 
-protected:
 	AssemblyOutputBase * output;
 };

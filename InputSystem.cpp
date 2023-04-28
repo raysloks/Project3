@@ -9,15 +9,19 @@ void InputSystem::processKeyDownEvent(SDL_KeyboardEvent & event)
 {
 	processUnfilteredKeyDown(event.keysym.sym);
 	processUnfilteredKeyDown(keyBindings.getAction(event.keysym.sym));
-	// ignore auto-repeated key down events
-	if (event.repeat)
-		return;
 
 	KeyDownEvent ev;
 	ev.cursor_position = cursorPosition;
 	ev.key = event.keysym.sym;
+	ev.mod = event.keysym.mod;
+	ev.repeat = event.repeat;
 	if (engine->mrs->ui->processKeyDownEvent(ev))
 		return;
+
+	// ignore auto-repeated key down events
+	if (event.repeat)
+		return;
+
 	processKeyDown(ev.key);
 
 	uint64_t action = keyBindings.getAction(ev.key);
@@ -32,6 +36,7 @@ void InputSystem::processKeyUpEvent(SDL_KeyboardEvent & event)
 	KeyUpEvent ev;
 	ev.cursor_position = cursorPosition;
 	ev.key = event.keysym.sym;
+	ev.mod = event.keysym.mod;
 	if (engine->mrs->ui->processKeyUpEvent(ev))
 		return;
 	processKeyUp(ev.key);

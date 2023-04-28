@@ -7,6 +7,7 @@
 #include <mutex>
 
 #include "Vec2.h"
+#include "Utf8.h"
 
 #include "Text.h"
 
@@ -80,8 +81,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::load(const std::string & fname)
 
 			sheet->surface = IMG_Load((BaseResource::data_location + fname).c_str());
 
-			while (!meta->loaded)
-				std::this_thread::yield();
+			meta->loaded.wait(false);
 
 			if (meta->size())
 			{
@@ -103,6 +103,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::load(const std::string & fname)
 			}
 
 			sheet->loaded = true;
+			sheet->loaded.notify_all();
 		});
 	t.detach();
 
@@ -123,8 +124,7 @@ void SpriteSheet::save(const std::string & fname) const
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, fname]()
 	{
-		while (!shared_this->loaded)
-			SDL_Delay(0);
+		shared_this->loaded.wait(false);
 
 		if (shared_this->surface)
 		{
@@ -297,8 +297,8 @@ std::shared_ptr<SpriteSheet> SpriteSheet::merge(const std::shared_ptr<SpriteShee
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, sheet, fg]()
 	{
-		while (!(shared_this->loaded && fg->loaded))
-			SDL_Delay(0);
+		shared_this->loaded.wait(false);
+		fg->loaded.wait(false);
 
 		if (shared_this->surface && fg->surface)
 		{
@@ -348,6 +348,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::merge(const std::shared_ptr<SpriteShee
 		}
 
 		sheet->loaded = true;
+		sheet->loaded.notify_all();
 	};
 
 	if (loaded)
@@ -369,8 +370,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeCopy() const
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, sheet]()
 	{
-		while (!shared_this->loaded)
-			SDL_Delay(0);
+		shared_this->loaded.wait(false);
 
 		if (shared_this->surface)
 		{
@@ -385,6 +385,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeCopy() const
 		}
 
 		sheet->loaded = true;
+		sheet->loaded.notify_all();
 	};
 
 	if (loaded)
@@ -406,8 +407,8 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeMapped(const std::shared_ptr<Sprit
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, sheet, map]()
 	{
-		while (!(shared_this->loaded && map->loaded))
-			SDL_Delay(0);
+		shared_this->loaded.wait(false);
+		map->loaded.wait(false);
 
 		if (shared_this->surface && map->surface)
 		{
@@ -458,6 +459,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeMapped(const std::shared_ptr<Sprit
 		}
 
 		sheet->loaded = true;
+		sheet->loaded.notify_all();
 	};
 
 	if (loaded && map->loaded)
@@ -479,8 +481,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricWall() const
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, sheet]()
 	{
-		while (!shared_this->loaded)
-			SDL_Delay(0);
+		shared_this->loaded.wait(false);
 
 		if (shared_this->surface)
 		{
@@ -545,6 +546,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricWall() const
 		}
 
 		sheet->loaded = true;
+		sheet->loaded.notify_all();
 	};
 
 	if (loaded)
@@ -566,8 +568,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossy(bool blur) con
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, sheet, blur]()
 	{
-		while (!shared_this->loaded)
-			SDL_Delay(0);
+		shared_this->loaded.wait(false);
 
 		if (shared_this->surface)
 		{
@@ -636,6 +637,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossy(bool blur) con
 		}
 
 		sheet->loaded = true;
+		sheet->loaded.notify_all();
 	};
 
 	if (loaded)
@@ -657,8 +659,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossless(float rotat
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, sheet, rotation]()
 	{
-		while (!shared_this->loaded)
-			SDL_Delay(0);
+		shared_this->loaded.wait(false);
 
 		if (shared_this->surface)
 		{
@@ -744,6 +745,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeIsometricFloorLossless(float rotat
 		}
 
 		sheet->loaded = true;
+		sheet->loaded.notify_all();
 	};
 
 	if (loaded)
@@ -765,8 +767,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeScaled(intmax_t scale) const
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, sheet, scale]()
 	{
-		while (!shared_this->loaded)
-			SDL_Delay(0);
+		shared_this->loaded.wait(false);
 
 		if (shared_this->surface)
 		{
@@ -808,6 +809,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeScaled(intmax_t scale) const
 		}
 
 		sheet->loaded = true;
+		sheet->loaded.notify_all();
 	};
 
 	if (loaded)
@@ -831,8 +833,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, sheet, outline_color, fill_color, cell_margin, outline_width]()
 	{
-		while (!shared_this->loaded)
-			SDL_Delay(0);
+		shared_this->loaded.wait(false);
 
 		if (shared_this->surface)
 		{
@@ -949,6 +950,7 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_
 		}
 
 		sheet->loaded = true;
+		sheet->loaded.notify_all();
 	};
 
 	if (loaded)
@@ -964,60 +966,90 @@ std::shared_ptr<SpriteSheet> SpriteSheet::makeOutline(const SDL_Color & outline_
 	return sheet;
 }
 
-std::shared_ptr<Model> SpriteSheet::makeTextModel(const std::string& text) const
+std::shared_ptr<Model> SpriteSheet::makeTextModel(const std::string& text, const TextSettings& settings) const
 {
 	auto model = std::make_shared<Model>();
 	auto shared_this = shared_from_this();
-	auto func = [shared_this, model, text]()
+	auto func = [shared_this, model, text, settings]()
 	{
-		while (!shared_this->loaded)
-			std::this_thread::yield();
+		shared_this->loaded.wait(false);
+
+		auto code_points = getCodePoints(text);
 
 		Vec2 offset;
-		model->vertices.resize(text.size() * 4);
-		model->triangles.resize(text.size() * 2);
-		for (size_t i = 0; i < text.size(); ++i)
+		model->vertices.resize(code_points.size() * 4);
+		model->triangles.resize(code_points.size() * 2);
+		size_t i = 0;
+		bool justified = false;
+		for (auto c = code_points.begin(); c != code_points.end(); ++c)
 		{
-			unsigned char c = text[i]; // TODO utf-8
-			auto it = shared_this->frames.find(c);
-			auto& frame = it->second;
-
-			model->vertices[i * 4 + 0].uv = frame.min;
-			model->vertices[i * 4 + 1].uv = Vec2(frame.max.x, frame.min.y);
-			model->vertices[i * 4 + 2].uv = frame.max;
-			model->vertices[i * 4 + 3].uv = Vec2(frame.min.x, frame.max.y);
-			model->vertices[i * 4 + 0].position = Vec2(frame.min.x, frame.max.y);
-			model->vertices[i * 4 + 1].position = frame.max;
-			model->vertices[i * 4 + 2].position = Vec2(frame.max.x, frame.min.y);
-			model->vertices[i * 4 + 3].position = frame.min;
-			for (size_t j = i * 4; j < i * 4 + 4; ++j)
+			if (!justified)
 			{
-				auto& vertex = model->vertices[j];
-				vertex.position -= frame.center;
-				vertex.position *= Vec2(shared_this->surface->w, shared_this->surface->h);
-				vertex.position += offset;
-				vertex.normal = Vec3(0.0f, 0.0f, 1.0f);
-				vertex.bones[0] = 0;
-				vertex.bones[1] = 0;
-				vertex.bones[2] = 0;
-				vertex.bones[3] = 0;
-				vertex.weights[0] = 1.0f;
-				vertex.weights[1] = 0.0f;
-				vertex.weights[2] = 0.0f;
-				vertex.weights[3] = 0.0f;
+				Vec2 line_advance = shared_this->getLineAdvance(c, code_points.end(), settings);
+				offset -= line_advance * settings.justification;
+				justified = true;
 			}
 
-			model->triangles[i * 2 + 0].indices[0] = i * 4 + 1;
-			model->triangles[i * 2 + 0].indices[1] = i * 4 + 0;
-			model->triangles[i * 2 + 0].indices[2] = i * 4 + 2;
-			model->triangles[i * 2 + 1].indices[2] = i * 4 + 3;
-			model->triangles[i * 2 + 1].indices[0] = i * 4 + 2;
-			model->triangles[i * 2 + 1].indices[1] = i * 4 + 0;
+			auto it = shared_this->frames.find(*c);
+			if (it == shared_this->frames.end())
+			{
+				it = shared_this->frames.find(0xfffd); // replacement character
+				if (it == shared_this->frames.end())
+					it = shared_this->frames.begin();
+			}
+			auto& frame = it->second;
+
+			if (frame.min != frame.max)
+			{
+				model->vertices[i * 4 + 0].uv = frame.min;
+				model->vertices[i * 4 + 1].uv = Vec2(frame.max.x, frame.min.y);
+				model->vertices[i * 4 + 2].uv = frame.max;
+				model->vertices[i * 4 + 3].uv = Vec2(frame.min.x, frame.max.y);
+				model->vertices[i * 4 + 0].position = Vec2(frame.min.x, frame.max.y);
+				model->vertices[i * 4 + 1].position = frame.max;
+				model->vertices[i * 4 + 2].position = Vec2(frame.max.x, frame.min.y);
+				model->vertices[i * 4 + 3].position = frame.min;
+				for (size_t j = i * 4; j < i * 4 + 4; ++j)
+				{
+					auto& vertex = model->vertices[j];
+					vertex.position -= frame.center;
+					vertex.position *= Vec2(shared_this->surface->w, shared_this->surface->h);
+					vertex.position += offset;
+					vertex.normal = Vec3(0.0f, 0.0f, 1.0f);
+					vertex.bones[0] = 0;
+					vertex.bones[1] = 0;
+					vertex.bones[2] = 0;
+					vertex.bones[3] = 0;
+					vertex.weights[0] = 1.0f;
+					vertex.weights[1] = 0.0f;
+					vertex.weights[2] = 0.0f;
+					vertex.weights[3] = 0.0f;
+				}
+
+				model->triangles[i * 2 + 0].indices[0] = i * 4 + 1;
+				model->triangles[i * 2 + 0].indices[1] = i * 4 + 0;
+				model->triangles[i * 2 + 0].indices[2] = i * 4 + 2;
+				model->triangles[i * 2 + 1].indices[2] = i * 4 + 3;
+				model->triangles[i * 2 + 1].indices[0] = i * 4 + 2;
+				model->triangles[i * 2 + 1].indices[1] = i * 4 + 0;
+
+				++i;
+			}
 
 			offset += frame.advance;
+
+			if (*c == 0x0a) // LF
+			{
+				offset.x = 0.0f;
+				offset.y -= settings.line_height;
+				justified = false;
+			}
 		}
+		model->vertices.resize(i * 4);
+		model->triangles.resize(i * 2);
 
 		model->loaded = true;
+		model->loaded.notify_all();
 	};
 
 	if (loaded)
@@ -1034,8 +1066,7 @@ std::shared_ptr<Model> SpriteSheet::makeFrameModel(uint32_t frame_index, bool no
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, model, frame_index, normalize]()
 	{
-		while (!shared_this->loaded)
-			std::this_thread::yield();
+		shared_this->loaded.wait(false);
 
 		model->vertices.resize(4);
 		model->triangles.resize(2);
@@ -1092,6 +1123,7 @@ std::shared_ptr<Model> SpriteSheet::makeFrameModel(uint32_t frame_index, bool no
 		}
 
 		model->loaded = true;
+		model->loaded.notify_all();
 	};
 
 	if (loaded)
@@ -1101,3 +1133,184 @@ std::shared_ptr<Model> SpriteSheet::makeFrameModel(uint32_t frame_index, bool no
 
 	return model;
 }
+
+Vec2 SpriteSheet::getAdvance(const std::string& text, const TextSettings& settings, size_t index) const
+{
+	loaded.wait(false);
+
+	Vec2 advance;
+	bool justified = false;
+	for (auto c = text.begin(); c != text.end();)
+	{
+		if (!justified)
+		{
+			Vec2 line_advance = getLineAdvance(c, text.end(), settings);
+			advance -= line_advance * settings.justification;
+			justified = true;
+		}
+
+		if (c - text.begin() == index)
+			return advance;
+
+		auto code_point = getCodePoint(c, text.end());
+		auto it = frames.find(code_point);
+		if (it == frames.end())
+		{
+			it = frames.find(0xfffd); // replacement character
+			if (it == frames.end())
+				it = frames.begin();
+		}
+		auto& frame = it->second;
+		advance += frame.advance;
+		if (code_point == 0x0a) // LF
+		{
+			advance.x = 0.0f;
+			advance.y += settings.line_height;
+			justified = false;
+		}
+	}
+	return advance;
+}
+
+Vec2 SpriteSheet::getJustifiedOffset(const std::string& text, const TextSettings& settings, size_t index) const
+{
+	auto code_points = getCodePoints(text);
+
+	loaded.wait(false);
+
+	Vec2 advance, bounds;
+	for (auto c = code_points.begin(); c != code_points.end(); ++c)
+	{
+		auto it = frames.find(*c);
+		if (it == frames.end())
+		{
+			it = frames.find(0xfffd); // replacement character
+			if (it == frames.end())
+				it = frames.begin();
+		}
+		auto& frame = it->second;
+		advance += frame.advance;
+		if (*c == 0x0a) // LF
+		{
+			advance.x = 0.0f;
+			advance.y += settings.line_height;
+		}
+		bounds.x = std::max(bounds.x, advance.x);
+		bounds.y = std::max(bounds.y, advance.y);
+	}
+	return bounds * (Vec2(1.0f) - settings.justification * 2.0f);
+}
+
+std::vector<Vec2> SpriteSheet::getLineAdvances(const std::string& text) const
+{
+	auto code_points = getCodePoints(text);
+
+	loaded.wait(false);
+
+	std::vector<Vec2> advances;
+	advances.push_back(Vec2());
+	for (auto& c : code_points)
+	{
+		auto it = frames.find(c);
+		if (it == frames.end())
+		{
+			it = frames.find(0xfffd); // replacement character
+			if (it == frames.end())
+				it = frames.begin();
+		}
+		if (c == 0x0a) // LF
+			advances.push_back(Vec2());
+		auto& frame = it->second;
+		advances.back() += frame.advance;
+	}
+	return advances;
+}
+
+int64_t SpriteSheet::getIndexFromPosition(const std::string& text, const TextSettings& settings, const Vec2& position) const
+{
+	loaded.wait(false);
+
+	Vec2 advance;
+	bool justified = false;
+	for (auto c = text.begin(); c != text.end();)
+	{
+		if (!justified)
+		{
+			Vec2 line_advance = getLineAdvance(c, text.end(), settings);
+			advance -= line_advance * settings.justification;
+			justified = true;
+		}
+
+		auto prev = c;
+		auto code_point = getCodePoint(c, text.end());
+		auto it = frames.find(code_point);
+		if (it == frames.end())
+		{
+			it = frames.find(0xfffd); // replacement character
+			if (it == frames.end())
+				it = frames.begin();
+		}
+		auto& frame = it->second;
+
+		if (advance + frame.advance * 0.5f > position)
+			return prev - text.begin();
+
+		advance += frame.advance;
+
+		if (code_point == 0x0a) // LF
+		{
+			if (advance.y > position.y)
+				return prev - text.begin();
+			advance.x = 0.0f;
+			advance.y += settings.line_height;
+			justified = false;
+		}
+	}
+	return text.size();
+}
+
+Vec2 SpriteSheet::getLineAdvance(const std::u32string::const_iterator& begin, const std::u32string::const_iterator& end, const TextSettings& settings) const
+{
+	loaded.wait(false);
+
+	Vec2 advance;
+	for (std::u32string::const_iterator c = begin; c != end; ++c)
+	{
+		auto it = frames.find(*c);
+		if (it == frames.end())
+		{
+			it = frames.find(0xfffd); // replacement character
+			if (it == frames.end())
+				it = frames.begin();
+		}
+		if (*c == 0x0a) // LF
+			return advance;
+		auto& frame = it->second;
+		advance += frame.advance;
+	}
+	return advance;
+}
+
+Vec2 SpriteSheet::getLineAdvance(const std::string::const_iterator& begin, const std::string::const_iterator& end, const TextSettings& settings) const
+{
+	loaded.wait(false);
+
+	Vec2 advance;
+	for (std::string::const_iterator c = begin; c != end;)
+	{
+		auto code_point = getCodePoint(c, end);
+		auto it = frames.find(code_point);
+		if (it == frames.end())
+		{
+			it = frames.find(0xfffd); // replacement character
+			if (it == frames.end())
+				it = frames.begin();
+		}
+		if (code_point == 0x0a) // LF
+			return advance;
+		auto& frame = it->second;
+		advance += frame.advance;
+	}
+	return advance;
+}
+

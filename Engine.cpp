@@ -21,6 +21,8 @@ Engine::Engine()
 	/*render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);*/
 
+	SDL_StopTextInput();
+
 	stopped = false;
 
 	framerate_cap_fg = 0.0;
@@ -74,8 +76,8 @@ Engine::Engine()
 	input->addKeyDownCallback(SDLK_F11, fullscreen_toggle_func);
 
 
-	cursor_sheet_new = nullptr;
 	cursor_sheet = nullptr;
+	cursor_id = SDL_SYSTEM_CURSOR_ARROW;
 	cursor = nullptr;
 
 	profiling_frame_window = 2000;
@@ -115,7 +117,7 @@ void Engine::run()
 		{
 			std::lock_guard<std::mutex> lock(net->mutex);
 
-			updateCursor();
+			//updateCursor();
 
 			SDL_Event e;
 
@@ -215,9 +217,24 @@ void Engine::stop()
 
 void Engine::setCursor(const std::shared_ptr<SpriteSheet>& sheet, int hotspot_x, int hotspot_y)
 {
-	cursor_sheet_new = sheet;
+	if (sheet != cursor_sheet || hotspot_x != cursor_hotspot_x || hotspot_y != cursor_hotspot_y)
+		cursor_dirty = true;
+	cursor_sheet = sheet;
 	cursor_hotspot_x = hotspot_x;
 	cursor_hotspot_y = hotspot_y;
+	cursor_id = SDL_SYSTEM_CURSOR_ARROW;
+
+	updateCursor();
+}
+
+void Engine::setCursor(SDL_SystemCursor id)
+{
+	if (id != cursor_id || cursor_sheet != nullptr)
+		cursor_dirty = true;
+	cursor_id = id;
+	cursor_sheet = nullptr;
+
+	updateCursor();
 }
 
 void Engine::setLevel(Level * level_new_new)
@@ -227,32 +244,26 @@ void Engine::setLevel(Level * level_new_new)
 
 void Engine::updateCursor()
 {
-	if (cursor_sheet != cursor_sheet_new)
+	if (cursor_dirty)
 	{
-		auto cursor_prev = cursor;
-		if (cursor_sheet_new)
+		if (cursor)
+			SDL_FreeCursor(cursor);
+		if (cursor_sheet != nullptr)
 		{
-			if (cursor_sheet_new->loaded)
+			if (cursor_sheet->loaded)
 			{
-				if (cursor_sheet_new->surface)
-					cursor = SDL_CreateColorCursor(cursor_sheet_new->surface, cursor_hotspot_x, cursor_hotspot_y);
+				if (cursor_sheet->surface)
+					cursor = SDL_CreateColorCursor(cursor_sheet->surface, cursor_hotspot_x, cursor_hotspot_y);
 				else
 					cursor = nullptr; // i guess we just default the cursor if we failed to load the requested image
-				cursor_sheet = cursor_sheet_new;
 			}
 		}
 		else
 		{
-			cursor = nullptr;
-			cursor_sheet = cursor_sheet_new;
+			cursor = SDL_CreateSystemCursor(cursor_id);
 		}
-
-		if (cursor != cursor_prev)
-		{
-			SDL_SetCursor(cursor);
-			if (cursor_prev)
-				SDL_FreeCursor(cursor_prev);
-		}
+		SDL_SetCursor(cursor);
+		cursor_dirty = false;
 	}
 }
 

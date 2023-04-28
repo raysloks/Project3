@@ -8,16 +8,20 @@ Window::Window()
 	parent = nullptr;
 	root = nullptr;
 	maxAnchor = 1.0f;
+	hidden = false;
 	clickable = false;
 	clipping = false;
+	cursor = SDL_SYSTEM_CURSOR_ARROW;
 }
 
 Window::Window(const Vec2& minAnchor, const Vec2& maxAnchor, const Vec2& minOffset, const Vec2& maxOffset) : minAnchor(minAnchor), maxAnchor(maxAnchor), minOffset(minOffset), maxOffset(maxOffset)
 {
 	parent = nullptr;
 	root = nullptr;
+	hidden = false;
 	clickable = false;
 	clipping = false;
+	cursor = SDL_SYSTEM_CURSOR_ARROW;
 }
 
 Window::~Window()
@@ -29,7 +33,7 @@ Window::~Window()
 	}
 }
 
-void Window::addChild(const std::shared_ptr<Window>& child)
+void Window::addChild(const std::shared_ptr<Window>& child, intmax_t index)
 {
 	if (child->parent)
 	{
@@ -37,7 +41,10 @@ void Window::addChild(const std::shared_ptr<Window>& child)
 		if (it != child->parent->children.end())
 			child->parent->children.erase(it);
 	}
-	children.push_back(child);
+	if (index < 0)
+		children.insert(children.end() + index + 1, child);
+	else
+		children.insert(children.begin() + index, child);
 	child->parent = this;
 	child->setRoot(root);
 }
@@ -115,6 +122,9 @@ void Window::setSizeAnchorOffset(const Vec2& size, const Vec2& offset, const Vec
 
 void Window::getRenderingModels(RenderContext& render_context)
 {
+	if (hidden)
+		return;
+
 	if (clipping)
 	{
 		render_context.pushDynamicState();
@@ -140,6 +150,9 @@ void Window::getRenderingModels(RenderContext& render_context)
 
 void Window::updateUniformBuffers(const RenderContext& render_context)
 {
+	if (hidden)
+		return;
+
 	for (auto& child : children)
 		child->updateUniformBuffers(render_context);
 	if (model)
@@ -161,6 +174,9 @@ bool Window::containsPosition(const Vec2& position) const
 
 std::shared_ptr<Window> Window::getAtPosition(const Vec2& position)
 {
+	if (hidden)
+		return nullptr;
+
 	bool contains = containsPosition(position);
 	if (contains || !clipping)
 	{
@@ -213,6 +229,11 @@ bool Window::onEvent(const FocusGainedEvent & event)
 }
 
 bool Window::onEvent(const FocusLostEvent & event)
+{
+	return false;
+}
+
+bool Window::onEvent(const LayoutEvent & event)
 {
 	return false;
 }

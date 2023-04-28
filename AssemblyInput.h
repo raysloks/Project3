@@ -9,6 +9,8 @@ class AssemblyInput :
 	public AssemblyInputBase
 {
 public:
+	using value_type = T;
+
 	bool matches(AssemblyOutputBase * output) const
 	{
 		return dynamic_cast<AssemblyOutput<T>*>(output);

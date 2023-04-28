@@ -60,6 +60,7 @@ std::shared_ptr<Model> Model::load(const std::string & fname)
 			}
 
 			model->loaded = true;
+			model->loaded.notify_all();
 		});
 	t.detach();
 

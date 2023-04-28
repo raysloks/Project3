@@ -18,6 +18,8 @@ public:
 	size_t getIndex(AssemblyInputBase& input) const;
 	size_t getIndex(AssemblyOutputBase& output) const;
 
+	void assemble();
+
 	std::vector<AssemblyOutputBase*> outputs;
 	std::vector<AssemblyNode*> nodes;
 };

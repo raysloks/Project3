@@ -49,6 +49,7 @@ public:
 	double full;
 
 	void setCursor(const std::shared_ptr<SpriteSheet> & sheet, int hotspot_x, int hotspot_y);
+	void setCursor(SDL_SystemCursor id);
 
 	void setLevel(Level * level);
 
@@ -71,9 +72,11 @@ private:
 
 	void updateCursor();
 
-	std::shared_ptr<SpriteSheet> cursor_sheet, cursor_sheet_new;
+	std::shared_ptr<SpriteSheet> cursor_sheet;
+	SDL_SystemCursor cursor_id;
 	int cursor_hotspot_x, cursor_hotspot_y;
 	SDL_Cursor * cursor;
+	bool cursor_dirty;
 
 	void updateLevel();
 

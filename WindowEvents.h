@@ -15,18 +15,25 @@ public:
 	Vec2 cursor_position;
 };
 
-class KeyDownEvent :
+class KeyEvent :
 	public WindowEvent
 {
 public:
 	uint64_t key;
+	uint64_t mod;
+};
+
+class KeyDownEvent :
+	public KeyEvent
+{
+public:
+	bool repeat;
 };
 
 class KeyUpEvent :
-	public WindowEvent
+	public KeyEvent
 {
 public:
-	uint64_t key;
 };
 
 class TextInputEvent :
@@ -62,6 +69,12 @@ public:
 };
 
 class FocusLostEvent :
+	public WindowEvent
+{
+public:
+};
+
+class LayoutEvent :
 	public WindowEvent
 {
 public:

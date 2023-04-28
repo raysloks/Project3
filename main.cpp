@@ -34,6 +34,8 @@
 
 #include <iostream>
 
+#include "TextEditArea.h"
+
 std::map<int, Level*> levels;
 
 Level * create_level(int floor)
@@ -569,6 +571,12 @@ int main(int argc, char* args[])
 	engine.setLevel(level);
 
 	engine.net->Connect();
+
+	{
+		auto text_edit_area = std::make_shared<TextEditArea>();
+		text_edit_area->setSizeAnchorOffset(Vec2(200.0f, 200.0f));
+		engine.mrs->ui->addChild(text_edit_area);
+	}
 
 	engine.run();
 

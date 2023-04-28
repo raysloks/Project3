@@ -13,7 +13,9 @@ class FileNode :
 	public AssemblyNode
 {
 public:
-	AssemblyInput<std::string> fname;
+	using value_type = T;
+
+	std::string fname;
 	AssemblyOutput<std::shared_ptr<T>> resource;
 
 	void assemble();
@@ -22,7 +24,5 @@ public:
 template<class T>
 inline void FileNode<T>::assemble()
 {
-	auto fname_result = fname.get();
-	if (fname_result != nullptr)
-		resource.result = T::load(*fname_result);
+	resource.result = T::get(fname);
 }

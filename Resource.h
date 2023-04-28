@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <functional>
+#include <atomic>
 
 #include "ThreadPool.h"
 
@@ -24,6 +25,8 @@ public:
 	static std::map<std::string, std::weak_ptr<T>> resources;
 	static std::mutex mutex;
 
+	std::atomic<bool> loaded;
+
 	static std::shared_ptr<T> get(const std::string& fname)
 	{
 		std::shared_ptr<T> resource = nullptr;
@@ -37,12 +40,9 @@ public:
 		resources[fname] = resource;
 		return resource;
 	}
-
-	bool loaded = false;
 };
 
 template <class T>
 std::map<std::string, std::weak_ptr<T>> Resource<T>::resources;
 template <class T>
 std::mutex Resource<T>::mutex;
-
