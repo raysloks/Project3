@@ -9,25 +9,46 @@ ThreadPool::ThreadPool(size_t size)
 {
 	stopping = false;
 
-	for (size_t i = 0; i < size; ++i)
+	if (size == 1)
 	{
 		threads.push_back(std::thread([this]()
 			{
-				std::function<void(void)> function;
 				while (true)
 				{
+					std::unique_lock<std::mutex> lock(mutex);
+					if (stopping)
+						return;
+					if (!queue.empty())
+					{
+						std::function<void(void)> function = queue.front();
+						queue.pop();
+						lock.unlock();
+						function();
+					}
+				}
+			}
+		));
+	}
+	else
+	{
+		for (size_t i = 0; i < size; ++i)
+		{
+			threads.push_back(std::thread([this]()
+				{
+					while (true)
 					{
 						std::unique_lock<std::mutex> lock(mutex);
 						condition.wait(lock, [this]() { return !queue.empty() || stopping; });
 						if (stopping)
 							return;
-						function = queue.front();
+						std::function<void(void)> function = queue.front();
 						queue.pop();
+						lock.unlock();
+						function();
 					}
-					function();
 				}
-			}
-		));
+			));
+		}
 	}
 }
 

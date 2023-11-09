@@ -7,6 +7,7 @@
 #include "ModelAnimator.h"
 #include "HealthDisplay.h"
 #include "ActionBar.h"
+#include "NamePlateProvider.h"
 
 #include "MobTemplate.h"
 
@@ -28,6 +29,7 @@ MobPosHandler::MobPosHandler() : grid(64, 64)
 	heartbeat_timer = 0.0f;
 
 	endpoint = asio::ip::udp::endpoint(asio::ip::address::from_string("2a01:7e01::f03c:92ff:fe8e:50b4"), 43857);
+	//endpoint = asio::ip::udp::endpoint(asio::ip::address::from_string("172.105.79.194"), 43857);
 
 	boost::uuids::string_generator gen;
 	player_character.character_id = gen("9769f33c-0617-42fc-83b5-4c00a606e529");
@@ -56,6 +58,12 @@ void MobPosHandler::MpAuthenticationHandler(const asio::ip::udp::endpoint & endp
 void MobPosHandler::MpChatHandler(const asio::ip::udp::endpoint & endpoint, const MpChat & message)
 {
 	std::cout << message.message << std::endl;
+}
+
+void MobPosHandler::MpCommandQueueAcknowledgeHandler(const asio::ip::udp::endpoint & endpoint, const MpCommandQueueAcknowledge & message)
+{
+	command_queue.commands.erase(command_queue.commands.begin(), command_queue.commands.begin() + (int16_t)(message.index - command_queue.index));
+	command_queue.index = message.index;
 }
 
 void MobPosHandler::MpDamageHandler(const asio::ip::udp::endpoint & endpoint, const MpDamage & message)
@@ -205,6 +213,31 @@ void MobPosHandler::tick(float dt)
 				grid.at(x, y) = engine->level->tilemap.at(x, y).tile;
 			}
 		}
+		//navmesh.Initialize(grid);
+
+		{
+			std::string navmesh_fname = "data/navmeshtest.mdl";
+			navmesh.Initialize(navmesh_fname);
+
+			std::cout << navmesh.vertices.size() << std::endl;
+			std::cout << navmesh.faces.size() << std::endl;
+			std::cout << navmesh.arcs.size() << std::endl;
+			std::cout << navmesh.halfEdges.size() << std::endl;
+			std::cout << navmesh.corners.size() << std::endl;
+
+			auto entity = level->add_entity();
+			auto model = level->models.add("navmeshtest.mdl", "testgrid2.png");
+			Component::attach(model, entity);
+
+			/*auto navmeshmodel = Model::get("navmeshtest.mdl");
+			navmeshmodel->loaded.wait(false);
+
+			for (int i = 0; i < navmeshmodel->vertices.size(); ++i)
+				navmesh.vertices.push_back(NavMesh::Vertex{ navmeshmodel->vertices[i].position, -1, -1 });
+			for (int i = 0; i < navmeshmodel->triangles.size(); ++i)
+				navmesh.AddFace(navmeshmodel->triangles[i].indices[0], navmeshmodel->triangles[i].indices[1], navmeshmodel->triangles[i].indices[2]);
+			navmesh.ConnectHalfEdges();*/
+		}
 
 		engine->input->addKeyDownCallback(KB_MOVE_ATTACK_CURSOR, [this]()
 			{
@@ -213,11 +246,13 @@ void MobPosHandler::tick(float dt)
 
 				int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
 
-				Vec2 target = engine->mrs->screenToWorld(engine->input->getCursor());
+				Vec3 target = engine->mrs->screenToWorld(engine->input->getCursor(), mobs[player_mob_id].mob->entity->z);
+				target = navmesh.GetFacePosition(target).position;
+				last_path_target = target;
 
 				Reference<NetworkMob> target_mob;
 				auto in_range = engine->cs->overlapCircle(target, 0.5f);
-				for (auto i : in_range)
+				for (auto& i : in_range)
 				{
 					auto mob = i.second->getComponent<NetworkMob>();
 					if (mob && mob->id != player_mob_id)
@@ -230,61 +265,66 @@ void MobPosHandler::tick(float dt)
 				if (target_mob)
 				{
 					MpAttackCommand message;
-					message.command.time = time;
+					message.time = time;
 					message.target = target_mob->id;
-					link.Send(endpoint, message);
+					Queue(message);
 				}
 				else
 				{
+					auto&& mob = mobs[player_mob_id];
+					auto&& path = mob.path;
+
 					MpMoveCommand message;
-					message.command.time = time;
+					message.time = time;
+					message.position = mob.mob->entity->xyz;
 					message.target = target;
-					link.Send(endpoint, message);
+					Queue(message);
 
-					//if (false)
+					last_sent_path_time = time; // change to 'now' when mini fast-forward is working
+
+					//float speed = mob.mob->stats.movement_speed * mob.mob->stats.movement_speed_multiplier;
+					//path.move((now + time_offset - time) * 0.000000001 * speed);
+					/*if (path.points.size() > 0)
+						mob.mob->entity->xy = path.getPosition() * 16.0f - 8.0f;*/
+					std::vector<Vec3> path3d = navmesh.GeneratePath(mob.mob->entity->xyz, target);
+					path.clear();
+					for (auto& point : path3d)
+						path.points.push_back(point);
+					//path.points = navmesh.findPath(mob.mob->entity->xy, message.target);
+					//path.points = { message.target, mob.mob->entity->xy / 16.0f + 0.5f };
+					std::reverse(path.points.begin(), path.points.end());
+					if (path.points.size() > 0)
 					{
-						auto&& mob = mobs[player_mob_id];
-						auto&& path = mob.path;
+						path.distances.resize(path.points.size() - 1);
+						for (size_t i = 0; i < path.distances.size(); ++i)
+							path.distances[i] = Vec2(path.points[i + 1] - path.points[i]).Len();
+					}
+					else
+					{
+						path.points.push_back(mob.mob->entity->xyz);
+					}
 
-						//float speed = mob.mob->stats.movement_speed * mob.mob->stats.movement_speed_multiplier;
-						//path.move((now + time_offset - time) * 0.000000001 * speed);
-						/*if (path.points.size() > 0)
-							mob.mob->entity->xy = path.getPosition() * 16.0f - 8.0f;*/
-						path.clear();
-						path.points = grid.findPath(mob.mob->entity->xy, message.target);
-						//path.points = { message.target, mob.mob->entity->xy / 16.0f + 0.5f };
-						std::reverse(path.points.begin(), path.points.end());
-						if (path.points.size() > 0)
+					last_sent_path = path;
+
+					// create poof
+					{
+						auto entity = level->add_entity();
+						entity->xyz = path.points.back();
+
+						size_t size = path.points.size();
+						if (size >= 2)
 						{
-							path.distances.resize(path.points.size() - 1);
-							for (size_t i = 0; i < path.distances.size(); ++i)
-								path.distances[i] = (path.points[i + 1] - path.points[i]).Len();
-						}
-						else
-						{
-							path.points.push_back(mob.mob->entity->xy);
+							auto diff = path.points[size - 1] - path.points[size - 2];
+							entity->rotation = Quaternion(atan2f(diff.y, diff.x), Vec3(0.0f, 0.0f, 1.0f));
 						}
 
-						// create poof
-						{
-							auto entity = level->add_entity();
-							entity->xy = path.points.back();
+						auto model = level->models.add("movement_indicator.mdl", "pixel.png", "movement_indicator.anm");
+						model->uniform_buffer_object.color = Vec4(0.0f, 0.7f, 0.0f, 1.0f);
+						Component::attach(model, entity);
 
-							size_t size = path.points.size();
-							if (size >= 2)
-							{
-								auto diff = path.points[size - 1] - path.points[size - 2];
-								entity->rotation = Quaternion(atan2f(diff.y, diff.x), Vec3(0.0f, 0.0f, 1.0f));
-							}
-
-							auto model = level->models.add("movement_indicator.mdl", "pixel.png", "movement_indicator.anm");
-							model->uniform_buffer_object.color = Vec4(0.0f, 0.7f, 0.0f, 1.0f);
-							Component::attach(model, entity);
-
-							auto animator = level->add<ModelAnimator>("move", 112.5f, 0.0f, true);
-							Component::attach(animator, entity);
-							animator->tick(0.0f);
-						}
+						auto animator = level->add<ModelAnimator>("move", 112.5f, 0.0f, true);
+						Component::attach(animator, entity);
+						animator->tick(0.0f);
 					}
 				}
 			});
@@ -293,15 +333,16 @@ void MobPosHandler::tick(float dt)
 			{
 				int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
 
-				MpStopCommand message;
-				message.command.time = time;
-				link.Send(endpoint, message);
-
 				auto&& mob = mobs[player_mob_id];
 				auto&& path = mob.path;
 
+				MpStopCommand message;
+				message.time = time;
+				message.position = mob.mob->entity->xyz;
+				Queue(message);
+
 				path.clear();
-				path.points.push_back(mob.mob->entity->xy);
+				path.points.push_back(mob.mob->entity->xyz);
 		});
 
 		engine->input->addKeyDownCallback(KB_CANCEL_ACTION, [this]()
@@ -309,8 +350,8 @@ void MobPosHandler::tick(float dt)
 				int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
 
 				MpCancelCommand message;
-				message.command.time = time;
-				link.Send(endpoint, message);
+				message.time = time;
+				Queue(message);
 			});
 
 		for (size_t i = 0; i < 10; ++i)
@@ -319,7 +360,8 @@ void MobPosHandler::tick(float dt)
 				{
 					int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
 
-					Vec2 target = engine->mrs->screenToWorld(engine->input->getCursor());
+					Vec3 target = engine->mrs->screenToWorld(engine->input->getCursor());
+					target = navmesh.GetFacePosition(target).position;
 
 					Reference<NetworkMob> target_mob;
 					auto in_range = engine->cs->overlapCircle(target, 0.5f);
@@ -336,17 +378,17 @@ void MobPosHandler::tick(float dt)
 					if (target_mob)
 					{
 						MpUnitTargetActionCommand message;
-						message.action.command.time = time;
-						message.action.action = i;
+						message.time = time;
+						message.action = i;
 						message.target = target_mob->id;
-						link.Send(endpoint, message);
+						Queue(message);
 					}
 					else
 					{
 						MpActionCommand message;
-						message.command.time = time;
+						message.time = time;
 						message.action = i;
-						link.Send(endpoint, message);
+						Queue(message);
 					}
 
 					// create poof
@@ -355,7 +397,7 @@ void MobPosHandler::tick(float dt)
 						if (target_mob)
 							Entity::adopt(entity, target_mob->entity);
 						else
-							entity->xy = target;
+							entity->xyz = target;
 
 						auto model = level->models.add("movement_indicator.mdl", "pixel.png", "movement_indicator.anm");
 						model->uniform_buffer_object.color = Vec4(0.7f, 0.0f, 0.0f, 1.0f);
@@ -367,10 +409,48 @@ void MobPosHandler::tick(float dt)
 					}
 				});
 		}
+	}
 
-		engine->input->addKeyDownCallback(KB_ACTION_0, [this]()
+	if (player_mob_id != -1)
+	{
+		if ((engine->input->isKeyDown(KB_MOVE_ATTACK_CURSOR) || engine->input->isKeyReleased(KB_MOVE_ATTACK_CURSOR)) && !engine->input->isKeyDown(KB_STOP_MOVE))
+		{
+			Vec3 target = engine->mrs->screenToWorld(engine->input->getCursor(), last_path_target.z);
+			target = navmesh.GetFacePosition(target).position;
+			last_path_target = target;
+
+			auto&& mob = mobs[player_mob_id];
+			auto&& path = mob.path;
+
+			std::vector<Vec3> path3d = navmesh.GeneratePath(mob.mob->entity->xyz, target);
+			path.clear();
+			for (auto& point : path3d)
+				path.points.push_back(point);
+			std::reverse(path.points.begin(), path.points.end());
+			if (path.points.size() > 0)
 			{
-			});
+				path.distances.resize(path.points.size() - 1);
+				for (size_t i = 0; i < path.distances.size(); ++i)
+					path.distances[i] = Vec2(path.points[i + 1] - path.points[i]).Len();
+			}
+			else
+			{
+				path.points.push_back(mob.mob->entity->xyz);
+			}
+
+			float dot = Vec2::Dot(path.getFlatDirection(), last_sent_path.getFlatDirection());
+			if (dot < 0.0f || time >= last_sent_path_time + 30'000'000 || engine->input->isKeyReleased(KB_MOVE_ATTACK_CURSOR))
+			{
+				MpMoveCommand message;
+				message.time = time;
+				message.position = mob.mob->entity->xyz;
+				message.target = target;
+				Queue(message);
+
+				last_sent_path_time = time;
+				last_sent_path = path;
+			}
+		}
 	}
 
 	for (auto& i : mobs)
@@ -408,6 +488,9 @@ void MobPosHandler::createMob(uint64_t id)
 	collider->layers = 0b10;
 	Component::attach(collider, entity);
 
+	/*auto nameplate = level->add<NamePlateProvider>();
+	Component::attach(nameplate, entity);*/
+
 	MobPosData data;
 	data.mob = mob;
 
@@ -420,12 +503,12 @@ void MobPosData::tick(float dt)
 
 	path.move(dt * speed);
 
-	mob->entity->xy = path.getPosition();
+	mob->entity->xyz = path.getPosition();
 
 	mob->v = Vec2();
 	if (!path.finished())
 	{
-		mob->move = path.getDirection();
-		mob->v = path.getDirection() * speed;
+		mob->move = path.getFlatDirection();
+		mob->v = path.getFlatDirection() * speed;
 	}
 }

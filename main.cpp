@@ -227,7 +227,7 @@ Level * create_level(int floor)
 				{
 					if (tile.tile <= 900)
 					{
-						auto entity = level->add_entity();
+						/*auto entity = level->add_entity();
 						entity->xy = Vec2(x, y);
 
 						auto model = level->models.add("offset_plane.mdl", "floor.png");
@@ -236,10 +236,10 @@ Level * create_level(int floor)
 						if (!tile.effects.empty())
 						{
 							tile.refreshEffectSprite(Vec2(x, y) * tilemap.getTileSize());
-						}
+						}*/
 					}
 
-					auto entity = level->add_entity();
+					/*auto entity = level->add_entity();
 					entity->xy = Vec2(x, y) + 0.5f;
 
 					std::string model_fname = "walls_test2.wall_" + std::to_string((uint64_t)mask_table[wall_mask]) + ".mdl";
@@ -271,7 +271,7 @@ Level * create_level(int floor)
 						});
 						break;
 					}
-					Component::attach(model, entity);
+					Component::attach(model, entity);*/
 				}
 			}
 
@@ -292,7 +292,7 @@ Level * create_level(int floor)
 
 			if (show_floor)
 			{
-				auto entity = level->add_entity();
+				/*auto entity = level->add_entity();
 				entity->xy = Vec2(x, y);
 
 				auto model = level->models.add("offset_plane.mdl", "floor.png");
@@ -301,7 +301,7 @@ Level * create_level(int floor)
 				if (!tile.effects.empty())
 				{
 					tile.refreshEffectSprite(Vec2(x, y) * tilemap.getTileSize());
-				}
+				}*/
 			}
 		}
 	}
@@ -572,10 +572,27 @@ int main(int argc, char* args[])
 
 	engine.net->Connect();
 
+	if (false)
 	{
 		auto text_edit_area = std::make_shared<TextEditArea>();
 		text_edit_area->setSizeAnchorOffset(Vec2(200.0f, 200.0f));
 		engine.mrs->ui->addChild(text_edit_area);
+	}
+
+	if (false)
+	{
+		auto ufo = std::make_shared<Window>();
+		ufo->model = std::make_shared<ModelRenderer>(Model::load("offset_plane.mdl"), SpriteSheet::load("blurbustersUFOborder.png"), nullptr, 1);
+		engine.mrs->ui->addChild(ufo);
+		engine.ufo = ufo.get();
+	}
+
+	if (false)
+	{
+		auto testgrid = std::make_shared<Window>();
+		testgrid->model = std::make_shared<ModelRenderer>(Model::load("offset_plane.mdl"), SpriteSheet::load("testgrid.png"), nullptr, 1);
+		engine.mrs->ui->addChild(testgrid);
+		engine.testgrid = testgrid.get();
 	}
 
 	engine.run();

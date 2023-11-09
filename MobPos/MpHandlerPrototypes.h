@@ -2,6 +2,7 @@
 	void ConnectHandler(const asio::ip::udp::endpoint& endpoint);
 	void MpAuthenticationHandler(const asio::ip::udp::endpoint& endpoint, const MpAuthentication& message);
 	void MpChatHandler(const asio::ip::udp::endpoint& endpoint, const MpChat& message);
+	void MpCommandQueueAcknowledgeHandler(const asio::ip::udp::endpoint& endpoint, const MpCommandQueueAcknowledge& message);
 	void MpDamageHandler(const asio::ip::udp::endpoint& endpoint, const MpDamage& message);
 	void MpMobHealthUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobHealthUpdate& message);
 	void MpMobSpriteUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobSpriteUpdate& message);

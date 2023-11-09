@@ -27,6 +27,8 @@ class Sprite;
 
 class SpriteSheet;
 
+class Window;
+
 class Engine
 {
 public:
@@ -52,6 +54,9 @@ public:
 	void setCursor(SDL_SystemCursor id);
 
 	void setLevel(Level * level);
+
+	Window * ufo;
+	Window * testgrid;
 
 private:
 

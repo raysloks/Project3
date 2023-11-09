@@ -135,6 +135,7 @@ const std::unordered_map<std::type_index, std::function<void(std::ostream&, Comp
 	{ std::type_index(typeid(ModelRenderer)), [] (std::ostream& os, Component * component) {
 		auto obj = (ModelRenderer*)component;
 		os << "ModelRenderer\n";
+		os << " camera_index " << obj->camera_index << "\n";
 	} },
 	{ std::type_index(typeid(Sprite)), [] (std::ostream& os, Component * component) {
 		auto obj = (Sprite*)component;
@@ -627,6 +628,7 @@ const std::unordered_map<std::type_index, std::function<Coal(Component*)>> data_
 	{ std::type_index(typeid(ModelRenderer)), [] (Component * component) {
 		auto obj = (ModelRenderer*)component;
 		Coal coal;
+		coal.members["camera_index"] = (uint64_t)obj->camera_index;
 		return coal;
 	} },
 	{ std::type_index(typeid(Sprite)), [] (Component * component) {

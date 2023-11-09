@@ -5,14 +5,15 @@
 #include <iostream>
 
 #include "MpCommand.h"
-#include "Vec2.h"
+#include "Vec3.h"
 
 #pragma pack(push, 1)
-class MpMoveCommand
+class MpMoveCommand :
+	public MpCommand
 {
 public:
-	MpCommand command;
-	Vec2 target;
+	uint8_t getChildTypeIndex() const;
+	Vec3 target;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+uint8_t MpCancelCommand::getChildTypeIndex() const { return 3; }
 void MpCancelCommand::serialize(std::ostream& os) const
 {
 	os.write((char*)this, sizeof(MpCancelCommand));

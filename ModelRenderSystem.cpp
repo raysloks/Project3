@@ -648,18 +648,21 @@ void ModelRenderSystem::createDepthBuffer()
 	hbao_quad->texture->loaded = true;
 }
 
+const int staging_buffer_size = 16 * 1024 * 1024;
+const int uniform_staging_buffer_size = 16 * 1024 * 1024;
+
 void ModelRenderSystem::createStagingBuffers()
 {
-	createBuffer(16 * 1024 * 1024 * 3, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging_buffer, staging_buffer_memory);
-	createBuffer(16 * 1024 * 1024 * 3, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniform_staging_buffer, uniform_staging_buffer_memory);
+	createBuffer(staging_buffer_size * max_frames_in_flight, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging_buffer, staging_buffer_memory);
+	createBuffer(uniform_staging_buffer_size * max_frames_in_flight, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniform_staging_buffer, uniform_staging_buffer_memory);
 
 	staging_offsets.resize(max_frames_in_flight);
 	uniform_staging_offsets.resize(max_frames_in_flight);
 
 	for (size_t i = 0; i < max_frames_in_flight; ++i)
 	{
-		staging_offsets[i] = 16 * 1024 * 1024 * i;
-		uniform_staging_offsets[i] = 16 * 1024 * 1024 * i;
+		staging_offsets[i] = staging_buffer_size * i;
+		uniform_staging_offsets[i] = uniform_staging_buffer_size * i;
 	}
 }
 
@@ -1143,15 +1146,25 @@ void ModelRenderSystem::createUniformBuffers()
 
 std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuffer(uint32_t image_index)
 {
+	/*auto wait_c_start = SDL_GetPerformanceCounter();
+	std::lock_guard<std::mutex> lock(present_mutex);
+	wait_c = SDL_GetPerformanceCounter() - wait_c_start;*/
+
+	if (image_to_frame_index[image_index] != -1 && image_to_frame_index[image_index] != current_frame_index)
+	{
+		auto& fences = in_flight_fences[image_to_frame_index[image_index]];
+		vkWaitForFences(device, fences.size(), fences.data(), VK_TRUE, UINT64_MAX);
+	}
+
 	auto& command_buffer = command_buffers[image_index][0];
 
-	std::latch latch(1);
+	/*std::latch latch(1);
 
 	thread_pool.push([&]()
 		{
 			latch.count_down();
 		}
-	);
+	);*/
 
 	std::shared_ptr<RenderContext> render_context(new RenderContext(this, image_index, render_pass_template.getRenderPass(), graphics_pipeline_template.getGraphicsPipeline()));
 	auto& models = level->models.components;
@@ -1185,7 +1198,7 @@ std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuff
 		hbao_render_context->addRenderingModel(hbao_quad_rendering_model);
 	hbao_render_context->collectCommandBuffers();
 
-	latch.wait();
+	//latch.wait();
 
 	VkCommandBufferBeginInfo command_buffer_begin_info = {
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -1238,9 +1251,9 @@ std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuff
 	render_context->executeCommands(command_buffer);
 	vkCmdEndRenderPass(command_buffer);
 
-	vkCmdBeginRenderPass(command_buffer, &hbao_render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+	/*vkCmdBeginRenderPass(command_buffer, &hbao_render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 	hbao_render_context->executeCommands(command_buffer);
-	vkCmdEndRenderPass(command_buffer);
+	vkCmdEndRenderPass(command_buffer);*/
 
 	vkCmdBeginRenderPass(command_buffer, &ui_render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 	ui_render_context->executeCommands(command_buffer);
@@ -1343,7 +1356,7 @@ void ModelRenderSystem::createDescriptorPool()
 
 void ModelRenderSystem::recreateSwapchain()
 {
-	std::lock_guard<std::mutex> lock(present_mutex);
+	//std::lock_guard<std::mutex> lock(present_mutex);
 	vkDeviceWaitIdle(device);
 
 	releaseSwapchain();
@@ -1516,9 +1529,10 @@ uint32_t ModelRenderSystem::getHeight() const
 	return swapchain_extent.height;
 }
 
-Vec2 ModelRenderSystem::screenToWorld(const Vec2& screen_position) const
+Vec3 ModelRenderSystem::screenToWorld(const Vec2& screen_position, float world_z) const
 {
-	Matrix4 view_proj = getViewMatrix() * Matrix4::Perspective(camera.field_of_view, getAspectRatio(), camera.near_clip, camera.far_clip) * Matrix4::Translation(camera.shift);
+	Matrix4 view_matrix = Matrix4::Translation(-camera.position + Vec3::pz * world_z) * camera.rotation.getConj();
+	Matrix4 view_proj = view_matrix * Matrix4::Perspective(camera.field_of_view, getAspectRatio(), camera.near_clip, camera.far_clip) * Matrix4::Translation(camera.shift);
 
 	Matrix3 plane_proj = view_proj;
 	plane_proj.mtrx[2][0] = view_proj.mtrx[3][0];
@@ -1529,42 +1543,53 @@ Vec2 ModelRenderSystem::screenToWorld(const Vec2& screen_position) const
 
 	Vec3 pos = plane_proj.Inverse() * Vec3(screen_position.x / swapchain_extent.width * 2.0f - 1.0f, screen_position.y / swapchain_extent.height * 2.0f - 1.0f, 1.0f);
 
-	return pos.xy / pos.z;
+	pos /= pos.z;
+	pos.z = world_z;
+
+	return pos;
+}
+
+Vec3 ModelRenderSystem::worldToScreen(const Vec3& world_position) const
+{
+	Matrix4 view_proj = getViewMatrix() * Matrix4::Perspective(camera.field_of_view, getAspectRatio(), camera.near_clip, camera.far_clip) * Matrix4::Translation(camera.shift);
+	Vec4 pos = Vec4(world_position, 1.0f) * view_proj;
+	return (pos.xyz / pos.w + Vec3(1.0f, 1.0f, 0.0f)) * Vec3(swapchain_extent.width * 0.5f, swapchain_extent.height * 0.5f, 1.0f);
 }
 
 void ModelRenderSystem::tick(float dt)
 {
-	auto wait_a_start = SDL_GetPerformanceCounter();
-	auto& fences = in_flight_fences[current_frame_index];
+	uint64_t check_point_a = SDL_GetPerformanceCounter();
+
+	std::vector<VkFence> fences = in_flight_fences[current_frame_index];
 	vkWaitForFences(device, fences.size(), fences.data(), VK_TRUE, UINT64_MAX);
-	wait_fences_a = SDL_GetPerformanceCounter() - wait_a_start;
 
-	uint32_t image_index;
-	switch (vkAcquireNextImageKHR(device, swapchain, 0, image_available_semaphores[current_frame_index], VK_NULL_HANDLE, &image_index))
+	uint64_t check_point_b = SDL_GetPerformanceCounter();
+
+	uint32_t image_index = -1;
+
+	//std::lock_guard<std::mutex> lock(present_mutex);
+	present_time_safe = present_time_unsafe;
 	{
-	case VK_SUCCESS:
-		break;
-	case VK_SUBOPTIMAL_KHR:
-		break;
-	case VK_ERROR_OUT_OF_DATE_KHR:
-		recreateSwapchain();
-		return;
-	default:
-		return;
+		//std::lock_guard<std::mutex> lock(present_mutex);
+		switch (vkAcquireNextImageKHR(device, swapchain, 0, image_available_semaphores[current_frame_index], VK_NULL_HANDLE, &image_index))
+		{
+		case VK_SUCCESS:
+			break;
+		case VK_SUBOPTIMAL_KHR:
+			break;
+		case VK_ERROR_OUT_OF_DATE_KHR:
+			recreateSwapchain();
+			return;
+		default:
+			return;
+		}
 	}
 
-	auto wait_b_start = SDL_GetPerformanceCounter();
-	if (image_to_frame_index[image_index] != -1 && image_to_frame_index[image_index] != current_frame_index)
-	{
-		auto& fences = in_flight_fences[image_to_frame_index[image_index]];
-		vkWaitForFences(device, fences.size(), fences.data(), VK_TRUE, UINT64_MAX);
-	}
-	wait_fences_b = SDL_GetPerformanceCounter() - wait_b_start;
-	image_to_frame_index[image_index] = current_frame_index;
-
-	auto wait_d_start = SDL_GetPerformanceCounter();
+	uint64_t check_point_c = SDL_GetPerformanceCounter();
 
 	auto render_contexts = recordCommandBuffer(image_index);
+
+	image_to_frame_index[image_index] = current_frame_index;
 
 	updateUniformBuffer(image_index);
 
@@ -1573,15 +1598,6 @@ void ModelRenderSystem::tick(float dt)
 		model.updateUniformBuffer(*render_contexts[0]);
 	ui->updateUniformBuffers(*render_contexts[1]);
 
-	wait_d = SDL_GetPerformanceCounter() - wait_d_start;
-
-	auto wait_c_start = SDL_GetPerformanceCounter();
-	std::lock_guard<std::mutex> lock(present_mutex);
-	wait_c = SDL_GetPerformanceCounter() - wait_c_start;
-
-	// only reset fence at index 0 (main render fence)
-	vkResetFences(device, 1, &fences[0]);
-
 	TemporaryCommandBuffer tmp_cmdbuf_copy_uniform_buffers;
 	if (uniform_staging_regions.size())
 	{
@@ -1589,7 +1605,7 @@ void ModelRenderSystem::tick(float dt)
 		vkResetFences(device, 1, &fences[1]);
 		copyBuffers(uniform_staging_buffer, uniform_vma->buffer, uniform_staging_regions, command_buffers[image_index][1], fences[1]);
 		uniform_staging_regions.clear();
-		uniform_staging_offsets[current_frame_index] = 16 * 1024 * 1024 * current_frame_index;
+		uniform_staging_offsets[current_frame_index] = uniform_staging_buffer_size * current_frame_index;
 	}
 
 	TemporaryCommandBuffer tmp_cmdbuf_copy_buffers;
@@ -1599,7 +1615,7 @@ void ModelRenderSystem::tick(float dt)
 		vkResetFences(device, 1, &fences[2]);
 		copyBuffers(staging_buffer, vma->buffer, staging_regions, command_buffers[image_index][2], fences[2]);
 		staging_regions.clear();
-		staging_offsets[current_frame_index] = 16 * 1024 * 1024 * current_frame_index;
+		staging_offsets[current_frame_index] = staging_buffer_size * current_frame_index;
 	}
 
 	VkSemaphore wait_semaphores[] = { image_available_semaphores[current_frame_index] };
@@ -1618,31 +1634,58 @@ void ModelRenderSystem::tick(float dt)
 		signal_semaphores
 	};
 
-	if (vkQueueSubmit(graphics_queue, 1, &submit_info, in_flight_fences[current_frame_index][0]))
+	//vkWaitForFences(device, fences.size(), fences.data(), VK_TRUE, UINT64_MAX);
+
+	// only reset fence at index 0 (main render fence)
+	vkResetFences(device, 1, &fences[0]);
+
+	uint64_t check_point_d;
+	uint64_t check_point_e;
+
+	check_point_d = SDL_GetPerformanceCounter();
+
+	if (vkQueueSubmit(graphics_queue, 1, &submit_info, fences[0]))
 		throw std::runtime_error("failed to submit draw command buffer.");
 
-	present_time_safe = present_time_unsafe;
+	check_point_e = SDL_GetPerformanceCounter();
 
-	thread_pool.push([this, signal_semaphores, image_index, render_contexts]()
+	VkSwapchainKHR swapchains[] = { swapchain };
+
+	VkPresentInfoKHR present_info = {
+		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		nullptr,
+		1,
+		signal_semaphores,
+		1,
+		swapchains,
+		&image_index,
+		nullptr
+	};
+
+	vkQueuePresentKHR(present_queue, &present_info);
+	present_time_unsafe = SDL_GetPerformanceCounter(); // where IS this supposed to go?
+
+	thread_pool.push([this, signal_semaphores, image_index, render_contexts, fences]()
 		{
-			std::lock_guard<std::mutex> lock(present_mutex);
-			VkSwapchainKHR swapchains[] = { swapchain };
+			{
+				//std::lock_guard<std::mutex> lock(present_mutex);
+				//std::lock_guard<std::mutex> image_lock(*image_mutexes[image_index]);
 
-			VkPresentInfoKHR present_info = {
-				VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-				nullptr,
-				1,
-				signal_semaphores,
-				1,
-				swapchains,
-				&image_index,
-				nullptr
-			};
-
-			vkQueuePresentKHR(present_queue, &present_info);
-			present_time_unsafe = SDL_GetPerformanceCounter();
+				vkWaitForFences(device, fences.size(), fences.data(), VK_TRUE, UINT64_MAX);
+			}
 		}
 	);
 
 	++current_frame_index %= max_frames_in_flight;
+
+	uint64_t check_point_f = SDL_GetPerformanceCounter();
+
+	wait_a = check_point_b - check_point_a;
+	wait_b = check_point_c - check_point_b;
+	wait_c = check_point_d - check_point_c;
+	wait_d = check_point_e - check_point_d;
+	wait_e = check_point_f - check_point_e;
+
+	wait_external = check_point_a - last_stop;
+	last_stop = SDL_GetPerformanceCounter();
 }

@@ -80,7 +80,7 @@ Engine::Engine()
 	cursor_id = SDL_SYSTEM_CURSOR_ARROW;
 	cursor = nullptr;
 
-	profiling_frame_window = 2000;
+	profiling_frame_window = 500;
 	profiling_counter = profiling_frame_window;
 	profiling_accumulator = 0.0;
 	profiling_low = std::numeric_limits<double>::infinity();
@@ -109,6 +109,31 @@ void Engine::run()
 
 	full = 1.0f / 60.0;
 	double busy = 1.0 / 60.0;
+
+	uint64_t max_a = 0;
+	uint64_t max_b = 0;
+	uint64_t max_c = 0;
+	uint64_t max_d = 0;
+	uint64_t max_e = 0;
+	uint64_t max_total = 0;
+	uint64_t max_external = 0;
+
+	std::vector<uint64_t> times(systems.size() + 1);
+	std::vector<uint64_t> waits(systems.size());
+	std::vector<uint64_t> max_waits(systems.size());
+	std::vector<std::string> system_names = {
+		"mrs",
+		"srs",
+		"input",
+		"net",
+		"cbs",
+		"cs"
+	};
+
+	uint64_t profiling_frame_counter = 0;
+
+	int64_t ufo_pos = 0;
+	int64_t testgrid_pos = 0;
 
 	while (!stopped)
 	{
@@ -154,15 +179,33 @@ void Engine::run()
 				}
 			}
 
-			for (auto system : systems)
+			times[0] = SDL_GetPerformanceCounter();
+			for (size_t i = 0; i < systems.size(); ++i)
 			{
-				//auto start = SDL_GetPerformanceCounter();
+				auto system = systems[i];
+				//system->tick(1.0 / 240.0);
 				system->tick(fmin(full, max_dt));
-				/*auto end = SDL_GetPerformanceCounter();
-				double duration = double(end - start) / freq;
-				std::cout << typeid(*system).name() << std::endl;
-				std::cout << 100 * duration / full << std::endl;*/
+				times[i + 1] = SDL_GetPerformanceCounter();
 			}
+
+			for (size_t i = 0; i < waits.size(); ++i)
+				waits[i] = times[i + 1] - times[i];
+		}
+
+		if (ufo)
+		{
+			ufo->setSizeAnchorOffset(80, Vec2(ufo_pos, 0));
+			ufo_pos += 8;
+			if (ufo_pos > 1000)
+				ufo_pos -= 2000;
+		}
+
+		if (testgrid)
+		{
+			testgrid->setSizeAnchorOffset(128, Vec2(testgrid_pos, 0));
+			testgrid_pos += 4;
+			if (testgrid_pos > 1000)
+				testgrid_pos -= 2000;
 		}
 
 		SpriteSheet::destroyUnusedTextures();
@@ -187,26 +230,69 @@ void Engine::run()
 
 		full = double(diff) / freq;
 
-		profiling_accumulator += full;
-		profiling_low = fmin(profiling_low, full);
-		profiling_high = fmax(profiling_high, full);
-
-		if (--profiling_counter == 0)
+		if (profiling_counter < profiling_frame_window - 100)
 		{
-			std::cout << "avg: " << double(profiling_frame_window) / profiling_accumulator << " fps" << std::endl;
-			std::cout << "min: " << 1.0 / profiling_high << " fps" << std::endl;
-			std::cout << "max: " << 1.0 / profiling_low << " fps" << std::endl;
+			++profiling_frame_counter;
+			profiling_accumulator += full;
+			profiling_low = fmin(profiling_low, full);
+			profiling_high = fmax(profiling_high, full);
 
-			profiling_counter = profiling_frame_window;
-			profiling_accumulator = 0.0;
-			profiling_low = std::numeric_limits<double>::infinity();
-			profiling_high = 0.0;
-
-			std::cout << double(mrs->wait_fences_a) / freq * 1000.0 << std::endl;
-			std::cout << double(mrs->wait_fences_b) / freq * 1000.0 << std::endl;
-			std::cout << double(mrs->wait_c) / freq * 1000.0 << std::endl;
-			std::cout << double(mrs->wait_d) / freq * 1000.0 << std::endl;
+			uint64_t total = mrs->wait_a + mrs->wait_b + mrs->wait_c + mrs->wait_d + mrs->wait_e;
+			if (total > max_total)
+			{
+				max_a = mrs->wait_a;
+				max_b = mrs->wait_b;
+				max_c = mrs->wait_c;
+				max_d = mrs->wait_d;
+				max_e = mrs->wait_e;
+				max_total = total;
+			}
+			max_external = std::max(mrs->wait_external, max_external);
+			for (size_t i = 0; i < max_waits.size(); ++i)
+				max_waits[i] = std::max(waits[i], max_waits[i]);
 		}
+
+		//if (--profiling_counter == 0)
+		//{
+		//	std::cout << "avg: " << double(profiling_frame_counter) / profiling_accumulator << " fps\n";
+		//	std::cout << "min: " << profiling_low * 1000.0 << " ms\n";
+		//	std::cout << "max: " << profiling_high * 1000.0 << " ms\n";
+		//	std::cout << "\n";
+
+		//	profiling_frame_counter = 0;
+		//	profiling_counter = profiling_frame_window;
+		//	profiling_accumulator = 0.0;
+		//	profiling_low = std::numeric_limits<double>::infinity();
+		//	profiling_high = 0.0;
+
+		//	/*std::cout << "a: " << double(mrs->wait_fences_a) / freq * 1000.0 << std::endl;
+		//	std::cout << "b: " << double(mrs->wait_fences_b) / freq * 1000.0 << std::endl;
+		//	std::cout << "c: " << double(mrs->wait_c) / freq * 1000.0 << std::endl;
+		//	std::cout << "d: " << double(mrs->wait_d) / freq * 1000.0 << std::endl;
+		//	std::cout << "e: " << double(mrs->wait_e) / freq * 1000.0 << std::endl;*/
+
+		//	std::cout << "a: " << double(max_a) / freq * 1000.0 << "\n";
+		//	std::cout << "b: " << double(max_b) / freq * 1000.0 << "\n";
+		//	std::cout << "c: " << double(max_c) / freq * 1000.0 << "\n";
+		//	std::cout << "d: " << double(max_d) / freq * 1000.0 << "\n";
+		//	std::cout << "e: " << double(max_e) / freq * 1000.0 << "\n";
+		//	std::cout << "total: " << double(max_total) / freq * 1000.0 << "\n\n";
+		//	std::cout << "external: " << double(max_external) / freq * 1000.0 << "\n\n";
+
+		//	for (size_t i = 0; i < max_waits.size(); ++i)
+		//		std::cout << system_names[i] << ": " << double(max_waits[i]) / freq * 1000.0 << "\n";
+		//	std::cout << std::endl;
+
+		//	max_a = 0;
+		//	max_b = 0;
+		//	max_c = 0;
+		//	max_d = 0;
+		//	max_e = 0;
+		//	max_total = 0;
+		//	max_external = 0;
+		//	for (size_t i = 0; i < max_waits.size(); ++i)
+		//		max_waits[i] = 0;
+		//}
 	}
 }
 

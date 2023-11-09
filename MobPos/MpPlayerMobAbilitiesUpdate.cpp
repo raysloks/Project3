@@ -6,7 +6,7 @@
 
 void MpPlayerMobAbilitiesUpdate::serialize(std::ostream& os) const
 {
-	os.write((char*)&this->id, (sizeof(this->id) + 3) / 4 * 4);
+	os.write((char*)&this->id, sizeof(this->id));
 	{
 		uint16_t size = this->abilities.size();
 		os.write((char*)&size, sizeof(size));
@@ -16,7 +16,7 @@ void MpPlayerMobAbilitiesUpdate::serialize(std::ostream& os) const
 
 void MpPlayerMobAbilitiesUpdate::deserialize(std::istream& is)
 {
-	is.read((char*)&this->id, (sizeof(this->id) + 3) / 4 * 4);
+	is.read((char*)&this->id, sizeof(this->id));
 	{
 		uint16_t size;
 		is.read((char*)&size, sizeof(size));

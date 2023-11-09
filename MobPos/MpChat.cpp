@@ -6,7 +6,7 @@
 
 void MpChat::serialize(std::ostream& os) const
 {
-	os.write((char*)&this->sender, (sizeof(this->sender) + 3) / 4 * 4);
+	os.write((char*)&this->sender, sizeof(this->sender));
 	{
 		uint16_t size = this->message.size();
 		os.write((char*)&size, sizeof(size));
@@ -16,7 +16,7 @@ void MpChat::serialize(std::ostream& os) const
 
 void MpChat::deserialize(std::istream& is)
 {
-	is.read((char*)&this->sender, (sizeof(this->sender) + 3) / 4 * 4);
+	is.read((char*)&this->sender, sizeof(this->sender));
 	{
 		uint16_t size;
 		is.read((char*)&size, sizeof(size));

@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+MpCommand::~MpCommand() {}
+uint8_t MpCommand::getChildTypeIndex() const { return 4; }
 void MpCommand::serialize(std::ostream& os) const
 {
 	os.write((char*)this, sizeof(MpCommand));

@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+uint8_t MpAttackCommand::getChildTypeIndex() const { return 1; }
 void MpAttackCommand::serialize(std::ostream& os) const
 {
 	os.write((char*)this, sizeof(MpAttackCommand));

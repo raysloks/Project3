@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+uint8_t MpUnitTargetActionCommand::getChildTypeIndex() const { return 8; }
 void MpUnitTargetActionCommand::serialize(std::ostream& os) const
 {
 	os.write((char*)this, sizeof(MpUnitTargetActionCommand));

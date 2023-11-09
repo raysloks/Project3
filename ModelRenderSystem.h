@@ -118,7 +118,8 @@ public:
 	uint32_t getWidth() const;
 	uint32_t getHeight() const;
 
-	Vec2 screenToWorld(const Vec2& screen_position) const;
+	Vec3 screenToWorld(const Vec2& screen_position, float world_z = 0.0f) const;
+	Vec3 worldToScreen(const Vec3& world_position) const;
 
 	void tick(float dt);
 
@@ -138,8 +139,9 @@ public:
 		float time;
 	};
 
-	uint64_t wait_fences_a, wait_fences_b;
+	uint64_t wait_a, wait_b;
 	uint64_t wait_c, wait_d, wait_e;
+	uint64_t last_stop, wait_external;
 
 private:
 	SDL_Window * window;

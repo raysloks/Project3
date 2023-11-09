@@ -111,7 +111,13 @@ std::shared_ptr<SpriteSheet> Font::getGlyph(intmax_t code, const Vec2& size)
 
 std::shared_ptr<SpriteSheet> Font::getAtlas(const Vec2& size, float outline)
 {
+	AtlasParameters atlas_parameters = std::make_tuple(size, outline);
+	auto found_atlas = atlases.find(atlas_parameters);
+	if (found_atlas != atlases.end())
+		return found_atlas->second;
+
 	auto sheet = std::make_shared<SpriteSheet>();
+	atlases[atlas_parameters] = sheet;
 	auto shared_this = shared_from_this();
 	auto func = [shared_this, sheet, size, outline]()
 	{

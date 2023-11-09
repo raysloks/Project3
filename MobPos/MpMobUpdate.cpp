@@ -4,16 +4,9 @@
 
 #include <iostream>
 
-#include "MpMobAurasUpdate.h"
-#include "MpMobCastUpdate.h"
-#include "MpMobHealthUpdate.h"
-#include "MpMobStateUpdate.h"
-#include "MpMobTypeUpdate.h"
-#include "MpPath.h"
-
 void MpMobUpdate::serialize(std::ostream& os) const
 {
-	os.write((char*)&this->id, (sizeof(this->id) + 3) / 4 * 4);
+	os.write((char*)&this->id, sizeof(this->id));
 	if (this->hp)
 	{
 		os.put(true);
@@ -76,7 +69,7 @@ void MpMobUpdate::serialize(std::ostream& os) const
 
 void MpMobUpdate::deserialize(std::istream& is)
 {
-	is.read((char*)&this->id, (sizeof(this->id) + 3) / 4 * 4);
+	is.read((char*)&this->id, sizeof(this->id));
 	if (is.get())
 	{
 		this->hp = std::make_unique<MpMobHealthUpdate>();

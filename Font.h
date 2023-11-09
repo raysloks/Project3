@@ -26,5 +26,9 @@ private:
 	FT_Face ftFace;
 	std::string buffer;
 	std::mutex mutex;
+
+	typedef std::tuple<Vec2, float> AtlasParameters;
+
+	std::map<AtlasParameters, std::shared_ptr<SpriteSheet>> atlases;
 };
 

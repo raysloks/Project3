@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+uint8_t MpStopCommand::getChildTypeIndex() const { return 7; }
 void MpStopCommand::serialize(std::ostream& os) const
 {
 	os.write((char*)this, sizeof(MpStopCommand));

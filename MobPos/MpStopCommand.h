@@ -7,11 +7,11 @@
 #include "MpCommand.h"
 
 #pragma pack(push, 1)
-class MpStopCommand
+class MpStopCommand :
+	public MpCommand
 {
 public:
-	MpCommand command;
-
+	uint8_t getChildTypeIndex() const;
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);
 };

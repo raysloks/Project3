@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+uint8_t MpPointTargetActionCommand::getChildTypeIndex() const { return 6; }
 void MpPointTargetActionCommand::serialize(std::ostream& os) const
 {
 	os.write((char*)this, sizeof(MpPointTargetActionCommand));

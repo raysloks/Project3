@@ -51,7 +51,7 @@ void SpriteRenderSystem::tick(float dt)
 		scale = scale_new;
 		cursor_sheet = cursor_sheet_new;
 		cursor_hotspot = cursor_hotspot_new;
-		engine->setCursor(cursor_sheet, cursor_hotspot.x, cursor_hotspot.y);
+		//engine->setCursor(cursor_sheet, cursor_hotspot.x, cursor_hotspot.y);
 	}
 
 	return;

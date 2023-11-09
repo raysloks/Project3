@@ -248,9 +248,6 @@
     <ClCompile Include="MobPos\MpPath.cpp">
       <Filter>Source Files\MobPos</Filter>
     </ClCompile>
-    <ClCompile Include="MobPath.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MobPos\MpActionCommand.cpp">
       <Filter>Source Files\MobPos</Filter>
     </ClCompile>
@@ -418,6 +415,30 @@
     </ClCompile>
     <ClCompile Include="OutputNode.cpp">
       <Filter>Source Files\Assembly Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="SweepNode.cpp">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseNode.cpp">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Polygon.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="NamePlateProvider.cpp">
+      <Filter>Source Files\Custom Behaviours</Filter>
+    </ClCompile>
+    <ClCompile Include="NamePlate.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpCommandQueue.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpCommandWrapper.cpp">
+      <Filter>Source Files\MobPos</Filter>
+    </ClCompile>
+    <ClCompile Include="MobPos\MpCommandQueueAcknowledge.cpp">
+      <Filter>Source Files\MobPos</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -640,9 +661,6 @@
     <ClInclude Include="MobPos\MpPath.h">
       <Filter>Source Files\MobPos</Filter>
     </ClInclude>
-    <ClInclude Include="MobPath.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="MobPos\MpActionCommand.h">
       <Filter>Source Files\MobPos</Filter>
     </ClInclude>
@@ -825,6 +843,30 @@
     </ClInclude>
     <ClInclude Include="OutputNode.h">
       <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="SweepNode.h">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseNode.h">
+      <Filter>Source Files\Assembly Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Polygon.h">
+      <Filter>Source Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="NamePlateProvider.h">
+      <Filter>Source Files\Custom Behaviours</Filter>
+    </ClInclude>
+    <ClInclude Include="NamePlate.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpCommandQueue.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpCommandWrapper.h">
+      <Filter>Source Files\MobPos</Filter>
+    </ClInclude>
+    <ClInclude Include="MobPos\MpCommandQueueAcknowledge.h">
+      <Filter>Source Files\MobPos</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

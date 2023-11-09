@@ -4,6 +4,9 @@
 
 #include <iostream>
 
+#include "MpPointTargetActionCommand.h"
+#include "MpUnitTargetActionCommand.h"
+
 void MpDirectionTargetActionCommand::serialize(std::ostream& os) const
 {
 	os.write((char*)this, sizeof(MpDirectionTargetActionCommand));

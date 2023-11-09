@@ -60,6 +60,12 @@ void Window::removeChild(const std::shared_ptr<Window>& child)
 	}
 }
 
+void Window::removeSelf()
+{
+	if (parent)
+		parent->removeChild(shared_from_this());
+}
+
 Window * Window::getParent() const
 {
 	return parent;

@@ -8,6 +8,7 @@
 TextArea::TextArea()
 {
 	size = 12.0f;
+	outline = 0.0f;
 	
 	settings.line_height = 14.0f;
 	settings.justification = Vec2(0.0f, 0.0f);
@@ -23,11 +24,22 @@ void TextArea::update()
 	auto text_window_shared = text_window.lock();
 	if (font && text_window_shared)
 	{
-		auto sheet = font->getAtlas(size);
-		auto text_model = sheet->makeTextModel(text, settings);
-		text_window_shared->model = std::make_shared<ModelRenderer>(text_model, sheet, nullptr, 1);
-		text_window_shared->model->uniform_buffer_object.color = settings.color;
-		text_window_shared->minOffset = -sheet->getJustifiedOffset(text, settings) * align + Vec2(0.0f, 1.0f - align.y) * size;
+		if (atlas == nullptr)
+			atlas = font->getAtlas(size, outline);
+		auto text_model = atlas->makeTextModel(text, settings);
+		if (text_window_shared->model == nullptr)
+		{
+			text_window_shared->model = std::make_shared<ModelRenderer>(text_model, atlas, nullptr, 1);
+			text_window_shared->model->uniform_buffer_object.color = settings.color;
+		}
+		else
+		{
+			text_window_shared->model->model = text_model;
+			text_window_shared->model->texture = atlas;
+			text_window_shared->model->rendering_model = nullptr;
+			text_window_shared->model->setDirty();
+		}
+		text_window_shared->minOffset = -atlas->getJustifiedOffset(text, settings) * align + Vec2(0.0f, 1.0f - align.y) * size;
 		text_window_shared->maxOffset = text_window_shared->minOffset + 1.0f;
 		text_window_shared->minAnchor = align;
 		text_window_shared->maxAnchor = align;

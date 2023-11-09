@@ -6,7 +6,7 @@
 
 void MpAuthentication::serialize(std::ostream& os) const
 {
-	os.write((char*)&this->character_id, (sizeof(this->character_id) + 3) / 4 * 4);
+	os.write((char*)&this->character_id, sizeof(this->character_id));
 	{
 		uint16_t size = this->auth_token.size();
 		os.write((char*)&size, sizeof(size));
@@ -16,7 +16,7 @@ void MpAuthentication::serialize(std::ostream& os) const
 
 void MpAuthentication::deserialize(std::istream& is)
 {
-	is.read((char*)&this->character_id, (sizeof(this->character_id) + 3) / 4 * 4);
+	is.read((char*)&this->character_id, sizeof(this->character_id));
 	{
 		uint16_t size;
 		is.read((char*)&size, sizeof(size));

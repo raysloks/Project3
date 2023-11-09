@@ -35,7 +35,7 @@ public:
 	{
 		Matrix4 model;
 		Vec4 color;
-		Matrix4 bones[256];
+		Matrix4 bones[256]; // TODO fix this hogging the stack
 	};
 
 	UniformBufferObject uniform_buffer_object;

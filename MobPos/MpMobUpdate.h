@@ -5,12 +5,12 @@
 #include <memory>
 #include <iostream>
 
-class MpMobAurasUpdate;
-class MpMobCastUpdate;
-class MpMobHealthUpdate;
-class MpMobStateUpdate;
-class MpMobTypeUpdate;
-class MpPath;
+#include "MpMobAurasUpdate.h"
+#include "MpMobCastUpdate.h"
+#include "MpMobHealthUpdate.h"
+#include "MpMobStateUpdate.h"
+#include "MpMobTypeUpdate.h"
+#include "MpPath.h"
 
 #pragma pack(push, 1)
 class MpMobUpdate

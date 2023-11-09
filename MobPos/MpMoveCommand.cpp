@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+uint8_t MpMoveCommand::getChildTypeIndex() const { return 5; }
 void MpMoveCommand::serialize(std::ostream& os) const
 {
 	os.write((char*)this, sizeof(MpMoveCommand));

@@ -7,10 +7,11 @@
 #include "MpCommand.h"
 
 #pragma pack(push, 1)
-class MpAttackCommand
+class MpAttackCommand :
+	public MpCommand
 {
 public:
-	MpCommand command;
+	uint8_t getChildTypeIndex() const;
 	uint64_t target;
 
 	void serialize(std::ostream& os) const;

@@ -7,10 +7,12 @@
 #include "MpCommand.h"
 
 #pragma pack(push, 1)
-class MpActionCommand
+class MpActionCommand :
+	public MpCommand
 {
 public:
-	MpCommand command;
+	virtual ~MpActionCommand();
+	virtual uint8_t getChildTypeIndex() const;
 	uint8_t action;
 
 	void serialize(std::ostream& os) const;

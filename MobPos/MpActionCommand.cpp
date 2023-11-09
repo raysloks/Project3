@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+MpActionCommand::~MpActionCommand() {}
+uint8_t MpActionCommand::getChildTypeIndex() const { return 0; }
 void MpActionCommand::serialize(std::ostream& os) const
 {
 	os.write((char*)this, sizeof(MpActionCommand));

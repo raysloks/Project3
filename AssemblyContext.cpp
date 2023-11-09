@@ -30,7 +30,7 @@ void AssemblyContext::registerOutput(AssemblyOutputBase * output, const Coal& co
 	if (index == std::numeric_limits<size_t>::max())
 		return;
 	if (index >= outputs.size())
-		outputs.resize(index);
+		outputs.resize(index + 1);
 	outputs[index] = output;
 }
 

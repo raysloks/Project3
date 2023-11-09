@@ -40,7 +40,9 @@ def write_mdl(self, context, filepath):
                 co = vertex.co
                 f.write(struct.pack('<3f', co[0], co[1], co[2]))
                 
-                uv = mesh.uv_layers[0].data[loop.index].uv
+                uv = [0, 0]
+                if len(mesh.uv_layers) > 0:
+                    mesh.uv_layers[0].data[loop.index].uv
                 f.write(struct.pack('<2f', uv[0], 1.0 - uv[1]))
                 
                 normal = vertex.normal

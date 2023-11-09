@@ -11,6 +11,7 @@
 #include "MobPath.h"
 
 #include "Grid.h"
+#include "NavMesh.h"
 
 #include "Character.h"
 
@@ -35,6 +36,7 @@ public:
 	void ConnectHandler(const asio::ip::udp::endpoint& endpoint);
 	void MpAuthenticationHandler(const asio::ip::udp::endpoint& endpoint, const MpAuthentication& message);
 	void MpChatHandler(const asio::ip::udp::endpoint& endpoint, const MpChat& message);
+	void MpCommandQueueAcknowledgeHandler(const asio::ip::udp::endpoint& endpoint, const MpCommandQueueAcknowledge& message);
 	void MpDamageHandler(const asio::ip::udp::endpoint& endpoint, const MpDamage& message);
 	void MpMobHealthUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobHealthUpdate& message);
 	void MpMobSpriteUpdateHandler(const asio::ip::udp::endpoint& endpoint, const MpMobSpriteUpdate& message);
@@ -69,9 +71,18 @@ public:
 		link.Send(endpoint, message);
 	}
 
+	template <class T>
+	void Queue(const T& command)
+	{
+		command_queue.commands.emplace_back(MpCommandWrapper());
+		command_queue.commands.back().command = std::make_unique<T>(command);
+		Send(command_queue);
+	}
+
 	std::mutex mutex;
 
 	Grid grid;
+	NavMesh navmesh;
 
 	Character player_character;
 
@@ -82,4 +93,11 @@ private:
 	bool initialized;
 
 	float heartbeat_timer;
+
+	MpCommandQueue command_queue;
+	
+	int64_t last_sent_path_time;
+	MobPath last_sent_path;
+
+	Vec3 last_path_target;
 };

@@ -6,22 +6,22 @@
 
 void MpPath::serialize(std::ostream& os) const
 {
-	os.write((char*)&this->time, (sizeof(this->time) + 3) / 4 * 4);
+	os.write((char*)&this->time, sizeof(this->time));
 	{
 		uint16_t size = this->points.size();
 		os.write((char*)&size, sizeof(size));
-		os.write((char*)this->points.data(), sizeof(Vec2) * size);
+		os.write((char*)this->points.data(), sizeof(Vec3) * size);
 	}
 }
 
 void MpPath::deserialize(std::istream& is)
 {
-	is.read((char*)&this->time, (sizeof(this->time) + 3) / 4 * 4);
+	is.read((char*)&this->time, sizeof(this->time));
 	{
 		uint16_t size;
 		is.read((char*)&size, sizeof(size));
 		this->points.resize(size);
-		is.read((char*)this->points.data(), sizeof(Vec2) * size);
+		is.read((char*)this->points.data(), sizeof(Vec3) * size);
 	}
 }
 

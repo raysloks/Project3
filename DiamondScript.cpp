@@ -1923,6 +1923,56 @@ void Diamond::populate(ScriptCompile& comp)
 			class_data->AddMember("transform", script_type_data, offsetof(ModelRenderer, transform));
 		}
 		{
+			ScriptTypeData script_type_data;
+			script_type_data.type = ST_CLASS;
+			script_type_data.indirection = 0;
+			script_type_data.class_data = comp.classes["std::shared_ptr<RenderingModel>"];
+			class_data->AddMember("rendering_model", script_type_data, offsetof(ModelRenderer, rendering_model));
+		}
+		{
+			ScriptTypeData script_type_data;
+			script_type_data.type = ST_CLASS;
+			script_type_data.indirection = 0;
+			script_type_data.class_data = comp.classes["std::vector<VkCommandBuffer_T *,std::allocator<VkCommandBuffer_T *>>"];
+			class_data->AddMember("command_buffers", script_type_data, offsetof(ModelRenderer, command_buffers));
+		}
+		{
+			ScriptTypeData script_type_data;
+			script_type_data.type = ST_CLASS;
+			script_type_data.indirection = 0;
+			script_type_data.class_data = comp.classes["std::weak_ptr<VkPipeline_T *>"];
+			class_data->AddMember("pipeline", script_type_data, offsetof(ModelRenderer, pipeline));
+		}
+		{
+			ScriptTypeData script_type_data;
+			script_type_data.type = ST_CLASS;
+			script_type_data.indirection = 1;
+			script_type_data.class_data = comp.classes["VideoMemoryAllocator"];
+			class_data->AddMember("uniform_vma", script_type_data, offsetof(ModelRenderer, uniform_vma));
+		}
+		{
+			ScriptTypeData script_type_data;
+			script_type_data.type = ST_CLASS;
+			script_type_data.indirection = 0;
+			script_type_data.class_data = comp.classes["std::vector<unsigned __int64,std::allocator<unsigned __int64>>"];
+			class_data->AddMember("uniform_buffer_offsets", script_type_data, offsetof(ModelRenderer, uniform_buffer_offsets));
+		}
+		{
+			ScriptTypeData script_type_data;
+			script_type_data.type = ST_CLASS;
+			script_type_data.indirection = 0;
+			script_type_data.class_data = comp.classes["std::vector<VkDescriptorSet_T *,std::allocator<VkDescriptorSet_T *>>"];
+			class_data->AddMember("descriptor_sets", script_type_data, offsetof(ModelRenderer, descriptor_sets));
+		}
+		{
+			ScriptTypeData script_type_data;
+			script_type_data.type = ST_CLASS;
+			script_type_data.indirection = 0;
+			script_type_data.class_data = comp.classes["std::vector<bool,std::allocator<bool>>"];
+			class_data->AddMember("dirty", script_type_data, offsetof(ModelRenderer, dirty));
+		}
+		class_data->AddMember("camera_index", NewScriptTypeData<uint64_t>(), offsetof(ModelRenderer, camera_index));
+		{
 			ScriptFunctionPrototype function_prototype;
 			function_prototype.cc = CC_MICROSOFT_X64;
 			function_prototype.ret = NewScriptTypeData<void>();
@@ -2366,6 +2416,19 @@ void Diamond::populate(ScriptCompile& comp)
 				function_prototype.params.push_back(script_type_data);
 			}
 			class_data->AddFunction("getAtPosition", function_prototype, (std::shared_ptr<Window>(Window::*)(const Vec2&))&Window::getAtPosition);
+		}
+		{
+			ScriptFunctionPrototype function_prototype;
+			function_prototype.cc = CC_MICROSOFT_X64;
+			function_prototype.ret = NewScriptTypeData<bool>();
+			{
+				ScriptTypeData script_type_data;
+				script_type_data.type = ST_CLASS;
+				script_type_data.indirection = 1;
+				script_type_data.class_data = comp.classes["LayoutEvent"];
+				function_prototype.params.push_back(script_type_data);
+			}
+			class_data->AddVirtualFunction("onEvent", function_prototype, ResolveThunk(Window, onEvent, bool, const LayoutEvent&)());
 		}
 		{
 			ScriptFunctionPrototype function_prototype;

@@ -5,14 +5,14 @@
 #include <vector>
 #include <iostream>
 
-#include "Vec2.h"
+#include "Vec3.h"
 
 #pragma pack(push, 1)
 class MpPath
 {
 public:
 	uint64_t time;
-	std::vector<Vec2> points;
+	std::vector<Vec3> points;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

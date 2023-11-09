@@ -23,6 +23,7 @@ public:
 
 	void addChild(const std::shared_ptr<Window>& child, intmax_t index = -1);
 	void removeChild(const std::shared_ptr<Window>& child);
+	void removeSelf();
 
 	Window * getParent() const;
 	RootWindow * getRoot() const;

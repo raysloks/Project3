@@ -29,7 +29,7 @@ void NetworkMob::tick(float dt)
 
 	entity->rotation = Quaternion(angle, Vec3(0.0f, 0.0f, 1.0f));
 
-	entity->z = tm->getZ(entity->xy);
+	//entity->z = tm->getZ(entity->xy);
 
 	auto model = getComponent<ModelRenderer>();
 
