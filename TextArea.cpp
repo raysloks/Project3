@@ -35,7 +35,7 @@ void TextArea::update()
 		else
 		{
 			text_window_shared->model->model = text_model;
-			text_window_shared->model->texture = atlas;
+			text_window_shared->model->textures = { atlas };
 			text_window_shared->model->rendering_model = nullptr;
 			text_window_shared->model->setDirty();
 		}
@@ -51,8 +51,8 @@ int64_t TextArea::getIndexFromPosition(const Vec2& position) const
 	auto text_window_shared = text_window.lock();
 	if (text_window_shared)
 	{
-		if (text_window_shared->model && text_window_shared->model->texture)
-			return text_window_shared->model->texture->getIndexFromPosition(text, settings, position - text_window_shared->getMin());
+		if (text_window_shared->model && text_window_shared->model->textures.size())
+			return text_window_shared->model->textures[0]->getIndexFromPosition(text, settings, position - text_window_shared->getMin());
 	}
 	return 0;
 }

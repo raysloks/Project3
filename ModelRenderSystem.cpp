@@ -64,7 +64,7 @@ ModelRenderSystem::ModelRenderSystem() : render_pass_template(this), ui_render_p
 	hbao_quad->model->vertices.resize(3);
 	hbao_quad->model->triangles = { { 0, 1, 2 } };
 	hbao_quad->model->loaded = true;
-	hbao_quad->texture = std::make_shared<SpriteSheet>();
+	hbao_quad->textures = { std::make_shared<SpriteSheet>(), std::make_shared<SpriteSheet>() };
 }
 
 ModelRenderSystem::~ModelRenderSystem()
@@ -100,6 +100,7 @@ void ModelRenderSystem::init(SDL_Window * window)
 	hbao_graphics_pipeline_template.setRenderPass(hbao_render_pass_template.getRenderPass());
 
 	createDepthBuffer();
+	createNormalBuffer();
 
 	createStagingBuffers();
 
@@ -349,6 +350,18 @@ void ModelRenderSystem::createRenderPass()
 		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 	};
 
+	VkAttachmentDescription normal_attachment = {
+		0,
+		VK_FORMAT_R8G8B8A8_SNORM,
+		VK_SAMPLE_COUNT_1_BIT,
+		VK_ATTACHMENT_LOAD_OP_CLEAR,
+		VK_ATTACHMENT_STORE_OP_STORE,
+		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		VK_IMAGE_LAYOUT_UNDEFINED,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+	};
+
 	VkAttachmentReference color_attachment_reference = {
 		0,
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
@@ -357,6 +370,11 @@ void ModelRenderSystem::createRenderPass()
 	VkAttachmentReference depth_attachment_reference = {
 		1,
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+	};
+
+	VkAttachmentReference normal_attachment_reference = {
+		2,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 	};
 
 	VkSubpassDependency subpass_dependency = {
@@ -369,8 +387,8 @@ void ModelRenderSystem::createRenderPass()
 		0
 	};
 
-	settings.attachment_descriptions = { color_attachment, depth_attachment };
-	settings.color_attachment_references = { color_attachment_reference };
+	settings.attachment_descriptions = { color_attachment, depth_attachment, normal_attachment };
+	settings.color_attachment_references = { color_attachment_reference, normal_attachment_reference };
 	settings.depth_stencil_attachment_reference = depth_attachment_reference;
 	settings.subpass_dependency = subpass_dependency;
 
@@ -489,15 +507,20 @@ void ModelRenderSystem::createDescriptorSetLayout()
 		nullptr
 	};
 
-	VkDescriptorSetLayoutBinding sampler_layout_binding = {
-		2,
-		VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-		1,
-		VK_SHADER_STAGE_FRAGMENT_BIT,
-		nullptr
-	};
+	std::vector<VkDescriptorSetLayoutBinding> descriptor_set_layout_bindings = { ubo_layout_binding, vp_layout_binding };
 
-	std::vector<VkDescriptorSetLayoutBinding> descriptor_set_layout_bindings = { ubo_layout_binding, vp_layout_binding, sampler_layout_binding };
+	for (size_t i = 0; i < 2; ++i)
+	{
+		VkDescriptorSetLayoutBinding sampler_layout_binding = {
+			i + 2,
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			1,
+			VK_SHADER_STAGE_FRAGMENT_BIT,
+			nullptr
+		};
+
+		descriptor_set_layout_bindings.emplace_back(sampler_layout_binding);
+	}
 
 	VkDescriptorSetLayoutCreateInfo descriptor_set_layout_create_info = {
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
@@ -521,15 +544,20 @@ void ModelRenderSystem::createHBAODescriptorSetLayout()
 		nullptr
 	};
 
-	VkDescriptorSetLayoutBinding sampler_layout_binding = {
-		2,
-		VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-		1,
-		VK_SHADER_STAGE_FRAGMENT_BIT,
-		nullptr
-	};
+	std::vector<VkDescriptorSetLayoutBinding> descriptor_set_layout_bindings = { ubo_layout_binding };
 
-	std::vector<VkDescriptorSetLayoutBinding> descriptor_set_layout_bindings = { ubo_layout_binding, sampler_layout_binding };
+	for (size_t i = 0; i < 2; ++i)
+	{
+		VkDescriptorSetLayoutBinding sampler_layout_binding = {
+			i + 2,
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			1,
+			VK_SHADER_STAGE_FRAGMENT_BIT,
+			nullptr
+		};
+
+		descriptor_set_layout_bindings.emplace_back(sampler_layout_binding);
+	}
 
 	VkDescriptorSetLayoutCreateInfo descriptor_set_layout_create_info = {
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
@@ -553,7 +581,8 @@ void ModelRenderSystem::createFramebuffers()
 		{
 			std::vector<VkImageView> attachments = {
 				swapchain_image_views[i],
-				depth_image_view
+				depth_image_view,
+				normal_image_view
 			};
 
 			VkFramebufferCreateInfo framebuffer_create_info = {
@@ -613,9 +642,9 @@ void ModelRenderSystem::createDepthBuffer()
 
 	createImageView(depth_image, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT, depth_image_view);
 
-	hbao_quad->texture->texture_image = depth_image;
-	hbao_quad->texture->texture_image_memory = depth_image_memory;
-	hbao_quad->texture->texture_image_view = depth_image_view;
+	hbao_quad->textures[0]->texture_image = depth_image;
+	hbao_quad->textures[0]->texture_image_memory = depth_image_memory;
+	hbao_quad->textures[0]->texture_image_view = depth_image_view;
 
 	VkPhysicalDeviceProperties physical_device_properties;
 	vkGetPhysicalDeviceProperties(getPhysicalDevice(), &physical_device_properties);
@@ -641,11 +670,52 @@ void ModelRenderSystem::createDepthBuffer()
 		VK_FALSE
 	};
 
-	if (vkCreateSampler(getDevice(), &sampler_create_info, nullptr, &hbao_quad->texture->texture_sampler))
+	if (vkCreateSampler(getDevice(), &sampler_create_info, nullptr, &hbao_quad->textures[0]->texture_sampler))
 		throw std::runtime_error("failed to create texture sampler.");
 
-	hbao_quad->texture->texture_image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	hbao_quad->texture->loaded = true;
+	hbao_quad->textures[0]->texture_image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	hbao_quad->textures[0]->loaded = true;
+}
+
+void ModelRenderSystem::createNormalBuffer()
+{
+	createImage(swapchain_extent.width, swapchain_extent.height, VK_FORMAT_R8G8B8A8_SNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, normal_image, normal_image_memory);
+
+	createImageView(normal_image, VK_FORMAT_R8G8B8A8_SNORM, VK_IMAGE_ASPECT_COLOR_BIT, normal_image_view);
+
+	hbao_quad->textures[1]->texture_image = normal_image;
+	hbao_quad->textures[1]->texture_image_memory = normal_image_memory;
+	hbao_quad->textures[1]->texture_image_view = normal_image_view;
+
+	VkPhysicalDeviceProperties physical_device_properties;
+	vkGetPhysicalDeviceProperties(getPhysicalDevice(), &physical_device_properties);
+
+	VkSamplerCreateInfo sampler_create_info = {
+		VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+		nullptr,
+		0,
+		VK_FILTER_LINEAR,
+		VK_FILTER_LINEAR,
+		VK_SAMPLER_MIPMAP_MODE_LINEAR,
+		VK_SAMPLER_ADDRESS_MODE_REPEAT,
+		VK_SAMPLER_ADDRESS_MODE_REPEAT,
+		VK_SAMPLER_ADDRESS_MODE_REPEAT,
+		0.0f,
+		VK_TRUE,
+		physical_device_properties.limits.maxSamplerAnisotropy,
+		VK_FALSE,
+		VK_COMPARE_OP_ALWAYS,
+		0.0f,
+		0.0f,
+		VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+		VK_FALSE
+	};
+
+	if (vkCreateSampler(getDevice(), &sampler_create_info, nullptr, &hbao_quad->textures[1]->texture_sampler))
+		throw std::runtime_error("failed to create texture sampler.");
+
+	hbao_quad->textures[1]->texture_image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	hbao_quad->textures[1]->loaded = true;
 }
 
 const int staging_buffer_size = 16 * 1024 * 1024;
@@ -722,7 +792,7 @@ void ModelRenderSystem::setupGraphicsPipelineTemplates()
 	auto frag_ui_code = Text::get("shaders/shader_ui.frag.spv");
 
 	auto vert_fullscreen_quad_code = Text::get("shaders/fullscreen_quad.vert.spv");
-	auto frag_hbao_code = Text::get("shaders/hbao.frag.spv");
+	auto frag_hbao_code = Text::get("shaders/sobel.frag.spv");
 
 	while (!(vert_code->loaded && frag_code->loaded && frag_ui_code->loaded && vert_fullscreen_quad_code->loaded && frag_hbao_code->loaded))
 		std::this_thread::yield();
@@ -824,15 +894,27 @@ void ModelRenderSystem::setupGraphicsPipelineTemplates()
 		VK_FALSE
 	};
 
-	pipeline_settings.color_blend_attachment_state = {
-		VK_FALSE,
-		VK_BLEND_FACTOR_ONE,
-		VK_BLEND_FACTOR_ZERO,
-		VK_BLEND_OP_ADD,
-		VK_BLEND_FACTOR_ONE,
-		VK_BLEND_FACTOR_ZERO,
-		VK_BLEND_OP_ADD,
-		VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
+	pipeline_settings.color_blend_attachment_states = {
+		{
+			VK_FALSE,
+			VK_BLEND_FACTOR_ONE,
+			VK_BLEND_FACTOR_ZERO,
+			VK_BLEND_OP_ADD,
+			VK_BLEND_FACTOR_ONE,
+			VK_BLEND_FACTOR_ZERO,
+			VK_BLEND_OP_ADD,
+			VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
+		},
+		{
+			VK_FALSE,
+			VK_BLEND_FACTOR_ONE,
+			VK_BLEND_FACTOR_ZERO,
+			VK_BLEND_OP_ADD,
+			VK_BLEND_FACTOR_ONE,
+			VK_BLEND_FACTOR_ZERO,
+			VK_BLEND_OP_ADD,
+			VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
+		}
 	};
 
 	pipeline_settings.depth_stencil_state_create_info = {
@@ -857,7 +939,7 @@ void ModelRenderSystem::setupGraphicsPipelineTemplates()
 
 	pipeline_settings.shader_stages = { vert_shader_stage_create_info, frag_ui_shader_stage_create_info };
 
-	pipeline_settings.color_blend_attachment_state = {
+	pipeline_settings.color_blend_attachment_states = { {
 		VK_TRUE,
 		VK_BLEND_FACTOR_SRC_ALPHA,
 		VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
@@ -866,7 +948,7 @@ void ModelRenderSystem::setupGraphicsPipelineTemplates()
 		VK_BLEND_FACTOR_ZERO,
 		VK_BLEND_OP_ADD,
 		VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
-	};
+	} };
 
 	pipeline_settings.dynamic_states = { VK_DYNAMIC_STATE_SCISSOR };
 	pipeline_settings.rasterization_state_create_info.cullMode = VK_CULL_MODE_NONE;
@@ -1213,9 +1295,10 @@ std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuff
 	if (vkBeginCommandBuffer(command_buffer, &command_buffer_begin_info))
 		throw std::runtime_error("failed to begin recording command buffer.");
 
-	std::array<VkClearValue, 2> clear_values = {};
-	clear_values[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	std::array<VkClearValue, 3> clear_values = {};
+	clear_values[0].color = { 0.35f, 0.55f, 0.75f, 1.0f };
 	clear_values[1].depthStencil = { 1.0f, 0 };
+	clear_values[2].color = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	VkRenderPassBeginInfo render_pass_begin_info = {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
@@ -1251,13 +1334,13 @@ std::vector<std::shared_ptr<RenderContext>> ModelRenderSystem::recordCommandBuff
 	render_context->executeCommands(command_buffer);
 	vkCmdEndRenderPass(command_buffer);
 
-	/*vkCmdBeginRenderPass(command_buffer, &hbao_render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+	vkCmdBeginRenderPass(command_buffer, &hbao_render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 	hbao_render_context->executeCommands(command_buffer);
-	vkCmdEndRenderPass(command_buffer);*/
-
-	vkCmdBeginRenderPass(command_buffer, &ui_render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-	ui_render_context->executeCommands(command_buffer);
 	vkCmdEndRenderPass(command_buffer);
+
+	/*vkCmdBeginRenderPass(command_buffer, &ui_render_pass_begin_info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+	ui_render_context->executeCommands(command_buffer);
+	vkCmdEndRenderPass(command_buffer);*/
 
 	if (vkEndCommandBuffer(command_buffer))
 		throw std::runtime_error("failed to record command buffer.");
@@ -1371,6 +1454,7 @@ void ModelRenderSystem::recreateSwapchain()
 	hbao_graphics_pipeline_template.setRenderPass(hbao_render_pass_template.getRenderPass());
 
 	createDepthBuffer();
+	createNormalBuffer();
 	createFramebuffers();
 	allocateCommandBuffers();
 }
@@ -1406,6 +1490,10 @@ void ModelRenderSystem::release()
 
 void ModelRenderSystem::releaseSwapchain()
 {
+	vkDestroyImageView(device, normal_image_view, nullptr);
+	vkDestroyImage(device, normal_image, nullptr);
+	vkFreeMemory(device, normal_image_memory, nullptr);
+
 	vkDestroyImageView(device, depth_image_view, nullptr);
 	vkDestroyImage(device, depth_image, nullptr);
 	vkFreeMemory(device, depth_image_memory, nullptr);

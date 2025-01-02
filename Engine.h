@@ -50,13 +50,11 @@ public:
 
 	double full;
 
-	void setCursor(const std::shared_ptr<SpriteSheet> & sheet, int hotspot_x, int hotspot_y);
+	void setCursor(const std::shared_ptr<SpriteSheet>& sheet);
+	void setCursor(const std::shared_ptr<SpriteSheet>& sheet, int hotspot_x, int hotspot_y);
 	void setCursor(SDL_SystemCursor id);
 
 	void setLevel(Level * level);
-
-	Window * ufo;
-	Window * testgrid;
 
 private:
 

@@ -5,7 +5,7 @@ uint64 target
 MpAttackCommand:MpCommand
 uint64 target
 MpAttackMoveCommand:MpCommand
-vec2 target
+vec3 target
 MpAuraUpdate:
 uint64 index
 uint64 aura_id
@@ -86,6 +86,7 @@ vec3 target
 MpPath:
 uint64 time
 vec3 points[]
+float distances[]
 MpPlayerExperienceUpdate:
 int64 experience
 MpPlayerInventoryUpdate:

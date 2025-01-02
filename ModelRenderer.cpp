@@ -15,7 +15,13 @@ ModelRenderer::ModelRenderer()
 	uniform_buffer_object.color = Vec4(1.0f);
 }
 
-ModelRenderer::ModelRenderer(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, const std::shared_ptr<Animation>& animation, size_t camera_index) : model(model), texture(texture), animation(animation), camera_index(camera_index)
+ModelRenderer::ModelRenderer(const std::shared_ptr<Model>& model, const std::vector<std::shared_ptr<SpriteSheet>>& textures, const std::shared_ptr<Animation>& animation, size_t camera_index) : model(model), textures(textures), animation(animation), camera_index(camera_index)
+{
+	uniform_vma = nullptr;
+	uniform_buffer_object.color = Vec4(1.0f);
+}
+
+ModelRenderer::ModelRenderer(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, const std::shared_ptr<Animation>& animation, size_t camera_index) : model(model), textures({ texture }), animation(animation), camera_index(camera_index)
 {
 	uniform_vma = nullptr;
 	uniform_buffer_object.color = Vec4(1.0f);
@@ -24,7 +30,7 @@ ModelRenderer::ModelRenderer(const std::shared_ptr<Model>& model, const std::sha
 ModelRenderer::ModelRenderer(const std::string& model, const std::string& texture, const std::string& animation, size_t camera_index)
 {
 	this->model = Model::get(model);
-	this->texture = SpriteSheet::get(texture);
+	this->textures = { SpriteSheet::get(texture) };
 	if (animation.size())
 		this->animation = Animation::get(animation);
 	uniform_vma = nullptr;
@@ -39,15 +45,21 @@ ModelRenderer::~ModelRenderer()
 std::shared_ptr<RenderingModel> ModelRenderer::getRenderingModel(const RenderContext& render_context)
 {
 	if (!rendering_model || rendering_model->getGraphicsPipeline() != render_context.getGraphicsPipeline() || rendering_model->getDynamicState() != render_context.dynamic_state)
-		if (model->loaded && texture->loaded && (animation == nullptr || animation->loaded))
+	{
+		if (!model->loaded)
+			return rendering_model;
+		for (auto& texture : textures)
+			if (!texture->loaded)
+				return rendering_model;
+		if (animation && !animation->loaded)
+			return rendering_model;
+		if (model->vertices.size() && model->triangles.size())
 		{
-			if (model->vertices.size() && model->triangles.size())
-			{
-				rendering_model.reset(new RenderingModel(model, texture, getUniformBufferObjectSize(), render_context.getModelRenderSystem(), render_context.getGraphicsPipeline(), camera_index, render_context.dynamic_state));
-				dirty.clear();
-				dirty.resize(render_context.getModelRenderSystem()->getDescriptorSetCount(), true);
-			}
+			rendering_model.reset(new RenderingModel(model, textures, getUniformBufferObjectSize(), render_context.getModelRenderSystem(), render_context.getGraphicsPipeline(), camera_index, render_context.dynamic_state));
+			dirty.clear();
+			dirty.resize(render_context.getModelRenderSystem()->getDescriptorSetCount(), true);
 		}
+	}
 	return rendering_model;
 }
 

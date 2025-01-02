@@ -54,40 +54,46 @@ public:
 	uint64_t cursor;
 
 	template <class T>
-	bool processEventSelfParent(const T& event)
+	std::shared_ptr<Window> processEventSelfParent(const T& event)
 	{
 		if (onEvent(event))
-			return true;
+			return shared_from_this();
 		if (parent)
 			return parent->processEventSelfParent(event);
-		return false;
+		return nullptr;
 	}
 
 	template <class T>
-	bool processEventSelfChildrenParent(const T& event, Window * ignore = nullptr)
+	std::shared_ptr<Window> processEventSelfChildrenParent(const T& event, Window * ignore = nullptr)
 	{
 		if (onEvent(event))
-			return true;
+			return shared_from_this();
 		std::vector<std::shared_ptr<Window>> copy = children;
 		for (auto it = copy.rbegin(); it != copy.rend(); ++it)
 			if (it->get() != ignore)
-				if ((*it)->processEventSelfChildren(event))
-					return true;
+			{
+				auto value = (*it)->processEventSelfChildren(event);
+				if (value)
+					return value;
+			}
 		if (parent)
 			return parent->processEventSelfChildrenParent(event, this);
-		return false;
+		return nullptr;
 	}
 
 	template <class T>
-	bool processEventSelfChildren(const T& event)
+	std::shared_ptr<Window> processEventSelfChildren(const T& event)
 	{
 		if (onEvent(event))
-			return true;
+			return shared_from_this();
 		std::vector<std::shared_ptr<Window>> copy = children;
 		for (auto it = copy.rbegin(); it != copy.rend(); ++it)
-			if ((*it)->processEventSelfChildren(event))
-				return true;
-		return false;
+		{
+			auto value = (*it)->processEventSelfChildren(event);
+			if (value)
+				return value;
+		}
+		return nullptr;
 	}
 
 	virtual bool onEvent(const KeyDownEvent& event);

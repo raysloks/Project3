@@ -48,7 +48,7 @@ void Diamond::populate(ScriptCompile& comp)
 		class_data->AddMember("movement_speed", NewScriptTypeData<int64_t>(), offsetof(MobStatBlock, movement_speed));
 		class_data->AddMember("attack_speed", NewScriptTypeData<int64_t>(), offsetof(MobStatBlock, attack_speed));
 		class_data->AddMember("cast_speed", NewScriptTypeData<int64_t>(), offsetof(MobStatBlock, cast_speed));
-		class_data->AddMember("cooldown_rate", NewScriptTypeData<int64_t>(), offsetof(MobStatBlock, cooldown_rate));
+		class_data->AddMember("cooldown_rate", NewScriptTypeData<int64_t>(), offsetof(MobStatBlock, cooldown_recovery_rate));
 		class_data->AddMember("critical_strike_chance", NewScriptTypeData<int64_t>(), offsetof(MobStatBlock, critical_strike_chance));
 		class_data->AddMember("critical_strike_multiplier", NewScriptTypeData<int64_t>(), offsetof(MobStatBlock, critical_strike_multiplier));
 		class_data->AddMember("tenacity", NewScriptTypeData<int64_t>(), offsetof(MobStatBlock, tenacity));
@@ -1906,7 +1906,7 @@ void Diamond::populate(ScriptCompile& comp)
 			script_type_data.type = ST_CLASS;
 			script_type_data.indirection = 0;
 			script_type_data.class_data = comp.classes["std::shared_ptr<SpriteSheet>"];
-			class_data->AddMember("texture", script_type_data, offsetof(ModelRenderer, texture));
+			//class_data->AddMember("texture", script_type_data, offsetof(ModelRenderer, texture));
 		}
 		{
 			ScriptTypeData script_type_data;

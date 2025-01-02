@@ -92,8 +92,7 @@ void Mob::onDamaged(int64_t damage)
 
 void Mob::recalculateStats()
 {
-	StatContext stat_context{ 0 };
-	stat_cache = stats.calculateStats(stat_context);
+	stat_cache = stats.calculateStats();
 }
 
 float Mob::getMovementSpeed() const

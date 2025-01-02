@@ -53,6 +53,7 @@ public:
 	void createFramebuffers();
 	void createCommandPool();
 	void createDepthBuffer();
+	void createNormalBuffer();
 	void createStagingBuffers();
 	void allocateCommandBuffers();
 	void createSynchronizationPrimitives();
@@ -196,11 +197,12 @@ private:
 	VkDeviceMemory depth_image_memory;
 	VkImageView depth_image_view;
 
+	VkImage normal_image;
+	VkDeviceMemory normal_image_memory;
+	VkImageView normal_image_view;
+
 	std::vector<size_t> uniform_buffer_offsets;
 	size_t camera_count;
-
-	std::shared_ptr<Model> model;
-	std::shared_ptr<SpriteSheet> sprite_sheet;
 
 	VideoMemoryAllocator * vma;
 	std::vector<size_t> staging_offsets;

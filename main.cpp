@@ -579,22 +579,6 @@ int main(int argc, char* args[])
 		engine.mrs->ui->addChild(text_edit_area);
 	}
 
-	if (false)
-	{
-		auto ufo = std::make_shared<Window>();
-		ufo->model = std::make_shared<ModelRenderer>(Model::load("offset_plane.mdl"), SpriteSheet::load("blurbustersUFOborder.png"), nullptr, 1);
-		engine.mrs->ui->addChild(ufo);
-		engine.ufo = ufo.get();
-	}
-
-	if (false)
-	{
-		auto testgrid = std::make_shared<Window>();
-		testgrid->model = std::make_shared<ModelRenderer>(Model::load("offset_plane.mdl"), SpriteSheet::load("testgrid.png"), nullptr, 1);
-		engine.mrs->ui->addChild(testgrid);
-		engine.testgrid = testgrid.get();
-	}
-
 	engine.run();
 
 	if (mem)

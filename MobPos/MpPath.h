@@ -13,6 +13,7 @@ class MpPath
 public:
 	uint64_t time;
 	std::vector<Vec3> points;
+	std::vector<float> distances;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

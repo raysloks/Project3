@@ -4,8 +4,9 @@
 		sprite 0
 		stats
 		{
-			movement_speed 5368709120
+			movement_speed 50331648
 			hp 12
+			attack_power 10
 			spell_power 10
 		}
 	}
@@ -14,8 +15,9 @@
 		sprite 1
 		stats
 		{
-			movement_speed 4294967296
+			movement_speed 45331648
 			hp 7
+			attack_power 4
 			spell_power 4
 		}
 	}

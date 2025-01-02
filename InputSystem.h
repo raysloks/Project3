@@ -33,6 +33,8 @@ public:
 
 	void processTextInputEvent(SDL_TextInputEvent& event);
 
+	void processMouseStayEvent();
+
 	void addKeyDownCallback(uint64_t key, const std::function<void(void)> & callback);
 	void addKeyUpCallback(uint64_t key, const std::function<void(void)> & callback);
 	void addUnfilteredKeyDownCallback(uint64_t key, const std::function<void(void)> & callback);

@@ -10,7 +10,6 @@
 
 #include "MobPath.h"
 
-#include "Grid.h"
 #include "NavMesh.h"
 
 #include "Character.h"
@@ -81,7 +80,6 @@ public:
 
 	std::mutex mutex;
 
-	Grid grid;
 	NavMesh navmesh;
 
 	Character player_character;
@@ -100,4 +98,5 @@ private:
 	MobPath last_sent_path;
 
 	Vec3 last_path_target;
+	bool moving;
 };

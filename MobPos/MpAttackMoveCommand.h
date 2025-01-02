@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "MpCommand.h"
-#include "Vec2.h"
+#include "Vec3.h"
 
 #pragma pack(push, 1)
 class MpAttackMoveCommand :
@@ -13,7 +13,7 @@ class MpAttackMoveCommand :
 {
 public:
 	uint8_t getChildTypeIndex() const;
-	Vec2 target;
+	Vec3 target;
 
 	void serialize(std::ostream& os) const;
 	void deserialize(std::istream& is);

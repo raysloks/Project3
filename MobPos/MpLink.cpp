@@ -5,7 +5,7 @@
 // Application should implement this class using the prototypes in HandlerPrototypes.h
 #include "../MobPosHandler.h"
 
-const uint32_t MpLink::crc = 0x1cd51f18;
+const uint32_t MpLink::crc = 0xdf3ea91e;
 MpLink::MpLink() : io_context(), socket(io_context)
 {
 }

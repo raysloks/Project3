@@ -19,7 +19,7 @@ def write_mdl(self, context, filepath):
     
     abs_filepath = bpy.path.abspath(filepath)
 
-    for ob in context.collection.objects:
+    for ob in context.collection.all_objects:
         if not ob.users_collection[0].hide_render and ob.type == 'MESH':
             
             if self.split_objects:

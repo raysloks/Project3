@@ -677,6 +677,7 @@
     <ShaderCompileTask Include="data\shaders\shader.vert" />
     <ShaderCompileTask Include="data\shaders\shader_sdf.frag" />
     <ShaderCompileTask Include="data\shaders\shader_ui.frag" />
+    <ShaderCompileTask Include="data\shaders\sobel.frag" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ProjectScript\ProjectScript\ProjectScript.vcxproj">

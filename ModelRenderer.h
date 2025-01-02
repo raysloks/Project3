@@ -21,6 +21,7 @@ class ModelRenderer :
 {
 public:
 	ModelRenderer();
+	ModelRenderer(const std::shared_ptr<Model>& model, const std::vector<std::shared_ptr<SpriteSheet>>& textures, const std::shared_ptr<Animation>& animation = nullptr, size_t camera_index = 0);
 	ModelRenderer(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, const std::shared_ptr<Animation>& animation = nullptr, size_t camera_index = 0);
 	ModelRenderer(const std::string& model, const std::string& texture, const std::string& animation = "", size_t camera_index = 0);
 	~ModelRenderer();
@@ -45,7 +46,7 @@ public:
 	Animation::Pose pose;
 
 	std::shared_ptr<Model> model;
-	std::shared_ptr<SpriteSheet> texture;
+	std::vector<std::shared_ptr<SpriteSheet>> textures;
 	std::shared_ptr<Animation> animation;
 
 	Matrix4 transform;

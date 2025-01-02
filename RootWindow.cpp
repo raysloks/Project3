@@ -107,13 +107,17 @@ void RootWindow::focusNext(bool wrap)
 	}
 }
 
-void RootWindow::processCursorMoveEvent(const CursorMoveEvent& event)
+bool RootWindow::processCursorMoveEvent(const CursorMoveEvent& event)
 {
+	std::shared_ptr<Window> hover;
+
 	auto focus = getFocus();
 	if (focus)
-		focus->processEventSelfChildrenParent(event);
+		hover = focus->processEventSelfChildrenParent(event);
 
-	auto hover = getAtPosition(event.cursor_position);
+	if (hover == nullptr)
+		hover = getAtPosition(event.cursor_position);
+
 	auto locked_mouseover = mouseover.lock();
 	if (hover != locked_mouseover)
 	{
@@ -130,9 +134,9 @@ void RootWindow::processCursorMoveEvent(const CursorMoveEvent& event)
 			hover->onEvent(enter_event);
 
 		mouseover = hover;
-		if (hover)
-			CustomBehaviour::engine->setCursor((SDL_SystemCursor)hover->cursor);
 	}
+
+	return hover != nullptr;
 }
 
 bool RootWindow::processKeyDownEvent(const KeyDownEvent& event)
@@ -179,4 +183,18 @@ bool RootWindow::processTextInputEvent(const TextInputEvent& event)
 		if (focus->processEventSelfChildrenParent(event))
 			return true;
 	return false;
+}
+
+void RootWindow::updateCursor()
+{
+	auto locked_mouseover = mouseover.lock();
+	if (locked_mouseover)
+		CustomBehaviour::engine->setCursor((SDL_SystemCursor)locked_mouseover->cursor);
+	else if (update_cursor_callback)
+		update_cursor_callback();
+}
+
+void RootWindow::setUpdateCursorCallback(const std::function<void(void)>& callback)
+{
+	update_cursor_callback = callback;
 }

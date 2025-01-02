@@ -15,7 +15,7 @@ class VideoMemoryAllocator;
 class RenderingModel
 {
 public:
-	RenderingModel(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, size_t uniform_buffer_size, ModelRenderSystem * mrs, const std::shared_ptr<GraphicsPipeline>& graphics_pipeline, size_t camera_index, const DynamicState& dynamic_state);
+	RenderingModel(const std::shared_ptr<Model>& model, const std::vector<std::shared_ptr<SpriteSheet>>& textures, size_t uniform_buffer_size, ModelRenderSystem * mrs, const std::shared_ptr<GraphicsPipeline>& graphics_pipeline, size_t camera_index, const DynamicState& dynamic_state);
 	~RenderingModel();
 
 	void stageUniformBufferData(void * source_data, size_t image_index);
@@ -32,7 +32,7 @@ private:
 	std::shared_ptr<GraphicsPipeline> graphics_pipeline;
 
 	std::shared_ptr<Model> model;
-	std::shared_ptr<SpriteSheet> texture;
+	std::vector<std::shared_ptr<SpriteSheet>> textures;
 
 	std::vector<VkCommandBuffer> command_buffers;
 

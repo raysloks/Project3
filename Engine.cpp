@@ -16,7 +16,7 @@ Engine::Engine()
 
 	IMG_Init(IMG_INIT_PNG);
 
-	window = SDL_CreateWindow(nullptr, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_VULKAN);
+	window = SDL_CreateWindow(nullptr, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1920, 1080, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_VULKAN);
 	
 	/*render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);*/
@@ -177,7 +177,11 @@ void Engine::run()
 				default:
 					break;
 				}
+				mrs->ui->updateCursor();
 			}
+
+			input->processMouseStayEvent();
+			mrs->ui->updateCursor();
 
 			times[0] = SDL_GetPerformanceCounter();
 			for (size_t i = 0; i < systems.size(); ++i)
@@ -190,22 +194,6 @@ void Engine::run()
 
 			for (size_t i = 0; i < waits.size(); ++i)
 				waits[i] = times[i + 1] - times[i];
-		}
-
-		if (ufo)
-		{
-			ufo->setSizeAnchorOffset(80, Vec2(ufo_pos, 0));
-			ufo_pos += 8;
-			if (ufo_pos > 1000)
-				ufo_pos -= 2000;
-		}
-
-		if (testgrid)
-		{
-			testgrid->setSizeAnchorOffset(128, Vec2(testgrid_pos, 0));
-			testgrid_pos += 4;
-			if (testgrid_pos > 1000)
-				testgrid_pos -= 2000;
 		}
 
 		SpriteSheet::destroyUnusedTextures();
@@ -299,6 +287,11 @@ void Engine::run()
 void Engine::stop()
 {
 	stopped = true;
+}
+
+void Engine::setCursor(const std::shared_ptr<SpriteSheet>& sheet)
+{
+	setCursor(sheet, sheet->offset_x, sheet->offset_y);
 }
 
 void Engine::setCursor(const std::shared_ptr<SpriteSheet>& sheet, int hotspot_x, int hotspot_y)

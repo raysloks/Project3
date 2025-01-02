@@ -50,8 +50,8 @@ GraphicsPipeline::GraphicsPipeline(const PipelineTemplate& pipeline_template, co
 		0,
 		VK_FALSE,
 		VK_LOGIC_OP_COPY,
-		1,
-		&settings.color_blend_attachment_state,
+		(uint32_t)settings.color_blend_attachment_states.size(),
+		settings.color_blend_attachment_states.data(),
 		{0.0f, 0.0f, 0.0f, 0.0f}
 	};
 

@@ -15,7 +15,7 @@
 
 #include <boost/uuid/string_generator.hpp>
 
-MobPosHandler::MobPosHandler() : grid(64, 64)
+MobPosHandler::MobPosHandler()
 {
 	link.handler = this;
 	link.Open(asio::ip::udp::endpoint(asio::ip::address_v6::any(), 0));
@@ -124,15 +124,10 @@ void MobPosHandler::MpMobUpdateHandler(const asio::ip::udp::endpoint & endpoint,
 	{
 		data.path.clear();
 		data.path.points = message.path->points;
-		if (data.path.points.size() > 0)
-		{
-			data.path.distances.resize(data.path.points.size() - 1);
-			for (size_t i = 0; i < data.path.distances.size(); ++i)
-				data.path.distances[i] = (data.path.points[i + 1] - data.path.points[i]).Len();
-		}
+		data.path.distances = message.path->distances;
 		int64_t diff = time - message.path->time;
-		float speed = mob.getMovementSpeed();
-		data.path.move(diff * 0.000000001 * speed);
+		//float speed = mob.getMovementSpeed();
+		data.path.move(diff / 1'000'000'000.0);
 	}
 
 	if (message.state)
@@ -206,37 +201,57 @@ void MobPosHandler::tick(float dt)
 	{
 		initialized = true;
 
-		for (size_t x = 0; x < grid.w; ++x)
 		{
-			for (size_t y = 0; y < grid.h; ++y)
-			{
-				grid.at(x, y) = engine->level->tilemap.at(x, y).tile;
-			}
-		}
-		//navmesh.Initialize(grid);
-
-		{
-			std::string navmesh_fname = "data/navmeshtest.mdl";
+			std::string navmesh_fname = "data/airtown.navmesh.mdl";
 			navmesh.Initialize(navmesh_fname);
 
-			std::cout << navmesh.vertices.size() << std::endl;
-			std::cout << navmesh.faces.size() << std::endl;
-			std::cout << navmesh.arcs.size() << std::endl;
-			std::cout << navmesh.halfEdges.size() << std::endl;
-			std::cout << navmesh.corners.size() << std::endl;
+			{
+				auto entity = level->add_entity();
+				auto model = level->models.add("airtown.sightmesh.mdl", "testgrid2.png");
+				Component::attach(model, entity);
+			}
 
-			auto entity = level->add_entity();
-			auto model = level->models.add("navmeshtest.mdl", "testgrid2.png");
-			Component::attach(model, entity);
+			{
+				auto entity = level->add_entity();
+				auto model = level->models.add("airtown.backfacetest.mdl", "pixel.png");
+				model->uniform_buffer_object.color = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+				Component::attach(model, entity);
+			}
+		}
 
-			/*auto navmeshmodel = Model::get("navmeshtest.mdl");
-			navmeshmodel->loaded.wait(false);
+		{
+			auto normal_cursor = SpriteSheet::get("cursor.png");
+			normal_cursor->offset_x = 1;
+			normal_cursor->offset_y = 1;
+			auto attack_cursor = normal_cursor->makeOutline({ 255, 0, 0, 255 }, { 255, 255, 255, 0 }, 4, 4);
+			attack_cursor->offset_x = 5;
+			attack_cursor->offset_y = 5;
+			engine->mrs->ui->setUpdateCursorCallback([this, normal_cursor, attack_cursor]()
+				{
+					if (player_mob_id == -1)
+						return;
 
-			for (int i = 0; i < navmeshmodel->vertices.size(); ++i)
-				navmesh.vertices.push_back(NavMesh::Vertex{ navmeshmodel->vertices[i].position, -1, -1 });
-			for (int i = 0; i < navmeshmodel->triangles.size(); ++i)
-				navmesh.AddFace(navmeshmodel->triangles[i].indices[0], navmeshmodel->triangles[i].indices[1], navmeshmodel->triangles[i].indices[2]);
-			navmesh.ConnectHalfEdges();*/
+					int64_t now = std::chrono::steady_clock::now().time_since_epoch().count();
+
+					Vec3 target = engine->mrs->screenToWorld(engine->input->getCursor(), mobs[player_mob_id].mob->entity->z);
+
+					Reference<NetworkMob> target_mob;
+					auto in_range = engine->cs->overlapCircle(target, 0.5f);
+					for (auto& i : in_range)
+					{
+						auto mob = i.second->getComponent<NetworkMob>();
+						if (mob && mob->id != player_mob_id)
+						{
+							target_mob = mob;
+							break;
+						}
+					}
+
+					if (target_mob)
+						engine->setCursor(attack_cursor);
+					else
+						engine->setCursor(normal_cursor);
+				});
 		}
 
 		engine->input->addKeyDownCallback(KB_MOVE_ATTACK_CURSOR, [this]()
@@ -264,6 +279,8 @@ void MobPosHandler::tick(float dt)
 
 				if (target_mob)
 				{
+					moving = false;
+
 					MpAttackCommand message;
 					message.time = time;
 					message.target = target_mob->id;
@@ -271,6 +288,8 @@ void MobPosHandler::tick(float dt)
 				}
 				else
 				{
+					moving = true;
+
 					auto&& mob = mobs[player_mob_id];
 					auto&& path = mob.path;
 
@@ -295,9 +314,10 @@ void MobPosHandler::tick(float dt)
 					std::reverse(path.points.begin(), path.points.end());
 					if (path.points.size() > 0)
 					{
+						float speed = mob.mob->getMovementSpeed();
 						path.distances.resize(path.points.size() - 1);
 						for (size_t i = 0; i < path.distances.size(); ++i)
-							path.distances[i] = Vec2(path.points[i + 1] - path.points[i]).Len();
+							path.distances[i] = Vec2(path.points[i + 1] - path.points[i]).Len() / speed;
 					}
 					else
 					{
@@ -413,7 +433,7 @@ void MobPosHandler::tick(float dt)
 
 	if (player_mob_id != -1)
 	{
-		if ((engine->input->isKeyDown(KB_MOVE_ATTACK_CURSOR) || engine->input->isKeyReleased(KB_MOVE_ATTACK_CURSOR)) && !engine->input->isKeyDown(KB_STOP_MOVE))
+		if (moving && (engine->input->isKeyDown(KB_MOVE_ATTACK_CURSOR) || engine->input->isKeyReleased(KB_MOVE_ATTACK_CURSOR)) && !engine->input->isKeyDown(KB_STOP_MOVE))
 		{
 			Vec3 target = engine->mrs->screenToWorld(engine->input->getCursor(), last_path_target.z);
 			target = navmesh.GetFacePosition(target).position;
@@ -429,9 +449,10 @@ void MobPosHandler::tick(float dt)
 			std::reverse(path.points.begin(), path.points.end());
 			if (path.points.size() > 0)
 			{
+				float speed = mob.mob->getMovementSpeed();
 				path.distances.resize(path.points.size() - 1);
 				for (size_t i = 0; i < path.distances.size(); ++i)
-					path.distances[i] = Vec2(path.points[i + 1] - path.points[i]).Len();
+					path.distances[i] = Vec2(path.points[i + 1] - path.points[i]).Len() / speed;
 			}
 			else
 			{
@@ -488,8 +509,8 @@ void MobPosHandler::createMob(uint64_t id)
 	collider->layers = 0b10;
 	Component::attach(collider, entity);
 
-	/*auto nameplate = level->add<NamePlateProvider>();
-	Component::attach(nameplate, entity);*/
+	auto nameplate = level->add<NamePlateProvider>();
+	Component::attach(nameplate, entity);
 
 	MobPosData data;
 	data.mob = mob;
@@ -501,7 +522,7 @@ void MobPosData::tick(float dt)
 {
 	float speed = mob->getMovementSpeed();
 
-	path.move(dt * speed);
+	path.move(dt);
 
 	mob->entity->xyz = path.getPosition();
 
@@ -509,6 +530,6 @@ void MobPosData::tick(float dt)
 	if (!path.finished())
 	{
 		mob->move = path.getFlatDirection();
-		mob->v = path.getFlatDirection() * speed;
+		mob->v = path.getFlatDirection() * speed; // maybe change based on path.distances ?
 	}
 }

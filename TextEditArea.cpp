@@ -108,8 +108,8 @@ bool TextEditArea::onEvent(const KeyDownEvent & event)
 	case SDLK_UP:
 	{
 		auto text_window_shared = text_area_shared->text_window.lock();
-		if (text_window_shared && text_window_shared->model && text_window_shared->model->texture)
-			start = text_window_shared->model->texture->getIndexFromPosition(text_area_shared->text, text_area_shared->settings, text_window_shared->model->texture->getAdvance(text_area_shared->text, text_area_shared->settings, start) + Vec2(0.0f, text_area_shared->settings.line_height * -1.5f));
+		if (text_window_shared && text_window_shared->model && text_window_shared->model->textures.size())
+			start = text_window_shared->model->textures[0]->getIndexFromPosition(text_area_shared->text, text_area_shared->settings, text_window_shared->model->textures[0]->getAdvance(text_area_shared->text, text_area_shared->settings, start) + Vec2(0.0f, text_area_shared->settings.line_height * -1.5f));
 		if (!(event.mod & KMOD_SHIFT))
 			end = start;
 		updateCursor();
@@ -119,8 +119,8 @@ bool TextEditArea::onEvent(const KeyDownEvent & event)
 	case SDLK_DOWN:
 	{
 		auto text_window_shared = text_area_shared->text_window.lock();
-		if (text_window_shared && text_window_shared->model && text_window_shared->model->texture)
-			start = text_window_shared->model->texture->getIndexFromPosition(text_area_shared->text, text_area_shared->settings, text_window_shared->model->texture->getAdvance(text_area_shared->text, text_area_shared->settings, start) + Vec2(0.0f, text_area_shared->settings.line_height * 0.5f));
+		if (text_window_shared && text_window_shared->model && text_window_shared->model->textures.size())
+			start = text_window_shared->model->textures[0]->getIndexFromPosition(text_area_shared->text, text_area_shared->settings, text_window_shared->model->textures[0]->getAdvance(text_area_shared->text, text_area_shared->settings, start) + Vec2(0.0f, text_area_shared->settings.line_height * 0.5f));
 		if (!(event.mod & KMOD_SHIFT))
 			end = start;
 		updateCursor();
@@ -217,7 +217,7 @@ void TextEditArea::updateCursor()
 	if (text_area_shared && cursor_window_shared)
 	{
 		auto text_window_shared = text_area_shared->text_window.lock();
-		if (text_window_shared && text_window_shared->model && text_window_shared->model->texture)
-			cursor_window_shared->setSizeAnchorOffset(Vec2(1.0f, text_area_shared->size.y), text_window_shared->model->texture->getAdvance(text_area_shared->text, text_area_shared->settings, start) + Vec2(0.5f, -text_area_shared->size.y * 0.5f), Vec2(0.0f, 1.0f));
+		if (text_window_shared && text_window_shared->model && text_window_shared->model->textures.size())
+			cursor_window_shared->setSizeAnchorOffset(Vec2(1.0f, text_area_shared->size.y), text_window_shared->model->textures[0]->getAdvance(text_area_shared->text, text_area_shared->settings, start) + Vec2(0.5f, -text_area_shared->size.y * 0.5f), Vec2(0.0f, 1.0f));
 	}
 }

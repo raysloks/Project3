@@ -4,7 +4,7 @@
 #include "VideoMemoryAllocator.h"
 #include "GraphicsPipeline.h"
 
-RenderingModel::RenderingModel(const std::shared_ptr<Model>& model, const std::shared_ptr<SpriteSheet>& texture, size_t uniform_buffer_size, ModelRenderSystem * mrs, const std::shared_ptr<GraphicsPipeline>& graphics_pipeline, size_t camera_index, const DynamicState& dynamic_state) : model(model), texture(texture), uniform_buffer_size(uniform_buffer_size), mrs(mrs), uniform_vma(mrs->getUniformBufferVideoMemoryAllocator()), graphics_pipeline(graphics_pipeline), camera_index(camera_index), dynamic_state(dynamic_state)
+RenderingModel::RenderingModel(const std::shared_ptr<Model>& model, const std::vector<std::shared_ptr<SpriteSheet>>& textures, size_t uniform_buffer_size, ModelRenderSystem * mrs, const std::shared_ptr<GraphicsPipeline>& graphics_pipeline, size_t camera_index, const DynamicState& dynamic_state) : model(model), textures(textures), uniform_buffer_size(uniform_buffer_size), mrs(mrs), uniform_vma(mrs->getUniformBufferVideoMemoryAllocator()), graphics_pipeline(graphics_pipeline), camera_index(camera_index), dynamic_state(dynamic_state)
 {
 	createUniformBuffers();
 	createDescriptorSets();
@@ -48,7 +48,8 @@ void RenderingModel::createUniformBuffers()
 
 void RenderingModel::createDescriptorSets()
 {
-	texture->createTexture(mrs);
+	for (auto& texture : textures)
+		texture->createTexture(mrs);
 
 	std::vector<VkDescriptorSetLayout> descriptor_set_layouts(mrs->getDescriptorSetCount(), mrs->getDescriptorSetLayout());
 
@@ -72,18 +73,6 @@ void RenderingModel::createDescriptorSets()
 			uniform_buffer_size
 		};
 
-		VkDescriptorBufferInfo vp_descriptor_buffer_info = {
-			uniform_vma->buffer,
-			mrs->getUniformBufferOffset(camera_index, i),
-			sizeof(ModelRenderSystem::UniformBufferObject)
-		};
-
-		VkDescriptorImageInfo descriptor_image_info = {
-			texture->texture_sampler,
-			texture->texture_image_view,
-			texture->texture_image_layout
-		};
-
 		VkWriteDescriptorSet ubo_write_descriptor_set = {
 			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 			nullptr,
@@ -95,6 +84,12 @@ void RenderingModel::createDescriptorSets()
 			nullptr,
 			&ubo_descriptor_buffer_info,
 			nullptr
+		};
+
+		VkDescriptorBufferInfo vp_descriptor_buffer_info = {
+			uniform_vma->buffer,
+			mrs->getUniformBufferOffset(camera_index, i),
+			sizeof(ModelRenderSystem::UniformBufferObject)
 		};
 
 		VkWriteDescriptorSet vp_write_descriptor_set = {
@@ -110,24 +105,38 @@ void RenderingModel::createDescriptorSets()
 			nullptr
 		};
 
-		VkWriteDescriptorSet sampler_write_descriptor_set = {
-			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			nullptr,
-			descriptor_sets[i],
-			2,
-			0,
-			1,
-			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			&descriptor_image_info,
-			nullptr,
-			nullptr
-		};
-
 		std::vector<VkWriteDescriptorSet> write_descriptor_sets = {
 			ubo_write_descriptor_set,
-			vp_write_descriptor_set,
-			sampler_write_descriptor_set
+			vp_write_descriptor_set
 		};
+
+		std::vector<VkDescriptorImageInfo> descriptor_image_infos(textures.size());
+
+		for (size_t j = 0; j < textures.size(); ++j)
+		{
+			auto& texture = textures[j];
+
+			descriptor_image_infos[j] = {
+				texture->texture_sampler,
+				texture->texture_image_view,
+				texture->texture_image_layout
+			};
+
+			VkWriteDescriptorSet sampler_write_descriptor_set = {
+				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+				nullptr,
+				descriptor_sets[i],
+				j + 2,
+				0,
+				1,
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+				&descriptor_image_infos[j],
+				nullptr,
+				nullptr
+			};
+
+			write_descriptor_sets.emplace_back(sampler_write_descriptor_set);
+		}
 
 		vkUpdateDescriptorSets(mrs->getDevice(), (uint32_t)write_descriptor_sets.size(), write_descriptor_sets.data(), 0, nullptr);
 	}

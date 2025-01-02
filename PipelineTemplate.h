@@ -35,7 +35,7 @@ public:
 
 		VkPipelineMultisampleStateCreateInfo multisample_state_create_info;
 
-		VkPipelineColorBlendAttachmentState color_blend_attachment_state;
+		std::vector<VkPipelineColorBlendAttachmentState> color_blend_attachment_states;
 
 		VkPipelineDepthStencilStateCreateInfo depth_stencil_state_create_info;
 

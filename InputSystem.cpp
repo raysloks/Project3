@@ -54,8 +54,7 @@ void InputSystem::processMouseMoveEvent(SDL_MouseMotionEvent & event)
 	cursorPosition.y = event.y;
 	CursorMoveEvent ev;
 	ev.cursor_index = 0;
-	ev.cursor_position.x = event.x;
-	ev.cursor_position.y = event.y;
+	ev.cursor_position = cursorPosition;
 	engine->mrs->ui->processCursorMoveEvent(ev);
 }
 
@@ -105,6 +104,14 @@ void InputSystem::processTextInputEvent(SDL_TextInputEvent & event)
 		return;
 	for (auto& func : onTextInput)
 		func(text);
+}
+
+void InputSystem::processMouseStayEvent()
+{
+	CursorMoveEvent ev;
+	ev.cursor_index = 0;
+	ev.cursor_position = cursorPosition;
+	engine->mrs->ui->processCursorMoveEvent(ev);
 }
 
 void InputSystem::addKeyDownCallback(uint64_t key, const std::function<void(void)> & callback)
